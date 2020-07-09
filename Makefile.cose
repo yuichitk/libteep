@@ -1,0 +1,26 @@
+#
+# Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+CC		= gcc
+CFLAGS	= -Wall -g
+LDFLAGS	= -lt_cose -lqcbor -lcrypto
+INC   	= -I ./inc -I ./examples/inc
+TARGET	= ./teep_cose_test
+SRCS	= examples/teep_cose_test_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_data.c src/teep_message_print.c src/teep_cose.c
+OBJDIR	= ./obj
+OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
+
+$(TARGET):	$(OBJS)
+			$(CC) -o $@ $^ $(LDFLAGS)
+
+$(OBJDIR)/%.o:	%.c
+				-mkdir -p $(dir $@)
+				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+
+all:		clean $(TARGET)
+
+clean:
+			rm -f $(OBJS) $(TARGET)
