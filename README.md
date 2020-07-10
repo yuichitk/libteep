@@ -1,5 +1,5 @@
 # [libteep](https://github.com/yuichitk/libteep/)
-**libcteep** is a C library for encoding/decoding [TEEP Protocol](https://tools.ietf.org/html/draft-ietf-teep-protocol) messages.
+**libcteep** is a C library for encoding/decoding [IETF TEEP Protocol](https://tools.ietf.org/html/draft-ietf-teep-protocol) messages.
 
 ## Overview
  - Implemented C-native data representation.
@@ -50,6 +50,32 @@ make -f Makefile.client
 ```bash
 sudo apt-get install libcurl4-openssl-dev
 ```
+
+## TEEP Protocol Message Examples
+The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-02](https://tools.ietf.org/html/draft-ietf-teep-protocol-02).
+- QueryRequest
+  - [query_request_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request_cose.md)
+  - [query_request_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request_cose.cbor)
+
+- QueryResponse
+  - [query_response_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.md)
+  - [query_response_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.cbor)
+
+- TrustedAppInstall
+  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)
+  - [trusted_app_install_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.cbor)
+
+- TrustedAppDelete
+  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)
+  - [trusted_app_delete_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_delete_cose.cbor)
+
+- Success
+  - [teep_success_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.md)
+  - [teep_success_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.cbor)
+
+- Error
+  - [teep_error_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error_cose.md)
+  - [teep_error_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error_cose.cbor)
 
 ## License and Copyright
 BSD 2-Clause License
