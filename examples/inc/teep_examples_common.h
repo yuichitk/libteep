@@ -11,31 +11,29 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define TEEP_AGENT_PRIVATE_KEY_PRIME256V1 \
-"60fe6dd6d85d5740a5349b6f91267e" \
-"eac5ba81b8cb53ee249e4b4eb102c4" \
-"76b3"
+#define TEEP_EXAMPLE_SUCCESS    1
+#define TEEP_EXAMPLE_ERROR      0
 
-#define TEEP_AGENT_PUBLIC_KEY_PRIME256V1 \
-"045886cd61dd875862e5aaa820e7a1" \
-"5274c968a9bc96048ddcace32f50c3" \
-"651ba39eed8125e932cd60c0ead365" \
-"0d0a485cf726d378d1b016ed4298b2" \
-"961e258f1b"
+#define PRIME256V1_PUBLIC_KEY_DER_SIZE      91
+#define PRIME256V1_PUBLIC_KEY_CHAR_SIZE     130
+#define PRIME256V1_PRIVATE_KEY_DER_SIZE     121
+#define PRIME256V1_PRIVATE_KEY_CHAR_SIZE    64
 
-#define TAM_PRIVATE_KEY_PRIME256V1 \
-"ac56b410b2fadbdd3411044d29c58b" \
-"d4c5ea5b60e6a1601e79b8e6b6070d" \
-"1bc6"
+#define PRIME256V1_PRIVATE_KEY_START_INDEX  7
+#define PRIME256V1_PRIVATE_KEY_LENGTH       32
+#define PRIME256V1_PUBLIC_KEY_IN_KEY_PAIR_START_INDEX  56
+#define PRIME256V1_PUBLIC_KEY_START_INDEX   26
+#define PRIME256V1_PUBLIC_KEY_LENGTH        65
 
-#define TAM_PUBLIC_KEY_PRIME256V1 \
-"044d5e5f3367ec6e411f0ec397452a" \
-"c02e6541b212761314548a62937926" \
-"4c5a44308aeffc285e452ede343c0f" \
-"35d21e0e2d3751f8bd32496f90af26" \
-"4d686ecded"
+typedef struct uint8_buf {
+    uint8_t     *ptr;
+    size_t      len;
+} uint8_buf_t;
 
-uint8_t *teep_read_file(const char * file_name, size_t *size);
+size_t read_file(const char *file_path, const size_t write_buf_len, uint8_t *write_buf);
+void read_prime256v1_key_pair(const uint8_t *key_der, char *private_key, char *public_key);
+void read_prime256v1_public_key(const uint8_t *public_key_der, char *public_key);
 
 #endif  /* TEEP_EXAMPLES_COMMON_H */

@@ -4,9 +4,9 @@
 ## Overview
  - Implemented C-native data representation.
  - Using [QCBOR](https://github.com/laurencelundblade/QCBOR) and [t_cose](https://github.com/laurencelundblade/t_cose) for decoding signed CBOR binary data.
- - There are 3 sample codes for interoperability testing. 
+ - There are 3 sample codes for interoperability testing.
    1. Verifying and Decoding TEEP Protocol message binary.
-   2. Signing and Encoding TEEP Protocol message binary. 
+   2. Signing and Encoding TEEP Protocol message binary.
    3. TEEP/HTTP Client Communicating with TEEP/HTTP Server using TEEP-over-HTTP.
    - The above TEEP Protocol message is protected by the COSE_Sign1 structure.
 
@@ -30,13 +30,15 @@ Make and run sample codes you need.
 1. teep_message_parser
 ```bash
 make -f Makefile.parser
-./teep_message_parser ./testfiles/query_request_cose.cbor
+./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/query_request_cose.cbor
+./teep_message_parser ./testfiles/key/teep_agent_prime256v1_pub.der ./testfiles/query_response_cose.cbor
 ```
 
 2. teep_cose_test
 ```bash
 make -f Makefile.cose
-./teep_cose_test ./testfiles/cbor/query_request.cbor 
+./teep_cose_test ./testfiles/key/tam_prime256v1.der ./testfiles/cbor/query_request.cbor
+./teep_cose_test ./testfiles/key/teep_agent_prime256v1.der ./testfiles/cbor/query_response.cbor
 ```
 
 3. teep_http_client

@@ -14,10 +14,30 @@
 
 #define TAM_URL                         "http://localhost:8080/tam"
 #define MAX_RECIEVE_BUFFER_SIZE         1024
+#define MAX_FILE_BUFFER_SIZE            512
 #define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/query_response_cose.cbor"
 #define TEEP_SUCCESS_CBOR_FILE          "./testfiles/teep_success_cose.cbor"
+#define TAM_PUBLIC_KEY_DER_FILE         "./testfiles/key/tam_prime256v1_pub.der"
 
 int main(int argc, const char * argv[]) {
+    // Read der file.
+    printf("\nmain : Read DER file.\n");
+    uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
+    size_t der_len = read_file(TAM_PUBLIC_KEY_DER_FILE, PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
+    if (!der_len) {
+        printf("main : Can't read DER file.\n");
+        return EXIT_FAILURE;
+    }
+    print_hex(der_buf, der_len);
+    printf("\n");
+
+    // Read key from der file.
+    // This code is only available for openssl prime256v1.
+    printf("\nmain : Read key from DER file.\n");
+    char key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE];
+    read_prime256v1_public_key(der_buf, key_buf);
+    printf("%s\n", key_buf);
+
     // Send TEEP/HTTP POST request.
     printf("\nmain : Send TEEP/HTTP POST request.\n");
     teep_buf_t          recv_buffer;
@@ -38,7 +58,7 @@ int main(int argc, const char * argv[]) {
     printf("\n");
     UsefulBufC query_request_payload;
     int32_t result_cose;
-    result_cose = verify_cose_sign1(&query_request_cose, TAM_PUBLIC_KEY_PRIME256V1, &query_request_payload);
+    result_cose = verify_cose_sign1(&query_request_cose, key_buf, &query_request_payload);
     if (result_cose) {
         printf("main : Fail to verify QueryRequest cose.\n");
         return EXIT_FAILURE;
@@ -51,10 +71,10 @@ int main(int argc, const char * argv[]) {
 
     // Read QueryResponse cbor file.
     printf("main : Read QueryResponse cbor file.\n");
-    size_t file_length;
-    uint8_t *query_response_file_bytes = teep_read_file(TEEP_QUERY_RESPONSE_CBOR_FILE, &file_length);
+    uint8_t query_response_file_bytes[MAX_FILE_BUFFER_SIZE];
+    size_t file_length = read_file(TEEP_QUERY_RESPONSE_CBOR_FILE, MAX_FILE_BUFFER_SIZE, query_response_file_bytes);
     if (!file_length) {
-        printf("main : Can't read QueryResponse cbor file.\n");
+        printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
     print_hex(query_response_file_bytes, file_length);
@@ -72,7 +92,7 @@ int main(int argc, const char * argv[]) {
     // Verify and print TrustedAppInstall cose.
     UsefulBufC trusted_app_install_cose = {recv_buffer.ptr, recv_buffer.len};
     UsefulBufC trusted_app_install_payload;
-    result_cose = verify_cose_sign1(&trusted_app_install_cose, TAM_PUBLIC_KEY_PRIME256V1, &trusted_app_install_payload);
+    result_cose = verify_cose_sign1(&trusted_app_install_cose, key_buf, &trusted_app_install_payload);
     if (result_cose) {
         printf("main : Fail to verify TrustedAppInstall cose.\n");
         return EXIT_FAILURE;
@@ -85,7 +105,8 @@ int main(int argc, const char * argv[]) {
 
     // Read Success cbor file.
     printf("main : Read Success cbor file.\n");
-    uint8_t *success_file_bytes = teep_read_file(TEEP_SUCCESS_CBOR_FILE, &file_length);
+    uint8_t success_file_bytes[MAX_FILE_BUFFER_SIZE];
+    file_length = read_file(TEEP_SUCCESS_CBOR_FILE, MAX_FILE_BUFFER_SIZE, success_file_bytes);
     if (!file_length) {
         printf("main : Can't read Success cbor file.\n");
         return EXIT_FAILURE;

@@ -14,37 +14,59 @@
 #include "openssl/ecdsa.h"
 #include "openssl/obj_mac.h"
 
+#define MAX_FILE_BUFFER_SIZE                512
+
 int main(int argc, const char * argv[]) {
     // Check arguments.
-    if (argc < 2) {
-        printf("teep_cose_test <filename>\n");
+    if (argc < 3) {
+        printf("teep_cose_test <DER file path> <CBOR file path>\n");
         return EXIT_FAILURE;
     }
 
-    // Read cbor file.
-    printf("main : Read file.\n");
-    size_t file_length;
-    uint8_t *file_bytes = teep_read_file(argv[1], &file_length);
-    if (!file_length) {
-        printf("Can't read file.\n");
+    // Read der file.
+    printf("\nmain : Read DER file.\n");
+    uint8_t der_buf[PRIME256V1_PRIVATE_KEY_DER_SIZE];
+    size_t der_len = read_file(argv[1], PRIME256V1_PRIVATE_KEY_DER_SIZE, der_buf);
+    if (!der_len) {
+        printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(file_bytes, file_length);
+    print_hex(der_buf, der_len);
     printf("\n");
+
+    // Read key from der file.
+    // This code is only available for openssl prime256v1.
+    printf("\nmain : Read key from DER file.\n");
+    char private_key_buf[PRIME256V1_PRIVATE_KEY_CHAR_SIZE];
+    char public_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE];
+    read_prime256v1_key_pair(der_buf, private_key_buf, public_key_buf);
+    printf("private_key_buf : %s\n", private_key_buf);
+    printf("public_key_buf : %s\n\n", public_key_buf);
 
     // Make an ECDSA private key.
     struct t_cose_key   private_key;
     int32_t             result;
-    result = create_es256_key_pair(TAM_PRIVATE_KEY_PRIME256V1, TAM_PUBLIC_KEY_PRIME256V1, &private_key);
+    result = create_es256_key_pair(private_key_buf, public_key_buf, &private_key);
     if (result) {
         printf("Fail make_ossl_ecdsa_key_pair : result = %d\n", result);
         return EXIT_FAILURE;
     }
 
+    // Read cbor file.
+    printf("main : Read CBOR file.\n");
+    uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
+    size_t cbor_len = read_file(argv[2], MAX_FILE_BUFFER_SIZE, cbor_buf);
+    if (!cbor_len) {
+        printf("main : Can't read CBOR file.\n");
+        return EXIT_FAILURE;
+    }
+    print_hex(cbor_buf, cbor_len);
+    printf("\n");
+
     // Create cose signed file.
-    printf("main : Create signed cose file.\n");
+    printf("\nmain : Create signed cose file.\n");
     struct t_cose_sign1_sign_ctx    sign_ctx;
-    UsefulBufC                      constructed_payload = {file_bytes, file_length};
+    UsefulBufC                      constructed_payload = {cbor_buf, cbor_len};
     UsefulBuf_MAKE_STACK_UB(        signed_cose_buffer, 300);
     UsefulBufC                      signed_cose;
 
@@ -60,7 +82,6 @@ int main(int argc, const char * argv[]) {
         printf("Fail t_cose_sign1_sign : result = %d\n", result);
         return EXIT_FAILURE;
     }
-    printf("\nmain : Print signed cose bytes\n");
     print_hex(signed_cose.ptr, signed_cose.len);
     printf("\n");
 
@@ -69,12 +90,12 @@ int main(int argc, const char * argv[]) {
     // Verify cose signed file.
     UsefulBufC returned_payload;
     int32_t result_cose;
-    result_cose = verify_cose_sign1(&signed_cose, TAM_PUBLIC_KEY_PRIME256V1, &returned_payload);
+    result_cose = verify_cose_sign1(&signed_cose, public_key_buf, &returned_payload);
     if (result_cose) {
         printf("Fail to verify file.\n");
         return EXIT_FAILURE;
     }
-    printf("\nmain : Verify successs, Print cose payload\n");
+    printf("\nmain : Success to verify. Print cose payload.\n");
     print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
