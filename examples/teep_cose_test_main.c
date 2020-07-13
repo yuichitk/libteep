@@ -14,7 +14,8 @@
 #include "openssl/ecdsa.h"
 #include "openssl/obj_mac.h"
 
-#define MAX_FILE_BUFFER_SIZE                512
+#define MAX_FILE_BUFFER_SIZE                1024
+#define MAX_COSE_BUFFER_SIZE                1024
 
 int main(int argc, const char * argv[]) {
     // Check arguments.
@@ -67,7 +68,7 @@ int main(int argc, const char * argv[]) {
     printf("\nmain : Create signed cose file.\n");
     struct t_cose_sign1_sign_ctx    sign_ctx;
     UsefulBufC                      constructed_payload = {cbor_buf, cbor_len};
-    UsefulBuf_MAKE_STACK_UB(        signed_cose_buffer, 300);
+    UsefulBuf_MAKE_STACK_UB(        signed_cose_buffer, 1024);
     UsefulBufC                      signed_cose;
 
     t_cose_sign1_sign_init(&sign_ctx, 0, T_COSE_ALGORITHM_ES256);
