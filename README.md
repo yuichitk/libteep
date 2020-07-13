@@ -66,6 +66,8 @@ The following description Markdown and CBOR files are compliant with [draft-ietf
 - TrustedAppInstall
   - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)
   - [trusted_app_install_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.cbor)
+  - [trusted_app_install_with_manifest_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_with_manifest_cose.md)
+  - [trusted_app_install_with_manifest_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_with_manifest_cose.cbor)
 
 - TrustedAppDelete
   - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)

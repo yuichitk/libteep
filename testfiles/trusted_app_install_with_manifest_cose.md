@@ -4,7 +4,7 @@
  SPDX-License-Identifier: BSD-2-Clause
 -->
 
-# TrustedAppInstall
+# TrustedAppInstall with SUIT Manifest
     https://tools.ietf.org/html/draft-ietf-teep-protocol-02#appendix-C
 
 ## CBOR Diagnostic
@@ -33,4 +33,4 @@
     key/tam_prime256v1.pem
 
 ## Payload CBOR definition
-    cbor/trusted_app_install.md
+    cbor/trusted_app_install_with_manifest.md
