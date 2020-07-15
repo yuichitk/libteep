@@ -32,6 +32,7 @@ Make and run sample codes you need.
 make -f Makefile.parser
 ./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/query_request_cose.cbor
 ./teep_message_parser ./testfiles/key/teep_agent_prime256v1_pub.der ./testfiles/query_response_cose.cbor
+./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/trusted_app_install_with_manifest_cose.cbor
 ```
 
 2. teep_cose_test
@@ -39,6 +40,7 @@ make -f Makefile.parser
 make -f Makefile.cose
 ./teep_cose_test ./testfiles/key/tam_prime256v1.der ./testfiles/cbor/query_request.cbor
 ./teep_cose_test ./testfiles/key/teep_agent_prime256v1.der ./testfiles/cbor/query_response.cbor
+./teep_cose_test ./testfiles/key/tam_prime256v1.der ./testfiles/cbor/trusted_app_install_with_manifest.cbor
 ```
 
 3. teep_http_client
