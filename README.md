@@ -65,9 +65,9 @@ The following description Markdown and CBOR files are compliant with [draft-ietf
   - [query_response.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response.md)
   - [query_response.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response.cbor)
 
-- TrustedAppInstall
-  - [trusted_app_install.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install.md)
-  - [trusted_app_install.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install.cbor)
+- Install
+  - [install.md](https://github.com/yuichitk/libteep/blob/master/testfiles/install.md)
+  - [install.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/install.cbor)
 
 - Success
   - [teep_success.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.md)
