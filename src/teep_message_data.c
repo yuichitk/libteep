@@ -127,6 +127,7 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
+    query_request->supported_suites.len = 0;
     query_request->suite = TEEP_SUITE_INVALID;
     query_request->nonce.len = 0;
     query_request->version.len = 0;
