@@ -58,30 +58,30 @@ sudo apt-get install libcurl4-openssl-dev
 ## TEEP Protocol Message Examples
 The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-02](https://tools.ietf.org/html/draft-ietf-teep-protocol-02).
 - QueryRequest
-  - [query_request_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request_cose.md)
-  - [query_request_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request_cose.cbor)
+  - [query_request_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/query_request_cose.md)
+  - [query_request_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/query_request_cose.cbor)
 
 - QueryResponse
-  - [query_response_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.md)
-  - [query_response_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.cbor)
+  - [query_response_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/query_response_cose.md)
+  - [query_response_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/query_response_cose.cbor)
 
 - TrustedAppInstall
-  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)
-  - [trusted_app_install_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.cbor)
-  - [trusted_app_install_with_manifest_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_with_manifest_cose.md)
-  - [trusted_app_install_with_manifest_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_with_manifest_cose.cbor)
+  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_install_cose.md)
+  - [trusted_app_install_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_install_cose.cbor)
+  - [trusted_app_install_with_manifest_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_install_with_manifest_cose.md)
+  - [trusted_app_install_with_manifest_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_install_with_manifest_cose.cbor)
 
 - TrustedAppDelete
-  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_install_cose.md)
-  - [trusted_app_delete_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/trusted_app_delete_cose.cbor)
+  - [trusted_app_install_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_install_cose.md)
+  - [trusted_app_delete_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/trusted_app_delete_cose.cbor)
 
 - Success
-  - [teep_success_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.md)
-  - [teep_success_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.cbor)
+  - [teep_success_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/teep_success_cose.md)
+  - [teep_success_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/teep_success_cose.cbor)
 
 - Error
-  - [teep_error_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error_cose.md)
-  - [teep_error_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error_cose.cbor)
+  - [teep_error_cose.md](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/teep_error_cose.md)
+  - [teep_error_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/cose/teep_error_cose.cbor)
 
 ## License and Copyright
 BSD 2-Clause License
