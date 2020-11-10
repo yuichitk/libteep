@@ -30,9 +30,9 @@ Make and run sample codes you need.
 1. teep_message_parser
 ```bash
 make -f Makefile.parser
-./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/query_request_cose.cbor
-./teep_message_parser ./testfiles/key/teep_agent_prime256v1_pub.der ./testfiles/query_response_cose.cbor
-./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/trusted_app_install_with_manifest_cose.cbor
+./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/cose/query_request_cose.cbor
+./teep_message_parser ./testfiles/key/teep_agent_prime256v1_pub.der ./testfiles/cose/query_response_cose.cbor
+./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/cose/trusted_app_install_with_manifest_cose.cbor
 ```
 
 2. teep_cose_test
