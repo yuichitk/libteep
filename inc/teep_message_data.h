@@ -99,6 +99,7 @@ typedef struct teep_buf_array {
 typedef struct teep_query_request {
     teep_type_t                type;
     uint32_t                   token;
+    teep_uint_array_t          supported_suites;
     teep_suite_t               suite;
     teep_buf_t		           nonce;
     teep_uint_array_t          version;

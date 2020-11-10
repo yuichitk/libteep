@@ -16,6 +16,13 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     printf("    type : %u\n", query_request->type);
     printf("    token : %u\n", query_request->token);
     printf("    options :\n");
+    if (query_request->supported_suites.len > 0) {
+        printf("      supported-suites : [");
+        for (size_t i = 0; i < query_request->supported_suites.len; i++) {
+            printf("%u, ", query_request->supported_suites.items[i]);
+        }
+        printf("]\n");
+    }
     if (query_request->suite != TEEP_SUITE_INVALID) {
         printf("      suite : %u\n", query_request->suite);
     }

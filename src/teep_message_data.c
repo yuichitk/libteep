@@ -136,6 +136,12 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
+            case TEEP_OPTIONS_KEY_CIPHER_SUITES:
+                result = set_teep_uint_array(message, &item, &error, &query_request->supported_suites);
+                if (result != TEEP_SUCCESS) {
+                    return result;
+                }
+                break;
             case TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE:
                 if (item.uDataType != QCBOR_TYPE_INT64) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
