@@ -192,21 +192,21 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
             set_teep_query_response(&decode_context, &query_response);
             print_teep_query_response(&query_response);
             break;
-        case TEEP_TYPE_TRUSTED_APP_INSTALL:
+        case TEEP_TYPE_INSTALL:
             set_teep_trusted_app_install(&decode_context, &app_install);
             print_teep_trusted_app_install(&app_install);
             break;
-        case TEEP_TYPE_TRSUTED_APP_DELETE:
+        case TEEP_TYPE_DELETE:
             set_teep_trusted_app_delete(&decode_context, &app_delete);
             print_teep_trusted_app_delete(&app_delete);
             break;
-        case TEEP_TYPE_ERROR:
-            set_teep_error(&decode_context, &teep_error);
-            print_teep_error(&teep_error);
-            break;
-        case TEEP_TYPE_SUCCESS:
+        case TEEP_TYPE_TEEP_SUCCESS:
             set_teep_success(&decode_context, &teep_success);
             print_teep_success(&teep_success);
+            break;
+        case TEEP_TYPE_TEEP_ERROR:
+            set_teep_error(&decode_context, &teep_error);
+            print_teep_error(&teep_error);
             break;
         default:
             print_debug_string("print_teep_message : Undefined value.\n");

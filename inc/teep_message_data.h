@@ -23,10 +23,10 @@ typedef enum teep_type {
     TEEP_TYPE_INVALID                       = 0,
     TEEP_TYPE_QUERY_REQUEST                 = 1,
     TEEP_TYPE_QUERY_RESPONSE                = 2,
-    TEEP_TYPE_TRUSTED_APP_INSTALL           = 3,
-    TEEP_TYPE_TRSUTED_APP_DELETE            = 4,
-    TEEP_TYPE_ERROR                         = 5,
-    TEEP_TYPE_SUCCESS                       = 6
+    TEEP_TYPE_INSTALL                       = 3,
+    TEEP_TYPE_DELETE                        = 4,
+    TEEP_TYPE_TEEP_SUCCESS                  = 5,
+    TEEP_TYPE_TEEP_ERROR                    = 6
 } teep_type_t;
 
 /*
