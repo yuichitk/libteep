@@ -15,8 +15,8 @@
 #define TAM_URL                         "http://localhost:8080/tam"
 #define MAX_RECIEVE_BUFFER_SIZE         1024
 #define MAX_FILE_BUFFER_SIZE            512
-#define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/query_response_cose.cbor"
-#define TEEP_SUCCESS_CBOR_FILE          "./testfiles/teep_success_cose.cbor"
+#define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/cose/query_response_cose.cbor"
+#define TEEP_SUCCESS_CBOR_FILE          "./testfiles/cose/teep_success_cose.cbor"
 #define TAM_PUBLIC_KEY_DER_FILE         "./testfiles/key/tam_prime256v1_pub.der"
 
 int main(int argc, const char * argv[]) {
