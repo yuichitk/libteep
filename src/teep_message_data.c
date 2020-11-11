@@ -238,8 +238,8 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
     return TEEP_SUCCESS;
 }
 
-int32_t set_teep_trusted_app_install(QCBORDecodeContext *message,
-                                     teep_trusted_app_install_t *app_install) {
+int32_t set_teep_install(QCBORDecodeContext *message,
+                                     teep_install_t *app_install) {
     QCBORItem  item;
     QCBORError error;
     int32_t result = set_teep_type_token(message, &item, &error, &app_install->type, &app_install->token);
@@ -270,8 +270,8 @@ int32_t set_teep_trusted_app_install(QCBORDecodeContext *message,
     return TEEP_SUCCESS;
 }
 
-int32_t set_teep_trusted_app_delete(QCBORDecodeContext *message,
-                                    teep_trusted_app_delete_t *app_delete) {
+int32_t set_teep_delete(QCBORDecodeContext *message,
+                                    teep_delete_t *app_delete) {
     QCBORItem  item;
     QCBORError error;
     int32_t result = set_teep_type_token(message, &item, &error, &app_delete->type, &app_delete->token);

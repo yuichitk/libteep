@@ -90,18 +90,18 @@ int main(int argc, const char * argv[]) {
     }
 
     // Verify and print TrustedAppInstall cose.
-    UsefulBufC trusted_app_install_cose = {recv_buffer.ptr, recv_buffer.len};
-    UsefulBufC trusted_app_install_payload;
-    result_cose = verify_cose_sign1(&trusted_app_install_cose, key_buf, &trusted_app_install_payload);
+    UsefulBufC install_cose = {recv_buffer.ptr, recv_buffer.len};
+    UsefulBufC install_payload;
+    result_cose = verify_cose_sign1(&install_cose, key_buf, &install_payload);
     if (result_cose) {
         printf("main : Fail to verify TrustedAppInstall cose.\n");
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
-    print_hex(trusted_app_install_payload.ptr, trusted_app_install_payload.len);
+    print_hex(install_payload.ptr, install_payload.len);
     printf("\n");
     printf("\nmain : Print payload\n");
-    print_teep_message(trusted_app_install_payload.ptr, trusted_app_install_payload.len);
+    print_teep_message(install_payload.ptr, install_payload.len);
 
     // Read Success cbor file.
     printf("main : Read Success cbor file.\n");
