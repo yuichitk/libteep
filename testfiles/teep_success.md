@@ -12,6 +12,11 @@
     [
         5,          / type : TEEP-TYPE-teep-success = 5 (fixed int) /
         2004318072, / token : 0x777777778 (uint), from Install message /
+        /options :  /
+        {
+            11 : "success"  / msg = 11 (mapkey) :
+                                "success" (UTF-8 string) /
+        }
     ]
 
 
@@ -20,10 +25,10 @@
        05                   # unsigned(5)
        1A 77777778          # unsigned(2004318072)
        A1                   # map(1)
-          11                # unsigned(17)
+          0B                # unsigned(11)
           67                # text(7)
              73756363657373 # "success"
 
 
 ## Command
-    echo -en "\x83\x05\x1A\x77\x77\x77\x78\xA1\x11\x67\x73\x75\x63\x63\x65\x73\x73" > teep_success.cbor
+    echo -en "\x83\x05\x1A\x77\x77\x77\x78\xA1\x0B\x67\x73\x75\x63\x63\x65\x73\x73" > teep_success.cbor
