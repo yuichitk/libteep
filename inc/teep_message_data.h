@@ -127,24 +127,24 @@ typedef struct teep_query_response {
 /*
  * trusted-app-install
  */
-typedef struct teep_trusted_app_install {
+typedef struct teep_install {
     teep_type_t             type;
     uint32_t                token;
     teep_buf_array_t        manifest_list;
     // TODO :               trusted-app-install-extensions
     // TODO :               teep-option-extensions
-} teep_trusted_app_install_t;
+} teep_install_t;
 
 /*
  * trusted-app-delete
  */
-typedef struct teep_trusted_app_delete {
+typedef struct teep_delete {
     teep_type_t             type;
     uint32_t                token;
     teep_buf_array_t        ta_list;
     // TODO : $$trusted-app-delete-extensions
     // TODO : $$teep-option-extensions
-} teep_trusted_app_delete_t;
+} teep_delete_t;
 
 /*
  * teep-success
@@ -174,8 +174,8 @@ typedef struct teep_error {
 uint64_t get_teep_message_type(QCBORDecodeContext *teep_message);
 int32_t set_teep_query_request(QCBORDecodeContext *teep_message, teep_query_request_t *query_request);
 int32_t set_teep_query_response(QCBORDecodeContext *teep_message, teep_query_response_t *query_response);
-int32_t set_teep_trusted_app_install(QCBORDecodeContext *teep_message, teep_trusted_app_install_t *app_install);
-int32_t set_teep_trusted_app_delete(QCBORDecodeContext *teep_message, teep_trusted_app_delete_t *app_delete);
+int32_t set_teep_install(QCBORDecodeContext *teep_message, teep_install_t *app_install);
+int32_t set_teep_delete(QCBORDecodeContext *teep_message, teep_delete_t *app_delete);
 int32_t set_teep_success(QCBORDecodeContext *teep_message, teep_success_t *success);
 int32_t set_teep_error(QCBORDecodeContext *teep_message, teep_error_t *error);
 

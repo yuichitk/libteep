@@ -86,7 +86,7 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     }
 }
 
-void print_teep_trusted_app_install(const teep_trusted_app_install_t *app_install) {
+void print_teep_install(const teep_install_t *app_install) {
     printf("  TrustedAppInstall :\n");
     printf("    type : %u\n", app_install->type);
     printf("    token : %u\n", app_install->token);
@@ -108,7 +108,7 @@ void print_teep_trusted_app_install(const teep_trusted_app_install_t *app_instal
     }
 }
 
-void print_teep_trusted_app_delete(const teep_trusted_app_delete_t *app_delete) {
+void print_teep_delete(const teep_delete_t *app_delete) {
     printf("  TrustedAppDelete :\n");
     printf("    type : %u\n", app_delete->type);
     printf("    token : %u\n", app_delete->token);
@@ -186,8 +186,8 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
                      QCBOR_DECODE_MODE_NORMAL);
     teep_query_request_t query_request;
     teep_query_response_t query_response;
-    teep_trusted_app_install_t app_install;
-    teep_trusted_app_delete_t app_delete;
+    teep_install_t app_install;
+    teep_delete_t app_delete;
     teep_success_t teep_success;
     teep_error_t teep_error;
     switch (message_type) {
@@ -200,12 +200,12 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
             print_teep_query_response(&query_response);
             break;
         case TEEP_TYPE_INSTALL:
-            set_teep_trusted_app_install(&decode_context, &app_install);
-            print_teep_trusted_app_install(&app_install);
+            set_teep_install(&decode_context, &app_install);
+            print_teep_install(&app_install);
             break;
         case TEEP_TYPE_DELETE:
-            set_teep_trusted_app_delete(&decode_context, &app_delete);
-            print_teep_trusted_app_delete(&app_delete);
+            set_teep_delete(&decode_context, &app_delete);
+            print_teep_delete(&app_delete);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
             set_teep_success(&decode_context, &teep_success);
