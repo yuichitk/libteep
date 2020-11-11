@@ -30,4 +30,4 @@
           80                  # array(0)
 
 ## Command
-    echo -en "\x83\x03\x1A\x77\x77\x77\x78\xA1\x0A\x80" > trusted_app_install.cbor
+    echo -en "\x83\x03\x1A\x77\x77\x77\x78\xA1\x0A\x80" > install.cbor
