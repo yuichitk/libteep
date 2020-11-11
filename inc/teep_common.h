@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 // Function results
+#define TEEP_NO_MEMORY                      3
 #define TEEP_UNEXPECTED_ERROR               2
 #define TEEP_INVALID_TYPE_OF_ARGUMENT       1
 #define TEEP_SUCCESS                        0

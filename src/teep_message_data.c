@@ -74,6 +74,9 @@ int32_t set_teep_uint_array(QCBORDecodeContext *message,
         printf("\nset_teep_uint_array : Error! uDataType = %d\n", item->uDataType);
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
+    if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
+        return TEEP_NO_MEMORY;
+    }
     uint_arr->len = item->val.uCount;
     for (size_t j = 0; j < uint_arr->len; j++) {
         if (!qcbor_get_next(message, QCBOR_TYPE_INT64, item, error)) {
@@ -91,6 +94,9 @@ int32_t set_teep_buf_array(QCBORDecodeContext *message,
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
         printf("\nset_teep_buf_array : Error! uDataType = %d\n", item->uDataType);
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
+    }
+    if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
+        return TEEP_NO_MEMORY;
     }
     buf_arr->len = item->val.uCount;
     for (size_t j = 0; j < buf_arr->len; j++) {
@@ -365,6 +371,9 @@ int32_t set_teep_error(QCBORDecodeContext *message,
                 if (item.uDataType != QCBOR_TYPE_ARRAY) {
                     printf("\nset_teep_error : Error! uDataType = %d\n", item.uDataType);
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
+                }
+                if (item.val.uCount > TEEP_MAX_ARRAY_LENGTH) {
+                    return TEEP_NO_MEMORY;
                 }
                 teep_error->suite.len = item.val.uCount;
                 for (size_t j = 0; j < teep_error->suite.len; j++) {
