@@ -16,7 +16,7 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     printf("    type : %u\n", query_request->type);
     printf("    token : %u\n", query_request->token);
     printf("    options :\n");
-    if (query_request->supported_suites.len > 0) {
+    if (TEEP_ARRAY_IS_NOT_NULL(query_request->supported_suites)) {
         printf("      supported-suites : [");
         for (size_t i = 0; i < query_request->supported_suites.len; i++) {
             printf("%u, ", query_request->supported_suites.items[i]);
@@ -26,20 +26,20 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     if (query_request->suite != TEEP_SUITE_INVALID) {
         printf("      suite : %u\n", query_request->suite);
     }
-    if (query_request->nonce.len > 0) {
+    if (TEEP_BUF_IS_NOT_NULL(query_request->nonce)) {
         printf("      nonce : ");
         print_hex(query_request->nonce.ptr, query_request->nonce.len);
         printf("\n");
     }
-    if (query_request->version.len > 0) {
+    if (TEEP_ARRAY_IS_NOT_NULL(query_request->version)) {
         printf("      version : [ ");
         for (size_t i = 0; i < query_request->version.len; i++) {
             printf("%u, ", query_request->version.items[i]);
         }
         printf("]\n");
     }
-    if (query_request->ocsp_data.len > 0) {
-        printf("      oscp-data : ");
+    if (TEEP_BUF_IS_NOT_NULL(query_request->ocsp_data)) {
+        printf("      ocsp-data : ");
         print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
         printf("\n");
     }
@@ -57,13 +57,13 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     if (query_response->version != TEEP_INVALID_VERSION) {
         printf("      version : %u\n", query_response->version);
     }
-    if (query_response->eat.len > 0) {
+    if (TEEP_BUF_IS_NOT_NULL(query_response->eat)) {
         printf("      eat : ");
         print_hex(query_response->eat.ptr, query_response->eat.len);
         printf("\n");
     }
-    if (query_response->ta_list.len > 0) {
-        printf("      ta-list : ");
+    if (TEEP_ARRAY_IS_NOT_NULL(query_response->ta_list)) {
+        printf("      ta-list : [");
         for (size_t i = 0; i < query_response->ta_list.len; i++) {
             printf("No.%ld = ", i);
             if (query_response->ta_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
@@ -75,9 +75,9 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
                 printf(".., ");
             }
         }
-        printf("\n");
+        printf("]\n");
     }
-    if (query_response->ext_info.len > 0) {
+    if (TEEP_ARRAY_IS_NOT_NULL(query_response->ext_info)) {
         printf("      ext-list : ");
         for (size_t i = 0; i < query_response->ext_info.len; i++) {
             printf("%u ", query_response->ext_info.items[i]);
@@ -87,12 +87,12 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
 }
 
 void print_teep_install(const teep_install_t *app_install) {
-    printf("  TrustedAppInstall :\n");
+    printf("  Install :\n");
     printf("    type : %u\n", app_install->type);
     printf("    token : %u\n", app_install->token);
     printf("    options :\n");
-    if (app_install->manifest_list.len > 0) {
-        printf("      manifest-list : ");
+    if (TEEP_ARRAY_IS_NOT_NULL(app_install->manifest_list)) {
+        printf("      manifest-list : [");
         for (size_t i = 0; i < app_install->manifest_list.len; i++) {
             printf("No.%ld = ", i);
             if (app_install->manifest_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
@@ -104,17 +104,17 @@ void print_teep_install(const teep_install_t *app_install) {
                 printf(".., ");
             }
         }
-        printf("\n");
+        printf("]\n");
     }
 }
 
 void print_teep_delete(const teep_delete_t *app_delete) {
-    printf("  TrustedAppDelete :\n");
+    printf("  Delete :\n");
     printf("    type : %u\n", app_delete->type);
     printf("    token : %u\n", app_delete->token);
     printf("    options :\n");
-    if (app_delete->ta_list.len > 0) {
-        printf("      ta-list : ");
+    if (TEEP_ARRAY_IS_NOT_NULL(app_delete->ta_list)) {
+        printf("      ta-list : [");
         for (size_t i = 0; i < app_delete->ta_list.len; i++) {
             printf("No.%ld = ", i);
             if (app_delete->ta_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
@@ -127,7 +127,7 @@ void print_teep_delete(const teep_delete_t *app_delete) {
             }
             printf(".., ");
         }
-        printf("\n");
+        printf("]\n");
     }
 }
 
@@ -136,7 +136,7 @@ void print_teep_error(const teep_error_t *error) {
     printf("    type : %u\n", error->type);
     printf("    token : %u\n", error->token);
     printf("    options :\n");
-    if (error->err_msg.len > 0) {
+    if (TEEP_BUF_IS_NOT_NULL(error->err_msg)) {
         printf("      err-msg : ");
         if (error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
             print_text(error->err_msg.ptr, error->err_msg.len);
@@ -147,14 +147,14 @@ void print_teep_error(const teep_error_t *error) {
             printf("..\n");
         }
     }
-    if (error->suite.len > 0) {
+    if (TEEP_ARRAY_IS_NOT_NULL(error->suite)) {
         printf("      suite : ");
         for (size_t i = 0; i < error->suite.len; i++) {
             printf("%u ", error->suite.items[i]);
         }
         printf("\n");
     }
-    if (error->version.len > 0) {
+    if (TEEP_ARRAY_IS_NOT_NULL(error->version)) {
         printf("      version : ");
         for (size_t i = 0; i < error->version.len; i++) {
             printf("%u ", error->version.items[i]);
@@ -170,7 +170,7 @@ void print_teep_success(const teep_success_t *success) {
     printf("    type : %u\n", success->type);
     printf("    token : %u\n", success->token);
     printf("    options :\n");
-    if (success->msg.len > 0) {
+    if (TEEP_BUF_IS_NOT_NULL(success->msg)) {
         printf("    msg : ");
         if (success->msg.len <= MAX_PRINT_TEXT_COUNT) {
             print_text(success->msg.ptr, success->msg.len);

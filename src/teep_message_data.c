@@ -133,11 +133,12 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
-    query_request->supported_suites.len = 0;
+    INITIALIZE_TEEP_ARRAY(query_request->supported_suites);
     query_request->suite = TEEP_SUITE_INVALID;
-    query_request->nonce.len = 0;
-    query_request->version.len = 0;
-    query_request->ocsp_data.len = 0;
+    INITIALIZE_TEEP_BUF(query_request->nonce);
+    INITIALIZE_TEEP_ARRAY(query_request->version);
+    INITIALIZE_TEEP_BUF(query_request->ocsp_data);
+    query_request->data_item_requested = TEEP_DATA_ITEM_INVALID;
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -199,9 +200,9 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
     uint16_t map_count = item.val.uCount;
     query_response->suite = TEEP_SUITE_INVALID;
     query_response->version = TEEP_INVALID_VERSION;
-    query_response->eat.len = 0;
-    query_response->ta_list.len = 0;
-    query_response->ext_info.len = 0;
+    INITIALIZE_TEEP_BUF(query_response->eat);
+    INITIALIZE_TEEP_ARRAY(query_response->ta_list);
+    INITIALIZE_TEEP_ARRAY(query_response->ext_info);
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -257,7 +258,7 @@ int32_t set_teep_install(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
-    app_install->manifest_list.len = 0;
+    INITIALIZE_TEEP_ARRAY(app_install->manifest_list);
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -289,7 +290,7 @@ int32_t set_teep_delete(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
-    app_delete->ta_list.len = 0;
+    INITIALIZE_TEEP_ARRAY(app_delete->ta_list);
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -321,7 +322,7 @@ int32_t set_teep_success(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
-    teep_success->msg.len = 0;
+    INITIALIZE_TEEP_BUF(teep_success->msg);
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -353,9 +354,9 @@ int32_t set_teep_error(QCBORDecodeContext *message,
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     uint16_t map_count = item.val.uCount;
-    teep_error->err_msg.len = 0;
-    teep_error->suite.len = 0;
-    teep_error->version.len = 0;
+    INITIALIZE_TEEP_BUF(teep_error->err_msg);
+    INITIALIZE_TEEP_ARRAY(teep_error->suite);
+    INITIALIZE_TEEP_ARRAY(teep_error->version);
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
