@@ -138,8 +138,14 @@ void print_teep_error(const teep_error_t *error) {
     printf("    options :\n");
     if (error->err_msg.len > 0) {
         printf("      err-msg : ");
-        print_hex(error->err_msg.ptr, error->err_msg.len);
-        printf("\n");
+        if (error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
+            print_text(error->err_msg.ptr, error->err_msg.len);
+            printf("\n");
+        }
+        else {
+            print_text(error->err_msg.ptr, MAX_PRINT_TEXT_COUNT);
+            printf("..\n");
+        }
     }
     if (error->suite.len > 0) {
         printf("      suite : ");
@@ -166,8 +172,14 @@ void print_teep_success(const teep_success_t *success) {
     printf("    options :\n");
     if (success->msg.len > 0) {
         printf("    msg : ");
-        print_hex(success->msg.ptr, success->msg.len);
-        printf("\n");
+        if (success->msg.len <= MAX_PRINT_TEXT_COUNT) {
+            print_text(success->msg.ptr, success->msg.len);
+            printf("\n");
+        }
+        else {
+            print_text(success->msg.ptr, MAX_PRINT_TEXT_COUNT);
+            printf("..\n");
+        }
     }
 }
 

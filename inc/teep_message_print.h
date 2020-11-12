@@ -13,6 +13,7 @@
 #include "qcbor/qcbor.h"
 
 #define MAX_PRINT_BYTE_COUNT       3
+#define MAX_PRINT_TEXT_COUNT       16
 
 void print_teep_query_request(const teep_query_request_t *query_request);
 void print_teep_query_response(const teep_query_response_t *query_response);

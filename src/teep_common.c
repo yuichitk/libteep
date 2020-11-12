@@ -16,6 +16,13 @@ void print_hex(const uint8_t *array, int32_t size) {
     }
 }
 
+void print_text(const uint8_t *text, int32_t size) {
+    if (size < 0) {
+        return;
+    }
+    printf("\"%.*s\"", size, text);
+}
+
 void print_error_string(const char *message) {
     printf("Error : %s\n", message);
 }
