@@ -13,7 +13,10 @@
 #include <stdlib.h>
 #include "qcbor/qcbor.h"
 
-#define TEEP_MAX_ARRAY_LENGTH               20
+#ifndef TEEP_MAX_ARRAY_LENGTH
+  #define TEEP_MAX_ARRAY_LENGTH               20
+#endif
+
 #define INITIALIZE_TEEP_ARRAY(array) ( array.len = SIZE_MAX )
 #define TEEP_ARRAY_IS_NULL(array) ( (array).len == SIZE_MAX )
 #define TEEP_ARRAY_IS_NOT_NULL(array) ( (array.len < SIZE_MAX) )
