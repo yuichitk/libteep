@@ -184,36 +184,38 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
     QCBORDecode_Init(&decode_context,
                      (UsefulBufC){message, message_len},
                      QCBOR_DECODE_MODE_NORMAL);
-    teep_query_request_t query_request;
-    teep_query_response_t query_response;
-    teep_install_t app_install;
-    teep_delete_t app_delete;
-    teep_success_t teep_success;
-    teep_error_t teep_error;
+    union {
+        teep_query_request_t query_request;
+        teep_query_response_t query_response;
+        teep_install_t app_install;
+        teep_delete_t app_delete;
+        teep_success_t teep_success;
+        teep_error_t teep_error;
+    } d;
     switch (message_type) {
         case TEEP_TYPE_QUERY_REQUEST:
-            set_teep_query_request(&decode_context, &query_request);
-            print_teep_query_request(&query_request);
+            set_teep_query_request(&decode_context, &d.query_request);
+            print_teep_query_request(&d.query_request);
             break;
         case TEEP_TYPE_QUERY_RESPONSE:
-            set_teep_query_response(&decode_context, &query_response);
-            print_teep_query_response(&query_response);
+            set_teep_query_response(&decode_context, &d.query_response);
+            print_teep_query_response(&d.query_response);
             break;
         case TEEP_TYPE_INSTALL:
-            set_teep_install(&decode_context, &app_install);
-            print_teep_install(&app_install);
+            set_teep_install(&decode_context, &d.app_install);
+            print_teep_install(&d.app_install);
             break;
         case TEEP_TYPE_DELETE:
-            set_teep_delete(&decode_context, &app_delete);
-            print_teep_delete(&app_delete);
+            set_teep_delete(&decode_context, &d.app_delete);
+            print_teep_delete(&d.app_delete);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
-            set_teep_success(&decode_context, &teep_success);
-            print_teep_success(&teep_success);
+            set_teep_success(&decode_context, &d.teep_success);
+            print_teep_success(&d.teep_success);
             break;
         case TEEP_TYPE_TEEP_ERROR:
-            set_teep_error(&decode_context, &teep_error);
-            print_teep_error(&teep_error);
+            set_teep_error(&decode_context, &d.teep_error);
+            print_teep_error(&d.teep_error);
             break;
         default:
             print_debug_string("print_teep_message : Undefined value.\n");
