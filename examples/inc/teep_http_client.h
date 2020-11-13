@@ -14,6 +14,6 @@
 #include <curl/curl.h>
 #include "teep_common.h"
 
-int32_t teep_send_http_post(char *url, teep_buf_t *send_buffer, teep_buf_t *recv_buffer);
+int32_t teep_send_http_post(const char *url, teep_buf_t *send_buffer, teep_buf_t *recv_buffer);
 
 #endif  // TEEP_HTTP_CLIENT_H

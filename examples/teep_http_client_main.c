@@ -12,7 +12,7 @@
 #include "teep_message_print.h"
 #include "teep_examples_common.h"
 
-#define TAM_URL                         "http://localhost:8080/tam"
+const char DEFAULT_TAM_URL[] = "http://localhost:8080/tam";
 #define MAX_RECIEVE_BUFFER_SIZE         1024
 #define MAX_FILE_BUFFER_SIZE            512
 #define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/cose/query_response_cose.cbor"
@@ -20,6 +20,10 @@
 #define TAM_PUBLIC_KEY_DER_FILE         "./testfiles/key/tam_prime256v1_pub.der"
 
 int main(int argc, const char * argv[]) {
+    const char *tam_url = DEFAULT_TAM_URL;
+    if (argc > 1) {
+        tam_url = argv[1];
+    }
     // Read der file.
     printf("\nmain : Read DER file.\n");
     uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
@@ -45,7 +49,7 @@ int main(int argc, const char * argv[]) {
     int32_t             result;
     recv_buffer.ptr = buffer_impl;
     recv_buffer.len = MAX_RECIEVE_BUFFER_SIZE;
-    result = teep_send_http_post(TAM_URL, NULL, &recv_buffer);
+    result = teep_send_http_post(tam_url, NULL, &recv_buffer);
     if (result) {
         printf("main : Fail to send TEEP/HTTP POST request.\n");
         return EXIT_FAILURE;
@@ -83,7 +87,7 @@ int main(int argc, const char * argv[]) {
     // Send TEEP/HTTP QueryResponse.
     printf("\nmain : Send TEEP/HTTP QueryResponse.\n");
     teep_buf_t send_query_response_buffer = {file_length, query_response_file_bytes};
-    result = teep_send_http_post(TAM_URL, &send_query_response_buffer, &recv_buffer);
+    result = teep_send_http_post(tam_url, &send_query_response_buffer, &recv_buffer);
     if (result) {
         printf("main : Fail to send TEEP/HTTP QueryResponse.\n");
         return EXIT_FAILURE;
@@ -117,7 +121,7 @@ int main(int argc, const char * argv[]) {
     // Send TEEP/HTTP Success.
     printf("\nmain : Send TEEP/HTTP Success.\n");
     teep_buf_t send_success_buffer = {file_length, success_file_bytes};
-    result = teep_send_http_post(TAM_URL, &send_success_buffer, &recv_buffer);
+    result = teep_send_http_post(tam_url, &send_success_buffer, &recv_buffer);
     if (result) {
         printf("main : Fail to send TEEP/HTTP Success.\n");
         return EXIT_FAILURE;

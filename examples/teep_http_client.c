@@ -27,7 +27,7 @@ static size_t write_callback(void *recv_buffer_ptr,
     return copy_size;
 }
 
-int32_t teep_send_http_post(char *url,
+int32_t teep_send_http_post(const char *url,
                             teep_buf_t *send_buffer,
                             teep_buf_t *recv_buffer) {
     CURL                *curl = NULL;
