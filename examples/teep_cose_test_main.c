@@ -100,5 +100,14 @@ int main(int argc, const char * argv[]) {
     print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
+    if (argc > 3) {
+        size_t write_len = write_to_file(argv[3], signed_cose.len, signed_cose.ptr);
+        if (!write_len) {
+            printf("main : Can't write COSE signed CBOR file.%s,%d\n", argv[3], write_len);
+            return EXIT_FAILURE;
+        }
+        printf("\nmain : Success to write to \"%s\".\n", argv[3]);
+    }
+
     return EXIT_SUCCESS;
 }
