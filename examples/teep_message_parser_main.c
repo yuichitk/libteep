@@ -15,11 +15,24 @@
 #define MAX_FILE_BUFFER_SIZE                512
 
 int main(int argc, const char * argv[]) {
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+    bool verify = true;
     // Check arguments.
-    if (argc < 3) {
-        printf("teep_message_parser <DER file path> <CBOR file path>\n");
+    if (argc < 2) {
+        printf("teep_message_parser <CBOR file path> [<DER file path>]\n");
         return EXIT_FAILURE;
     }
+    else if (argc == 2) {
+        verify = false;
+        goto skip_load_key;
+    }
+#else
+    // Check arguments.
+    if (argc < 3) {
+        printf("teep_message_parser <CBOR file path> <DER file path>\n");
+        return EXIT_FAILURE;
+    }
+#endif
 
     // Read der file.
     printf("\nmain : Read DER file.\n");
@@ -39,6 +52,9 @@ int main(int argc, const char * argv[]) {
     read_prime256v1_public_key(der_buf, key_buf);
     printf("%s\n", key_buf);
 
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+skip_load_key:
+#endif
     // Read cbor file.
     printf("\nmain : Read CBOR file.\n");
     uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
@@ -50,10 +66,17 @@ int main(int argc, const char * argv[]) {
     print_hex(cbor_buf, cbor_len);
     printf("\n");
 
+    UsefulBufC returned_payload;
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+    if (!verify) {
+        returned_payload.ptr = cbor_buf;
+        returned_payload.len = cbor_len;
+        goto skip_verify_cose;
+    }
+#endif
     // Verify cbor file.
     printf("\nmain : Verify CBOR file.\n");
     UsefulBufC signed_cose = {cbor_buf, cbor_len};
-    UsefulBufC returned_payload;
     int32_t result;
     result = verify_cose_sign1(&signed_cose, key_buf, &returned_payload);
     if (result) {
@@ -64,6 +87,9 @@ int main(int argc, const char * argv[]) {
     print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+skip_verify_cose:
+#endif
     // Print teep message.
     print_teep_message(returned_payload.ptr, returned_payload.len);
 

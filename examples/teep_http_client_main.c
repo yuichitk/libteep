@@ -12,11 +12,16 @@
 #include "teep_message_print.h"
 #include "teep_examples_common.h"
 
-const char DEFAULT_TAM_URL[] = "http://localhost:8080/tam";
+const char DEFAULT_TAM_URL[] =          "http://localhost:8080/tam";
 #define MAX_RECIEVE_BUFFER_SIZE         1024
 #define MAX_FILE_BUFFER_SIZE            512
-#define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/cose/query_response_cose.cbor"
-#define TEEP_SUCCESS_CBOR_FILE          "./testfiles/cose/teep_success_cose.cbor"
+#ifdef SEND_CBOR_WITHOUT_SIGN1
+  #define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/query_response.cbor"
+  #define TEEP_SUCCESS_CBOR_FILE          "./testfiles/teep_success.cbor"
+#else
+  #define TEEP_QUERY_RESPONSE_CBOR_FILE   "./testfiles/query_response_cose.cbor"
+  #define TEEP_SUCCESS_CBOR_FILE          "./testfiles/teep_success_cose.cbor"
+#endif
 #define TAM_PUBLIC_KEY_DER_FILE         "./testfiles/key/tam_prime256v1_pub.der"
 
 int main(int argc, const char * argv[]) {
@@ -62,9 +67,15 @@ int main(int argc, const char * argv[]) {
     printf("\n");
     UsefulBufC query_request_payload;
     int32_t result_cose;
+
     result_cose = verify_cose_sign1(&query_request_cose, key_buf, &query_request_payload);
     if (result_cose) {
         printf("main : Fail to verify QueryRequest cose.\n");
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+        if (TEEP_CBOR_WITHOUT_SIGN1 == result_cose) {
+            goto query_response;
+        }
+#endif
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
@@ -73,6 +84,9 @@ int main(int argc, const char * argv[]) {
     printf("\nmain : Print payload\n");
     print_teep_message(query_request_payload.ptr, query_request_payload.len);
 
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+query_response:
+#endif
     // Read QueryResponse cbor file.
     printf("main : Read QueryResponse cbor file.\n");
     uint8_t query_response_file_bytes[MAX_FILE_BUFFER_SIZE];
@@ -85,6 +99,7 @@ int main(int argc, const char * argv[]) {
     printf("\n");
 
     // Send TEEP/HTTP QueryResponse.
+    recv_buffer.len = MAX_RECIEVE_BUFFER_SIZE;
     printf("\nmain : Send TEEP/HTTP QueryResponse.\n");
     teep_buf_t send_query_response_buffer = {file_length, query_response_file_bytes};
     result = teep_send_http_post(tam_url, &send_query_response_buffer, &recv_buffer);
@@ -98,7 +113,12 @@ int main(int argc, const char * argv[]) {
     UsefulBufC install_payload;
     result_cose = verify_cose_sign1(&install_cose, key_buf, &install_payload);
     if (result_cose) {
-        printf("main : Fail to verify TrustedAppInstall cose.\n");
+        printf("main : Fail to verify Install cose.\n");
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+        if (TEEP_CBOR_WITHOUT_SIGN1 == result_cose) {
+            goto teep_success;
+        }
+#endif
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
@@ -107,6 +127,9 @@ int main(int argc, const char * argv[]) {
     printf("\nmain : Print payload\n");
     print_teep_message(install_payload.ptr, install_payload.len);
 
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+teep_success:
+#endif
     // Read Success cbor file.
     printf("main : Read Success cbor file.\n");
     uint8_t success_file_bytes[MAX_FILE_BUFFER_SIZE];

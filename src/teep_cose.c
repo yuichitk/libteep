@@ -113,7 +113,7 @@ int32_t verify_cose_sign1(UsefulBufC *signed_cose, const char *public_key, Usefu
                                       &parameters);
      if (cose_result) {
          printf("Fail t_cose_sign1_verify : result = %d\n", cose_result);
-         return TEEP_UNEXPECTED_ERROR;
+         return TEEP_CBOR_WITHOUT_SIGN1;
      }
 
      EC_KEY_free(cose_public_key.k.key_ptr);

@@ -20,7 +20,12 @@ $(OBJDIR)/%.o:	%.c
 				-mkdir -p $(dir $@)
 				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
+.PHONY:		all debug clean
+
 all:		clean $(TARGET)
+
+debug:		CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
+debug:		all
 
 clean:
 			rm -f $(OBJS) $(TARGET)

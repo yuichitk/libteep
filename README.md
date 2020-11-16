@@ -29,18 +29,12 @@ Make and run sample codes you need.
 
 1. teep_message_parser
 ```bash
-make -f Makefile.parser
-./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/cose/query_request_cose.cbor
-./teep_message_parser ./testfiles/key/teep_agent_prime256v1_pub.der ./testfiles/cose/query_response_cose.cbor
-./teep_message_parser ./testfiles/key/tam_prime256v1_pub.der ./testfiles/cose/trusted_app_install_with_manifest_cose.cbor
+make -f Makefile.parser test
 ```
 
 2. teep_cose_test
 ```bash
-make -f Makefile.cose
-./teep_cose_test ./testfiles/key/tam_prime256v1.der ./testfiles/cbor/query_request.cbor
-./teep_cose_test ./testfiles/key/teep_agent_prime256v1.der ./testfiles/cbor/query_response.cbor
-./teep_cose_test ./testfiles/key/tam_prime256v1.der ./testfiles/cbor/trusted_app_install_with_manifest.cbor
+make -f Makefile.cose test
 ```
 
 3. teep_http_client
@@ -53,6 +47,22 @@ make -f Makefile.client
 * In some cases, teep_http_client Requires to install libcurl.
 ```bash
 sudo apt-get install libcurl4-openssl-dev
+```
+
+You can try to send cbor without cose-sign1 for debug.
+
+1. teep_http_client
+```
+make -f Makefile.client -B
+./testfiles/tam_server.sh -d # server sends CBOR without cose-sign1
+./teep_http_client # it must fail because the server send CBOR without cose-sign1
+
+make -f Makefile.client -B debug
+./testfiles/tam_server.sh -d
+./teep_http_client # client allows server to send CBOR without cose-sign1
+
+./testfiles/tam_server.sh
+./teep_http_client # client allows server to send also CBOR with cose-sign1 in debug build
 ```
 
 ## TEEP Protocol Message Examples
