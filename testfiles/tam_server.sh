@@ -1,17 +1,39 @@
 #!/bin/bash
 echo -ne "\nRun TAM Server.\n"
 
+DIR=`dirname "${0}"`
+ENABLE_COSE="_cose"
+while getopts d OPT
+do
+    case $OPT in
+    d)  if [ -n "${ENABLE_COSE}" ]; then
+            ENABLE_COSE=""
+            printf "Send CBOR WITHOUT COSE SIGN1\n"
+        fi
+        ;;
+    *)  printf "Usage: %s: [-d]\n" $0
+        exit 2
+        ;;
+    esac
+done
+
+QUERY_REQUEST_FILE=${DIR}"/query_request${ENABLE_COSE}.cbor"
+INSTALL_FILE=${DIR}"/install${ENABLE_COSE}.cbor"
+
+QUERY_REQUEST_SIZE=`du -b "${QUERY_REQUEST_FILE}" | cut -f1`
+INSTALL_SIZE=`du -b "${INSTALL_FILE}" | cut -f1`
+
 ( \
 echo "HTTP/1.1 200 OK"; \
 echo "Content-Type: application/teep+cbor"; \
-echo "Content-Length: 103"; \
+echo "Content-Length: ${QUERY_REQUEST_SIZE}"; \
 echo "Server: Bar/2.2"; \
 echo "Cache-Control: no-store"; \
 echo "X-Content-Type-Options: nosniff"; \
 echo "Content-Security-Policy: default-src 'none'"; \
 echo "Referrer-Policy: no-referrer"; \
 echo; \
-echo -en "\xd2\x84\x43\xa1\x01\x26\xa0\x58\x1c\x84\x01\x18\x7b\xa4\x05\x01\x02\x48\x01\x02\x03\x04\x05\x06\x07\x08\x03\x83\x0b\x0c\x0d\x04\x43\x01\x02\x03\x02\x58\x40\x1a\x9f\xac\x21\x0e\x9e\x96\x8f\xf0\x07\x78\xe4\x26\xf3\xb8\x69\xa9\xba\x01\x77\xcf\x3d\xe8\xf7\xd8\xc6\x57\xeb\x65\x9b\xac\xc9\x52\x3e\x95\x80\xcc\x74\xe5\x74\x58\x26\x87\x28\x17\xbb\xf2\xb2\x35\x86\xa4\xe5\x72\x02\xeb\xec\x30\xec\xed\x8b\xb7\xd0\x4c\x08" \
+cat $QUERY_REQUEST_FILE \
 ) | nc -l 8080
 
 echo -ne "\nSend TEEP/HTTP QueryRequest.\n"
@@ -19,14 +41,14 @@ echo -ne "\nSend TEEP/HTTP QueryRequest.\n"
 ( \
 echo "HTTP/1.1 200 OK"; \
 echo "Content-Type: application/teep+cbor"; \
-echo "Content-Length: 89"; \
+echo "Content-Length: ${INSTALL_SIZE}"; \
 echo "Server: Bar/2.2"; \
 echo "Cache-Control: no-store"; \
 echo "X-Content-Type-Options: nosniff"; \
 echo "Content-Security-Policy: default-src 'none'"; \
 echo "Referrer-Policy: no-referrer"; \
 echo; \
-echo -en "\xd2\x84\x43\xa1\x01\x26\xa0\x4f\x83\x03\x18\x7b\xa1\x0a\x82\x43\x01\x02\x03\x43\x04\x05\x06\x58\x40\x3c\x22\x40\x14\xee\x28\xd6\xea\x84\x77\x29\xba\x18\x1b\x5f\xf4\xe7\x8a\xab\x45\xae\xda\x5e\xe9\x5f\x4b\xf1\x9d\x88\x63\x0e\xd4\xe5\xb8\x7f\xfd\xf7\xe9\x4d\x9c\xa0\x71\x43\x39\x43\x85\x36\xb7\xc4\x95\xf6\x48\x07\xc5\x05\xb0\xab\x7a\x3a\x3f\x29\x17\x40\xb0" \
+cat $INSTALL_FILE \
 ) | nc -l 8080
 
 echo -ne "\nSend TEEP/HTTP TrustedAppInstall.\n"
