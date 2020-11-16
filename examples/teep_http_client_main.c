@@ -27,7 +27,7 @@ int main(int argc, const char * argv[]) {
     // Read der file.
     printf("\nmain : Read DER file.\n");
     uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
-    size_t der_len = read_file(TAM_PUBLIC_KEY_DER_FILE, PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
+    size_t der_len = read_from_file(TAM_PUBLIC_KEY_DER_FILE, PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
     if (!der_len) {
         printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
@@ -76,7 +76,7 @@ int main(int argc, const char * argv[]) {
     // Read QueryResponse cbor file.
     printf("main : Read QueryResponse cbor file.\n");
     uint8_t query_response_file_bytes[MAX_FILE_BUFFER_SIZE];
-    size_t file_length = read_file(TEEP_QUERY_RESPONSE_CBOR_FILE, MAX_FILE_BUFFER_SIZE, query_response_file_bytes);
+    size_t file_length = read_from_file(TEEP_QUERY_RESPONSE_CBOR_FILE, MAX_FILE_BUFFER_SIZE, query_response_file_bytes);
     if (!file_length) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
@@ -110,7 +110,7 @@ int main(int argc, const char * argv[]) {
     // Read Success cbor file.
     printf("main : Read Success cbor file.\n");
     uint8_t success_file_bytes[MAX_FILE_BUFFER_SIZE];
-    file_length = read_file(TEEP_SUCCESS_CBOR_FILE, MAX_FILE_BUFFER_SIZE, success_file_bytes);
+    file_length = read_from_file(TEEP_SUCCESS_CBOR_FILE, MAX_FILE_BUFFER_SIZE, success_file_bytes);
     if (!file_length) {
         printf("main : Can't read Success cbor file.\n");
         return EXIT_FAILURE;

@@ -24,7 +24,7 @@ int main(int argc, const char * argv[]) {
     // Read der file.
     printf("\nmain : Read DER file.\n");
     uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
-    size_t der_len = read_file(argv[1], PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
+    size_t der_len = read_from_file(argv[2], PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
     if (!der_len) {
         printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]) {
     // Read cbor file.
     printf("\nmain : Read CBOR file.\n");
     uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
-    size_t cbor_len = read_file(argv[2], MAX_FILE_BUFFER_SIZE, cbor_buf);
+    size_t cbor_len = read_from_file(argv[1], MAX_FILE_BUFFER_SIZE, cbor_buf);
     if (!cbor_len) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
