@@ -45,6 +45,7 @@ int32_t teep_send_http_post(const char *url,
     curl_slist = curl_slist_append(curl_slist, "Accept: application/teep+cbor");
     curl_slist = curl_slist_append(curl_slist, "User-Agent: Foo/1.0");
     if (send_buffer == NULL) {
+        curl_slist = curl_slist_append(curl_slist, "Content-Type: application/teep+cbor");
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, 0L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
     }
