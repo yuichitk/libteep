@@ -1,3 +1,8 @@
+# Output files
+teep_cose_test
+teep_message_parser
+teep_http_client
+
 # Prerequisites
 *.d
 
