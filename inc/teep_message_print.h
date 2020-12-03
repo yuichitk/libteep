@@ -17,8 +17,7 @@
 
 void print_teep_query_request(const teep_query_request_t *query_request);
 void print_teep_query_response(const teep_query_response_t *query_response);
-void print_teep_install(const teep_install_t *app_install);
-void print_teep_delete(const teep_delete_t *app_delete);
+void print_teep_update(const teep_update_t *teep_update);
 void print_teep_success(const teep_success_t *success);
 void print_teep_error(const teep_error_t *error);
 void print_teep_message(const uint8_t *message, const size_t message_len);
