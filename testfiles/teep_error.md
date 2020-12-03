@@ -4,7 +4,7 @@
  SPDX-License-Identifier: BSD-2-Clause
 -->
 
-# Error Message (for Install)
+# Error Message (for QueryRequest or Update)
     https://tools.ietf.org/html/draft-ietf-teep-protocol-04#appendix-D.5
 
 ## CBOR Diagnostic Notation

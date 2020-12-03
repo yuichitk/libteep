@@ -108,12 +108,12 @@ query_response:
         return EXIT_FAILURE;
     }
 
-    // Verify and print TrustedAppInstall cose.
-    UsefulBufC install_cose = {recv_buffer.ptr, recv_buffer.len};
-    UsefulBufC install_payload;
-    result_cose = verify_cose_sign1(&install_cose, key_buf, &install_payload);
+    // Verify and print Update cose.
+    UsefulBufC update_cose = {recv_buffer.ptr, recv_buffer.len};
+    UsefulBufC update_payload;
+    result_cose = verify_cose_sign1(&update_cose, key_buf, &update_payload);
     if (result_cose) {
-        printf("main : Fail to verify Install cose.\n");
+        printf("main : Fail to verify Update cose.\n");
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
         if (TEEP_CBOR_WITHOUT_SIGN1 == result_cose) {
             goto teep_success;
@@ -122,10 +122,10 @@ query_response:
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
-    print_hex(install_payload.ptr, install_payload.len);
+    print_hex(update_payload.ptr, update_payload.len);
     printf("\n");
     printf("\nmain : Print payload\n");
-    print_teep_message(install_payload.ptr, install_payload.len);
+    print_teep_message(update_payload.ptr, update_payload.len);
 
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
 teep_success:

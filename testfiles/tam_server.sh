@@ -18,7 +18,7 @@ do
 done
 
 QUERY_REQUEST_FILE=${DIR}"/query_request${ENABLE_COSE}.cbor"
-INSTALL_FILE=${DIR}"/install${ENABLE_COSE}.cbor"
+UPDATE_FILE=${DIR}"/update${ENABLE_COSE}.cbor"
 
 function send_teep_cbor {
     # send_teep_cbor PATH_TO_CBOR_FILE
@@ -44,8 +44,8 @@ function send_teep_cbor {
 
 send_teep_cbor $QUERY_REQUEST_FILE
 echo -ne "\nSend TEEP/HTTP QueryRequest.\n"
-send_teep_cbor $INSTALL_FILE
-echo -ne "\nSend TEEP/HTTP Install.\n"
+send_teep_cbor $UPDATE_FILE
+echo -ne "\nSend TEEP/HTTP Update.\n"
 
 ( \
 echo "HTTP/1.1 204 No Content"; \
