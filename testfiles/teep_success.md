@@ -11,7 +11,7 @@
     / teep-success = /
     [
         5,          / type : TEEP-TYPE-teep-success = 5 (fixed int) /
-        /options :  /
+        / options :  /
         {
             20 : 2004318072, / token : 0x777777778 (uint), from Update message /
         }
