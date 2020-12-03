@@ -77,10 +77,10 @@ The following description Markdown and CBOR files are compliant with [draft-ietf
   - [query_response.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response.cbor)
   - [query_response_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.cbor)
 
-- Install
-  - [install.md](https://github.com/yuichitk/libteep/blob/master/testfiles/install.md)
-  - [install.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/install.cbor)
-  - [install_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/install_cose.cbor)
+- Update
+  - [update.md](https://github.com/yuichitk/libteep/blob/master/testfiles/update.md)
+  - [update.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/update.cbor)
+  - [update_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/update_cose.cbor)
 
 - Success
   - [teep_success.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.md)

@@ -5,7 +5,7 @@
 #
 
 CC		= gcc
-CFLAGS	= -Wall -g
+CFLAGS	= -Wall
 LDFLAGS	= -lt_cose -lqcbor -lcrypto -lcurl
 INC   	= -I ./inc -I ./examples/inc
 TARGET	= ./teep_http_client
@@ -24,7 +24,7 @@ $(OBJDIR)/%.o:	%.c
 
 all:		clean $(TARGET)
 
-debug:		CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
+debug:		CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
 debug:		all
 
 clean:

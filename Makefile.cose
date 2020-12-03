@@ -20,9 +20,12 @@ $(OBJDIR)/%.o:	%.c
 				-mkdir -p $(dir $@)
 				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-.PHONY: all clean test
+.PHONY:		all debug clean test
 
 all:		clean $(TARGET)
+
+debug:		CFLAGS += -g 
+debug:		all
 
 clean:
 			rm -f $(OBJS) $(TARGET)
@@ -30,7 +33,7 @@ clean:
 test:	$(TARGET)
 			$(TARGET) ./testfiles/key/tam_prime256v1.der        ./testfiles/query_request.cbor  ./testfiles/query_request_cose.cbor  || exit 1
 			$(TARGET) ./testfiles/key/teep_agent_prime256v1.der ./testfiles/query_response.cbor ./testfiles/query_response_cose.cbor || exit 1
-			$(TARGET) ./testfiles/key/tam_prime256v1.der        ./testfiles/install.cbor        ./testfiles/install_cose.cbor        || exit 1
+			$(TARGET) ./testfiles/key/tam_prime256v1.der        ./testfiles/update.cbor        ./testfiles/update_cose.cbor        || exit 1
 			$(TARGET) ./testfiles/key/teep_agent_prime256v1.der ./testfiles/teep_success.cbor   ./testfiles/teep_success_cose.cbor   || exit 1
 			$(TARGET) ./testfiles/key/teep_agent_prime256v1.der ./testfiles/teep_error.cbor     ./testfiles/teep_error_cose.cbor     || exit 1
 

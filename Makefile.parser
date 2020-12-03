@@ -5,7 +5,7 @@
 #
 
 CC		= gcc
-CFLAGS	= -Wall -g
+CFLAGS	= -Wall
 LDFLAGS	= -lt_cose -lqcbor -lcrypto
 INC   	= -I ./inc -I ./examples/inc
 TARGET	= ./teep_message_parser
@@ -25,15 +25,17 @@ $(OBJDIR)/%.o:	%.c
 all:		clean $(TARGET)
 
 test:		$(TARGET)
-				$(TARGET) ./testfiles/cose/query_request_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/cose/query_response_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/cose/trusted_app_install_with_manifest_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
+				$(TARGET) ./testfiles/query_request_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
+				$(TARGET) ./testfiles/query_response_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
+				$(TARGET) ./testfiles/update_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
+				$(TARGET) ./testfiles/teep_success_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
+				$(TARGET) ./testfiles/teep_error_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
 
-debug:		CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1
+debug:		CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1
 debug:		all
 
-debug_testfiles := query_request.cbor query_response.cbor install.cbor teep_success.cbor teep_error.cbor
-debug_test:	debug test
+debug_testfiles := query_request.cbor query_response.cbor update.cbor teep_success.cbor teep_error.cbor
+debug_test:	debug
 				for file in $(debug_testfiles) ; do \
 					$(TARGET) testfiles/$$file || exit 1; \
 				done

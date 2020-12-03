@@ -5,30 +5,26 @@
 -->
 
 # Success Message (for Install)
-    https://tools.ietf.org/html/draft-ietf-teep-protocol-04#appendix-D.5
+    https://tools.ietf.org/html/draft-ietf-teep-protocol-04#appendix-D.4
 
 ## CBOR Diagnostic Notation
     / teep-success = /
     [
         5,          / type : TEEP-TYPE-teep-success = 5 (fixed int) /
-        2004318072, / token : 0x777777778 (uint), from Install message /
         /options :  /
         {
-            11 : "success"  / msg = 11 (mapkey) :
-                                "success" (UTF-8 string) /
+            20 : 2004318072, / token : 0x777777778 (uint), from Update message /
         }
     ]
 
 
 ## CBOR Binary Representation
-    83                      # array(3)
+    82                      # array(2)
        05                   # unsigned(5)
-       1A 77777778          # unsigned(2004318072)
        A1                   # map(1)
-          0B                # unsigned(11)
-          67                # text(7)
-             73756363657373 # "success"
+          14                # unsigned(20)
+          1A 77777778       # unsigned(2004318072, 0x77777778)
 
 
 ## Command
-    echo -en "\x83\x05\x1A\x77\x77\x77\x78\xA1\x0B\x67\x73\x75\x63\x63\x65\x73\x73" > teep_success.cbor
+    echo -en "\x82\x05\xA1\x14\x1A\x77\x77\x77\x78" > teep_success.cbor
