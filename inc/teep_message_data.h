@@ -18,9 +18,11 @@
 #endif
 
 #define INITIALIZE_TEEP_ARRAY(array) ( array.len = SIZE_MAX )
+#define INITIALIZE_TEEP_ARRAY_PTR(array) ( array->len = SIZE_MAX )
 #define TEEP_ARRAY_IS_NULL(array) ( (array).len == SIZE_MAX )
 #define TEEP_ARRAY_IS_NOT_NULL(array) ( (array.len < SIZE_MAX) )
 #define INITIALIZE_TEEP_BUF(buf) ( buf.len = SIZE_MAX, buf.ptr = NULL )
+#define INITIALIZE_TEEP_BUF_PTR(buf) ( buf->len = SIZE_MAX, buf->ptr = NULL )
 #define TEEP_BUF_IS_NULL(buf) ( (buf).len == SIZE_MAX )
 #define TEEP_BUF_IS_NOT_NULL(buf) ( (buf).len < SIZE_MAX )
 
@@ -147,8 +149,8 @@ typedef struct teep_buf_array_array {
  * tc-info
  */
 typedef struct teep_tc_info {
-    teep_buf_array_t  component_id;
-    uint64_t    tc_manifest_sequence_number;
+    teep_buf_array_t    component_id;
+    uint64_t            tc_manifest_sequence_number;
 } teep_tc_info_t;
 
 /*
@@ -163,9 +165,9 @@ typedef struct teep_tc_info_array {
  * requested-tc-info
  */
 typedef struct teep_requested_tc_info {
-    teep_buf_t  component_id;
-    uint64_t    tc_manifest_sequence_number;
-    bool        have_vinary;
+    teep_buf_array_t    component_id;
+    uint64_t            tc_manifest_sequence_number;
+    bool                have_binary;
 } teep_requested_tc_info_t;
 
 /*
