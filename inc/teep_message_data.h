@@ -26,9 +26,6 @@
 #define TEEP_BUF_IS_NULL(buf) ( (buf).len == SIZE_MAX )
 #define TEEP_BUF_IS_NOT_NULL(buf) ( (buf).len < SIZE_MAX )
 
-#define TEEP_VERSION_INVALID                UINT32_MAX
-#define TEEP_TOKEN_INVALID                  UINT32_MAX
-
 /*
  * teep-message-type
  */
@@ -49,7 +46,7 @@ typedef enum teep_options_key {
     TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES     = 1,
     TEEP_OPTIONS_KEY_CHALLENGE                   = 2,
     TEEP_OPTIONS_KEY_VERSION                     = 3,
-    TEEP_OPTIONS_KEY_OSCP_DATA                   = 4,
+    TEEP_OPTIONS_KEY_OCSP_DATA                   = 4,
     TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE       = 5,
     TEEP_OPTIONS_KEY_SELECTED_VERSION            = 6,
     TEEP_OPTIONS_KEY_EVIDENCE                    = 7,
@@ -179,24 +176,57 @@ typedef struct teep_requested_tc_info_array {
 } teep_requested_tc_info_array_t;
 
 /*
+ * set bit flags to distinguish these conditions like below:
+ *  1: unused because the teep-message doesn't contain the option
+ *  2: 0 length array was set
+ */
+#define BIT(nr) (1UL << (nr))
+#define TEEP_MESSAGE_CONTAINS_TYPE BIT(0)
+#define TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES BIT(TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES)
+#define TEEP_MESSAGE_CONTAINS_CHALLENGE BIT(TEEP_OPTIONS_KEY_CHALLENGE)
+#define TEEP_MESSAGE_CONTAINS_VERSION BIT(TEEP_OPTIONS_KEY_VERSION)
+#define TEEP_MESSAGE_CONTAINS_OCSP_DATA BIT(TEEP_OPTIONS_KEY_OCSP_DATA)
+#define TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE BIT(TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE)
+#define TEEP_MESSAGE_CONTAINS_SELECTED_VERSION BIT(TEEP_OPTIONS_KEY_SELECTED_VERSION)
+#define TEEP_MESSAGE_CONTAINS_EVIDENCE BIT(TEEP_OPTIONS_KEY_EVIDENCE)
+#define TEEP_MESSAGE_CONTAINS_TC_LIST BIT(TEEP_OPTIONS_KEY_TC_LIST)
+#define TEEP_MESSAGE_CONTAINS_EXT_LIST BIT(TEEP_OPTIONS_KEY_EXT_LIST)
+#define TEEP_MESSAGE_CONTAINS_MANIFEST_LIST BIT(TEEP_OPTIONS_KEY_MANIFEST_LIST)
+#define TEEP_MESSAGE_CONTAINS_MSG BIT(TEEP_OPTIONS_KEY_MSG)
+#define TEEP_MESSAGE_CONTAINS_ERR_MSG BIT(TEEP_OPTIONS_KEY_ERR_MSG)
+#define TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT BIT(TEEP_OPTIONS_KEY_EVIDENCE_FORMAT)
+#define TEEP_MESSAGE_CONTAINS_REQUESTED_TC_LIST BIT(TEEP_OPTIONS_KEY_REQUESTED_TC_LIST)
+#define TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST BIT(TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST)
+#define TEEP_MESSAGE_CONTAINS_COMPONENT_ID BIT(TEEP_OPTIONS_KEY_COMPONENT_ID)
+#define TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER BIT(TEEP_OPTIONS_KEY_TC_MANIFEST_SEQUENCE_NUMBER)
+#define TEEP_MESSAGE_CONTAINS_HAVE_BINARY BIT(TEEP_OPTIONS_KEY_HAVE_BINARY)
+#define TEEP_MESSAGE_CONTAINS_SUIT_REPORTS BIT(TEEP_OPTIONS_KEY_SUIT_REPORTS)
+#define TEEP_MESSAGE_CONTAINS_TOKEN BIT(TEEP_OPTIONS_KEY_TOKEN)
+/* 21 <= unused <= 61 */
+#define TEEP_MESSAGE_CONTAINS_ERR_CODE BIT(62)
+#define TEEP_MESSAGE_CONTAINS_DATA_ITEM_REQUESTED BIT(63)
+
+/*
  * query-request
  */
 typedef struct teep_query_request {
-    teep_type_t                type;
-    uint32_t                   token;
-    teep_uint64_array_t        supported_cipher_suites;
-    teep_buf_t                 challenge;
-    teep_uint32_array_t        versions;
-    teep_buf_t                 ocsp_data;
-    // TODO :                  query-request-extensions
-    // TODO :                  teep-option-extensions
-    teep_data_item_requested_t data_item_requested;
+    uint64_t                    contains;
+    teep_type_t                 type;
+    uint32_t                    token;
+    teep_uint64_array_t         supported_cipher_suites;
+    teep_buf_t                  challenge;
+    teep_uint32_array_t         versions;
+    teep_buf_t                  ocsp_data;
+    // TODO :                   query-request-extensions
+    // TODO :                   teep-option-extensions
+    teep_data_item_requested_t  data_item_requested;
 } teep_query_request_t;
 
 /*
  * query-response
  */
 typedef struct teep_query_response {
+    uint64_t                        contains;
     teep_type_t                     type;
     uint32_t                        token;
     uint64_t                        selected_cipher_suite;
@@ -215,6 +245,7 @@ typedef struct teep_query_response {
  * update
  */
 typedef struct teep_update {
+    uint64_t                contains;
     teep_type_t             type;
     uint32_t                token;
     teep_buf_array_t        tc_list; // [ + SUIT_Component_Identifier ]
@@ -227,6 +258,7 @@ typedef struct teep_update {
  * teep-success
  */
 typedef struct teep_success {
+    uint64_t        contains;
     teep_type_t     type;
     uint32_t        token;
     teep_buf_t      msg;
@@ -239,6 +271,7 @@ typedef struct teep_success {
  * teep-error
  */
 typedef struct teep_error {
+    uint64_t                contains;
     teep_type_t             type;
     uint32_t                token;
     teep_buf_t              err_msg;

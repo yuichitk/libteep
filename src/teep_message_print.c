@@ -15,29 +15,29 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     printf("  QueryRequest :\n");
     printf("    type : %u\n", query_request->type);
     printf("    options :\n");
-    if (query_request->data_item_requested & TEEP_DATA_ITEM_ATTESTATION && query_request->token != TEEP_TOKEN_INVALID) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         printf("      token : %u\n", query_request->token);
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(query_request->supported_cipher_suites)) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         printf("      supported-cipher-suites : [");
         for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
             printf("%lu, ", query_request->supported_cipher_suites.items[i]);
         }
         printf("]\n");
     }
-    if (TEEP_BUF_IS_NOT_NULL(query_request->challenge)) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
         printf("      challenge : ");
         print_hex(query_request->challenge.ptr, query_request->challenge.len);
         printf("\n");
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(query_request->versions)) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
         printf("      versions : [ ");
         for (size_t i = 0; i < query_request->versions.len; i++) {
             printf("%u, ", query_request->versions.items[i]);
         }
         printf("]\n");
     }
-    if (TEEP_BUF_IS_NOT_NULL(query_request->ocsp_data)) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_OCSP_DATA) {
         printf("      ocsp-data : ");
         print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
         printf("\n");
@@ -49,16 +49,16 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     printf("  QueryResponse :\n");
     printf("    type : %u\n", query_response->type);
     printf("    options :\n");
-    if (query_response->token != TEEP_TOKEN_INVALID) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         printf("      token : %u\n", query_response->token);
     }
-    if (query_response->selected_cipher_suite != TEEP_SUITE_INVALID) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
         printf("      selected-cipher-suite : %lu\n", query_response->selected_cipher_suite);
     }
-    if (query_response->selected_version != TEEP_VERSION_INVALID) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
         printf("      selected-version : %u\n", query_response->selected_version);
     }
-    if (TEEP_BUF_IS_NOT_NULL(query_response->evidence_format)) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT) {
         printf("      evidence-format : ");
         if (query_response->evidence_format.len <= MAX_PRINT_TEXT_COUNT) {
             print_text(query_response->evidence_format.ptr, query_response->evidence_format.len);
@@ -69,12 +69,12 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
             printf("..\n");
         }
     }
-    if (TEEP_BUF_IS_NOT_NULL(query_response->evidence)) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE) {
         printf("      evidence : ");
         print_hex(query_response->evidence.ptr, query_response->evidence.len);
         printf("\n");
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(query_response->tc_list)) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
         printf("      tc-list : [\n");
         for (size_t i = 0; i < query_response->tc_list.len; i++) {
             printf("        No.%ld = [ ", i);
@@ -95,7 +95,7 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
         }
         printf("      ]\n");
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(query_response->ext_list)) {
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EXT_LIST) {
         printf("      ext-list : [");
         for (size_t i = 0; i < query_response->ext_list.len; i++) {
             printf("%lu ", query_response->ext_list.items[i]);
@@ -108,10 +108,10 @@ void print_teep_update(const teep_update_t *teep_update) {
     printf("  Update :\n");
     printf("    type : %u\n", teep_update->type);
     printf("    options :\n");
-    if (teep_update->token != TEEP_TOKEN_INVALID) {
+    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         printf("      token : %u\n", teep_update->token);
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(teep_update->manifest_list)) {
+    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_MANIFEST_LIST) {
         printf("      manifest-list : [");
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
             printf("No.%ld = ", i);
@@ -128,57 +128,59 @@ void print_teep_update(const teep_update_t *teep_update) {
     }
 }
 
-void print_teep_error(const teep_error_t *error) {
+void print_teep_error(const teep_error_t *teep_error) {
     printf("  Error :\n");
-    printf("    type : %u\n", error->type);
+    printf("    type : %u\n", teep_error->type);
     printf("    options :\n");
-    if (error->token != TEEP_TOKEN_INVALID) {
-        printf("      token : %u\n", error->token);
+    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
+        printf("      token : %u\n", teep_error->token);
     }
-    if (TEEP_BUF_IS_NOT_NULL(error->err_msg)) {
+    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_MSG) {
         printf("      err-msg : ");
-        if (error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
-            print_text(error->err_msg.ptr, error->err_msg.len);
+        if (teep_error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
+            print_text(teep_error->err_msg.ptr, teep_error->err_msg.len);
             printf("\n");
         }
         else {
-            print_text(error->err_msg.ptr, MAX_PRINT_TEXT_COUNT);
+            print_text(teep_error->err_msg.ptr, MAX_PRINT_TEXT_COUNT);
             printf("..\n");
         }
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(error->supported_cipher_suites)) {
+    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         printf("      supported-cipher-suites : ");
-        for (size_t i = 0; i < error->supported_cipher_suites.len; i++) {
-            printf("%u ", error->supported_cipher_suites.items[i]);
+        for (size_t i = 0; i < teep_error->supported_cipher_suites.len; i++) {
+            printf("%u ", teep_error->supported_cipher_suites.items[i]);
         }
         printf("\n");
     }
-    if (TEEP_ARRAY_IS_NOT_NULL(error->versions)) {
+    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
         printf("      versions : ");
-        for (size_t i = 0; i < error->versions.len; i++) {
-            printf("%u ", error->versions.items[i]);
+        for (size_t i = 0; i < teep_error->versions.len; i++) {
+            printf("%u ", teep_error->versions.items[i]);
         }
         printf("\n");
     }
-    printf("    err-code : %u\n", error->err_code);
+    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_CODE) {
+        printf("    err-code : %u\n", teep_error->err_code);
+    }
     printf("\n");
 }
 
-void print_teep_success(const teep_success_t *success) {
+void print_teep_success(const teep_success_t *teep_success) {
     printf("  Success :\n");
-    printf("    type : %u\n", success->type);
+    printf("    type : %u\n", teep_success->type);
     printf("    options :\n");
-    if (success->token != TEEP_TOKEN_INVALID) {
-        printf("      token : %u\n", success->token);
+    if (teep_success->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
+        printf("      token : %u\n", teep_success->token);
     }
-    if (TEEP_BUF_IS_NOT_NULL(success->msg)) {
+    if (teep_success->contains & TEEP_MESSAGE_CONTAINS_MSG) {
         printf("    msg : ");
-        if (success->msg.len <= MAX_PRINT_TEXT_COUNT) {
-            print_text(success->msg.ptr, success->msg.len);
+        if (teep_success->msg.len <= MAX_PRINT_TEXT_COUNT) {
+            print_text(teep_success->msg.ptr, teep_success->msg.len);
             printf("\n");
         }
         else {
-            print_text(success->msg.ptr, MAX_PRINT_TEXT_COUNT);
+            print_text(teep_success->msg.ptr, MAX_PRINT_TEXT_COUNT);
             printf("..\n");
         }
     }
