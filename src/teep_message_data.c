@@ -433,6 +433,7 @@ int32_t set_teep_success(QCBORDecodeContext *message,
     teep_success->type = TEEP_TYPE_TEEP_SUCCESS;
     teep_success->type = TEEP_TOKEN_INVALID;
     INITIALIZE_TEEP_BUF(teep_success->msg);
+    INITIALIZE_TEEP_BUF(teep_success->suit_reports);
 
     teep_success->type = get_teep_message_type(message);
     if (teep_success->type != TEEP_TYPE_TEEP_SUCCESS) {
@@ -461,12 +462,10 @@ int32_t set_teep_success(QCBORDecodeContext *message,
                 }
                 break;
             case TEEP_OPTIONS_KEY_SUIT_REPORTS:
-                /* TODO:
-                result = set_teep_suit_report_array(message, &item, &error, &teep_success->suit_reports);
-                if (result != SUIT_SUCCESS) {
+                result = set_teep_byte_string(QCBOR_TYPE_BYTE_STRING, &item, &teep_success->suit_reports);
+                if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                */
                 break;
             default:
                 break;
@@ -486,6 +485,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
     INITIALIZE_TEEP_BUF(teep_error->err_msg);
     INITIALIZE_TEEP_ARRAY(teep_error->supported_cipher_suites);
     INITIALIZE_TEEP_ARRAY(teep_error->versions);
+    INITIALIZE_TEEP_BUF(teep_error->suit_reports);
     teep_error->err_code = TEEP_ERR_CODE_INVALID;
 
     teep_error->type = get_teep_message_type(message);
@@ -538,14 +538,11 @@ int32_t set_teep_error(QCBORDecodeContext *message,
                 }
                 break;
             case TEEP_OPTIONS_KEY_SUIT_REPORTS:
-                /*
-                result = set_teep_suit_report_array(message, &item, &error, &teep_error->suit_reports);
-                if (result != SUIT_SUCCESS) {
+                result = set_teep_byte_string(QCBOR_TYPE_BYTE_STRING, &item, &teep_error->suit_reports);
+                if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                */
                 break;
-
             default:
                 break;
         }

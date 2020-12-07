@@ -230,7 +230,7 @@ typedef struct teep_success {
     teep_type_t     type;
     uint32_t        token;
     teep_buf_t      msg;
-    // TODO :       suit-reports
+    teep_buf_t      suit_reports;
     // TODO :       $$teep-success-extensions
     // TODO :       $$teep-option-extensions
 } teep_success_t;
@@ -239,15 +239,15 @@ typedef struct teep_success {
  * teep-error
  */
 typedef struct teep_error {
-    teep_type_t            type;
-    uint32_t               token;
-    teep_buf_t             err_msg;
-    teep_suite_array_t     supported_cipher_suites;
-    teep_uint32_array_t    versions;
-    // TODO :              suit-reports
-    // TODO :              $$teep-error--extensions
-    // TODO :              $$teep-option-extensions
-    teep_err_code_t        err_code;
+    teep_type_t             type;
+    uint32_t                token;
+    teep_buf_t              err_msg;
+    teep_suite_array_t      supported_cipher_suites;
+    teep_uint32_array_t     versions;
+    teep_buf_t              suit_reports;
+    // TODO :               $$teep-error--extensions
+    // TODO :               $$teep-option-extensions
+    teep_err_code_t         err_code;
 } teep_error_t;
 
 uint64_t get_teep_message_type(QCBORDecodeContext *teep_message);
