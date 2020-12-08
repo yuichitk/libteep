@@ -39,13 +39,17 @@ bool qcbor_skip_any(QCBORDecodeContext *message,
                     QCBORError *error);
 
 bool qcbor_skip_array_and_map(QCBORDecodeContext *message,
-                        QCBORItem *item,
-                        QCBORError *error) {
+                            QCBORItem *item,
+                            QCBORError *error) {
     if (item->uDataType != QCBOR_TYPE_ARRAY && item->uDataType != QCBOR_TYPE_MAP) {
         return false;
     }
-    for (size_t i = 0; i < item->val.uCount; i++) {
-        if (qcbor_skip_any(message, item, error)) {
+    size_t array_size = item->val.uCount;
+    for (size_t i = 0; i < array_size; i++) {
+        if (!qcbor_get_next_nockeck(message, item, error)) {
+            return false;
+        }
+        if (!qcbor_skip_any(message, item, error)) {
             return false;
         }
     }
@@ -55,13 +59,10 @@ bool qcbor_skip_array_and_map(QCBORDecodeContext *message,
 bool qcbor_skip_any(QCBORDecodeContext *message,
                     QCBORItem *item,
                     QCBORError *error) {
-    if (!qcbor_get_next_nockeck(message, item, error)) {
-        return false;
-    }
     switch (item->uDataType) {
         case QCBOR_TYPE_ARRAY:
         case QCBOR_TYPE_MAP:
-            if (qcbor_skip_array_and_map(message, item, error)) {
+            if (!qcbor_skip_array_and_map(message, item, error)) {
                 return false;
             }
             break;
@@ -139,7 +140,7 @@ int32_t set_out_of_teep_buf(QCBORDecodeContext *message,
                             QCBORError *error,
                             teep_buf_t *teep_buf) {
     uint8_t *buf = (uint8_t *)message->InBuf.UB.ptr + UsefulInputBuf_Tell(&message->InBuf);
-    if (qcbor_skip_any(message, item, error)) {
+    if (!qcbor_skip_any(message, item, error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     teep_buf->ptr = buf;
@@ -179,7 +180,7 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
                 ptr.u64->items[j] = item->val.uint64;
-                ptr.u64->len = j;
+                ptr.u64->len = j + 1;
                 break;
             case QCBOR_TYPE_UINT32:
                 /* extended type */
@@ -187,7 +188,7 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
                 ptr.u32->items[j] = (uint32_t)item->val.uint64;
-                ptr.u32->len = j;
+                ptr.u32->len = j + 1;
                 break;
             case QCBOR_TYPE_BYTE_STRING:
                 if (item->uDataType != QCBOR_TYPE_BYTE_STRING) {
@@ -195,7 +196,7 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                 }
                 ptr.b->items[j].ptr = item->val.string.ptr;
                 ptr.b->items[j].len = item->val.string.len;
-                ptr.b->len = j;
+                ptr.b->len = j + 1;
                 break;
             case QCBOR_TYPE_ANY:
                 /* out_of_teep type, so directly store the cbor buf ptr */
@@ -203,7 +204,7 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                ptr.b->len = j;
+                ptr.b->len = j + 1;
                 break;
             default:
                 break;
@@ -253,10 +254,14 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
             tc_info_arr->items[i].tc_manifest_sequence_number = TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID;
             switch (item->label.uint64) {
                 case TEEP_OPTIONS_KEY_COMPONENT_ID:
-                    result = set_teep_any_array(message, item, error, QCBOR_TYPE_ANY, &tc_info_arr->items[i].component_id);
+                    /* SUIT_Component_Identifier = [ +bstr ] (currently) */
+                    if (item->uDataType != QCBOR_TYPE_ARRAY) {
+                        result = TEEP_INVALID_TYPE_OF_ARGUMENT;
+                        break;
+                    }
+                    result = set_out_of_teep_buf(message, item, error, &tc_info_arr->items[i].component_id);
                     if (result != TEEP_SUCCESS) {
-                        tc_info_arr->len = i;
-                        return result;
+                        break;
                     }
                     tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_COMPONENT_ID;
                     break;

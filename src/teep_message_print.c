@@ -19,7 +19,7 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
         printf("      token : %u\n", query_request->token);
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("      supported-cipher-suites : [");
+        printf("      supported-cipher-suites : [ ");
         for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
             printf("%lu, ", query_request->supported_cipher_suites.items[i]);
         }
@@ -77,21 +77,24 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
         printf("      tc-list : [\n");
         for (size_t i = 0; i < query_response->tc_list.len; i++) {
-            printf("        No.%ld = [ ", i);
-            for (size_t j = 0; j < query_response->tc_list.items[i].component_id.len; j++) {
-                if (query_response->tc_list.items[i].component_id.items[j].len <= MAX_PRINT_BYTE_COUNT) {
-                    print_hex(query_response->tc_list.items[i].component_id.items[j].ptr, query_response->tc_list.items[i].component_id.items[j].len);
+            printf("        {\n");
+            if (query_response->tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_COMPONENT_ID) {
+                printf("          component-id : ");
+                if (query_response->tc_list.items[i].component_id.len <= MAX_PRINT_BYTE_COUNT) {
+                    print_hex(query_response->tc_list.items[i].component_id.ptr, query_response->tc_list.items[i].component_id.len);
                 }
                 else {
-                    print_hex(query_response->tc_list.items[i].component_id.items[j].ptr, MAX_PRINT_BYTE_COUNT);
+                    print_hex(query_response->tc_list.items[i].component_id.ptr, MAX_PRINT_BYTE_COUNT);
                     printf("..");
                 }
-                if (query_response->tc_list.items[i].tc_manifest_sequence_number != TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID) {
-                    printf("(seq=%lu)", query_response->tc_list.items[i].tc_manifest_sequence_number);
-                }
-                printf(", ");
+                printf(",\n");
             }
-            printf("]\n");
+            if (query_response->tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER) {
+                if (query_response->tc_list.items[i].tc_manifest_sequence_number != TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID) {
+                    printf("          tc-manifest-sequence-number : %lu,\n", query_response->tc_list.items[i].tc_manifest_sequence_number);
+                }
+            }
+            printf("        },\n");
         }
         printf("      ]\n");
     }
@@ -111,20 +114,36 @@ void print_teep_update(const teep_update_t *teep_update) {
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         printf("      token : %u\n", teep_update->token);
     }
+    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
+        printf("      tc-list : [\n");
+        for (size_t i = 0; i < teep_update->tc_list.len; i++) {
+            for (size_t j = 0; j < teep_update->tc_list.len; j++) {
+                if (teep_update->tc_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
+                    print_hex(teep_update->tc_list.items[i].ptr, teep_update->tc_list.items[i].len);
+                }
+                else {
+                    print_hex(teep_update->tc_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
+                    printf("..");
+                }
+                printf(",\n");
+            }
+            printf("          ]\n");
+        }
+    }
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_MANIFEST_LIST) {
-        printf("      manifest-list : [");
+        printf("      manifest-list : [\n");
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
-            printf("No.%ld = ", i);
+            printf("        ");
             if (teep_update->manifest_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
                 print_hex(teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len);
-                printf(", ");
             }
             else {
                 print_hex(teep_update->manifest_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
-                printf(".., ");
+                printf("..");
             }
+            printf(",\n");
         }
-        printf("]\n");
+        printf("      ]\n");
     }
 }
 
