@@ -170,7 +170,8 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
     if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
         return TEEP_NO_MEMORY;
     }
-    for (size_t j = 0; j < item->val.uCount; j++) {
+    size_t array_size = item->val.uCount;
+    for (size_t j = 0; j < array_size; j++) {
         if (!qcbor_get_next_nockeck(message, item, error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
@@ -315,10 +316,10 @@ int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
             tc_info_arr->items[i].tc_manifest_sequence_number = TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID;
             switch (item->label.uint64) {
                 case TEEP_OPTIONS_KEY_COMPONENT_ID:
-                    result = set_teep_any_array(message, item, error, QCBOR_TYPE_ANY, &tc_info_arr->items[i].component_id);
+                    /* SUIT_Component_Identifier = [ +bstr ] (currently) */
+                    result = set_out_of_teep_buf(message, item, error, &tc_info_arr->items[i].component_id);
                     if (result != TEEP_SUCCESS) {
-                        tc_info_arr->len = i;
-                        return result;
+                        break;
                     }
                     tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_COMPONENT_ID;
                     break;
@@ -374,7 +375,7 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
-    uint16_t map_count = item.val.uCount;
+    size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -509,7 +510,8 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_REQUESTED_TC_LIST;
                 break;
             case TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST:
-                result = set_teep_any_array(message, &item, &error, QCBOR_TYPE_BYTE_STRING, &query_response->unneeded_tc_list);
+                /* [ + SUIT_Component_Identifier ] */
+                result = set_teep_any_array(message, &item, &error, QCBOR_TYPE_ANY, &query_response->unneeded_tc_list);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
@@ -549,7 +551,7 @@ int32_t set_teep_update(QCBORDecodeContext *message,
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
-    uint16_t map_count = item.val.uCount;
+    size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -604,7 +606,7 @@ int32_t set_teep_success(QCBORDecodeContext *message,
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
-    uint16_t map_count = item.val.uCount;
+    size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -662,7 +664,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
-    uint16_t map_count = item.val.uCount;
+    size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
         if (!qcbor_get_next_nockeck(message, &item, &error)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;

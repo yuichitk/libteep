@@ -247,7 +247,7 @@ typedef struct teep_query_response {
     teep_buf_t                      evidence;
     teep_tc_info_array_t            tc_list;
     teep_requested_tc_info_array_t  requested_tc_list;
-    teep_buf_array_array_t          unneeded_tc_list;
+    teep_buf_array_t                unneeded_tc_list;
     teep_uint64_array_t             ext_list;
     // TODO :                       query-response-extensions
     // TODO :                       teep-option-extensions
