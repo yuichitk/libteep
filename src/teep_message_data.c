@@ -249,6 +249,7 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
             if (!qcbor_get_next_nockeck(message, item, error)) {
                 return TEEP_INVALID_TYPE_OF_ARGUMENT;
             }
+            tc_info_arr->items[i].contains = 0UL;
             tc_info_arr->items[i].tc_manifest_sequence_number = TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID;
             switch (item->label.uint64) {
                 case TEEP_OPTIONS_KEY_COMPONENT_ID:
@@ -257,6 +258,7 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
                         tc_info_arr->len = i;
                         return result;
                     }
+                    tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_COMPONENT_ID;
                     break;
                 case TEEP_OPTIONS_KEY_TC_MANIFEST_SEQUENCE_NUMBER:
                     if (!qcbor_value_is_uint64(item)) {
@@ -264,6 +266,7 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
                         break;
                     }
                     tc_info_arr->items[i].tc_manifest_sequence_number = item->val.uint64;
+                    tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER;
                     break;
                 default:
                     break;
@@ -303,6 +306,7 @@ int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
             if (!qcbor_get_next_nockeck(message, item, error)) {
                 return TEEP_INVALID_TYPE_OF_ARGUMENT;
             }
+            tc_info_arr->items[i].contains = 0UL;
             tc_info_arr->items[i].tc_manifest_sequence_number = TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID;
             switch (item->label.uint64) {
                 case TEEP_OPTIONS_KEY_COMPONENT_ID:
@@ -311,6 +315,7 @@ int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
                         tc_info_arr->len = i;
                         return result;
                     }
+                    tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_COMPONENT_ID;
                     break;
                 case TEEP_OPTIONS_KEY_TC_MANIFEST_SEQUENCE_NUMBER:
                     if (!qcbor_value_is_uint64(item)) {
@@ -318,13 +323,15 @@ int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
                         break;
                     }
                     tc_info_arr->items[i].tc_manifest_sequence_number = item->val.uint64;
+                    tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER;
                     break;
                 case TEEP_OPTIONS_KEY_HAVE_BINARY:
-                    if (!qcbor_value_is_uint64(item)) {
+                    if (item->uDataType != QCBOR_TYPE_TRUE && item->uDataType != QCBOR_TYPE_FALSE) {
                         result = TEEP_INVALID_TYPE_OF_ARGUMENT;
                         break;
                     }
-                    tc_info_arr->items[i].have_binary = item->val.uint64;
+                    tc_info_arr->items[i].have_binary = (bool)item->val.uint64;
+                    tc_info_arr->items[i].contains |= TEEP_MESSAGE_CONTAINS_HAVE_BINARY;
                     break;
                 default:
                     break;
@@ -344,7 +351,7 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
     QCBORError error;
     int32_t result;
 
-    query_request->contains = TEEP_MESSAGE_CONTAINS_TYPE;
+    query_request->contains = 0UL;
     query_request->type = TEEP_TYPE_QUERY_REQUEST;
     query_request->token = 0U;
     INITIALIZE_TEEP_ARRAY(query_request->supported_cipher_suites);
@@ -357,6 +364,7 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
     if (query_request->type != TEEP_TYPE_QUERY_REQUEST) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
+    query_request->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -368,11 +376,11 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
         }
         switch (item.label.uint64) {
             case TEEP_OPTIONS_KEY_TOKEN:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
+                query_request->token = (uint32_t)item.val.uint64;
                 query_request->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
-                query_request->token = item.val.uint64;
                 break;
             case TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES:
                 result = set_teep_any_array(message, &item, &error, QCBOR_TYPE_UINT64, &query_request->supported_cipher_suites);
@@ -419,7 +427,7 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
     QCBORError error;
     int32_t result;
 
-    query_response->contains = TEEP_MESSAGE_CONTAINS_TYPE;
+    query_response->contains = 0UL;
     query_response->type = TEEP_TYPE_INVALID;
     query_response->token = 0U;
     query_response->selected_cipher_suite = TEEP_SUITE_INVALID;
@@ -435,6 +443,7 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
     if (query_response->type != TEEP_TYPE_QUERY_RESPONSE) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
+    query_response->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -446,10 +455,10 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
         }
         switch (item.label.uint64) {
             case TEEP_OPTIONS_KEY_TOKEN:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
-                query_response->token = item.val.uint64;
+                query_response->token = (uint32_t)item.val.uint64;
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE:
@@ -460,10 +469,10 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE;
                 break;
             case TEEP_OPTIONS_KEY_SELECTED_VERSION:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
-                query_response->selected_version = item.val.uint64;
+                query_response->selected_version = (uint32_t)item.val.uint64;
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_SELECTED_VERSION;
                 break;
             case TEEP_OPTIONS_KEY_EVIDENCE_FORMAT:
@@ -494,6 +503,12 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
                 }
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_REQUESTED_TC_LIST;
                 break;
+            case TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST:
+                result = set_teep_any_array(message, &item, &error, QCBOR_TYPE_BYTE_STRING, &query_response->unneeded_tc_list);
+                if (result != TEEP_SUCCESS) {
+                    return result;
+                }
+                query_response->contains |= TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST;
             case TEEP_OPTIONS_KEY_EXT_LIST:
                 result = set_teep_any_array(message, &item, &error, QCBOR_TYPE_UINT64, &query_response->ext_list);
                 if (result != TEEP_SUCCESS) {
@@ -536,10 +551,10 @@ int32_t set_teep_update(QCBORDecodeContext *message,
         }
         switch (item.label.uint64) {
             case TEEP_OPTIONS_KEY_TOKEN:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
-                teep_update->token = item.val.uint64;
+                teep_update->token = (uint32_t)item.val.uint64;
                 teep_update->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_TC_LIST:
@@ -569,7 +584,7 @@ int32_t set_teep_success(QCBORDecodeContext *message,
     QCBORError error;
     int32_t result;
 
-    teep_success->contains = TEEP_MESSAGE_CONTAINS_TYPE;
+    teep_success->contains = 0UL;
     teep_success->type = TEEP_TYPE_TEEP_SUCCESS;
     teep_success->type = 0U;
     INITIALIZE_TEEP_BUF(teep_success->msg);
@@ -579,6 +594,7 @@ int32_t set_teep_success(QCBORDecodeContext *message,
     if (teep_success->type != TEEP_TYPE_TEEP_SUCCESS) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
+    teep_success->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -590,10 +606,10 @@ int32_t set_teep_success(QCBORDecodeContext *message,
         }
         switch (item.label.uint64) {
             case TEEP_OPTIONS_KEY_TOKEN:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
-                teep_success->token = item.val.uint64;
+                teep_success->token = (uint32_t)item.val.uint64;
                 teep_success->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_MSG:
@@ -623,7 +639,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
     QCBORError error;
     int32_t result;
 
-    teep_error->contains = TEEP_MESSAGE_CONTAINS_TYPE;
+    teep_error->contains = 0UL;
     teep_error->type = TEEP_TYPE_TEEP_ERROR;
     teep_error->token = 0U;
     INITIALIZE_TEEP_BUF(teep_error->err_msg);
@@ -636,6 +652,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
     if (teep_error->type != TEEP_TYPE_TEEP_ERROR) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
+    teep_error->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
     if (!qcbor_get_next(message, QCBOR_TYPE_MAP, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
@@ -647,10 +664,10 @@ int32_t set_teep_error(QCBORDecodeContext *message,
         }
         switch (item.label.uint64) {
             case TEEP_OPTIONS_KEY_TOKEN:
-                if (!qcbor_value_is_uint64(&item)) {
+                if (!qcbor_value_is_uint32(&item)) {
                     return TEEP_INVALID_TYPE_OF_ARGUMENT;
                 }
-                teep_error->token = item.val.uint64;
+                teep_error->token = (uint32_t)item.val.uint64;
                 teep_error->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_ERR_MSG:
