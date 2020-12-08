@@ -17,14 +17,12 @@
   #define TEEP_MAX_ARRAY_LENGTH               20
 #endif
 
-#define INITIALIZE_TEEP_ARRAY(array) ( array.len = SIZE_MAX )
-#define INITIALIZE_TEEP_ARRAY_PTR(array) ( array->len = SIZE_MAX )
-#define TEEP_ARRAY_IS_NULL(array) ( (array).len == SIZE_MAX )
-#define TEEP_ARRAY_IS_NOT_NULL(array) ( (array.len < SIZE_MAX) )
-#define INITIALIZE_TEEP_BUF(buf) ( buf.len = SIZE_MAX, buf.ptr = NULL )
-#define INITIALIZE_TEEP_BUF_PTR(buf) ( buf->len = SIZE_MAX, buf->ptr = NULL )
-#define TEEP_BUF_IS_NULL(buf) ( (buf).len == SIZE_MAX )
-#define TEEP_BUF_IS_NOT_NULL(buf) ( (buf).len < SIZE_MAX )
+#define INITIALIZE_TEEP_ARRAY(array) ( array.len = 0 )
+#define INITIALIZE_TEEP_ARRAY_PTR(array) ( array->len = 0 )
+#define TEEP_ARRAY_IS_NULL(array) ( (array).len == 0 )
+#define INITIALIZE_TEEP_BUF(buf) ( buf.len = 0, buf.ptr = NULL )
+#define INITIALIZE_TEEP_BUF_PTR(buf) ( buf->len = 0, buf->ptr = NULL )
+#define TEEP_BUF_IS_NULL(buf) ( (buf).len == 0 || (buf).ptr == NULL )
 
 /*
  * teep-message-type
