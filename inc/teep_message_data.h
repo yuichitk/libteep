@@ -25,6 +25,18 @@
 #define TEEP_BUF_IS_NULL(buf) ( (buf).len == 0 || (buf).ptr == NULL )
 
 /*
+ * extend QCBOR_TYPE_*** as QCBOR doesn't judge wether the value is in int32_t nor uint32_t.
+ * see https://github.com/laurencelundblade/QCBOR/blob/master/inc/qcbor/qcbor_decode.h for other QCBOR_TYPE_***.
+ */
+#ifndef QCBOR_TYPE_INT32
+  #define QCBOR_TYPE_INT32 28
+#endif
+#ifndef QCBOR_TYPE_UINT32
+  #define QCBOR_TYPE_UINT32 29
+#endif
+
+
+/*
  * teep-message-type
  */
 typedef enum teep_type {
@@ -144,8 +156,9 @@ typedef struct teep_buf_array_array {
  * tc-info
  */
 typedef struct teep_tc_info {
-    teep_buf_array_t    component_id;
-    uint64_t            tc_manifest_sequence_number;
+    uint64_t    contains;
+    teep_buf_t  component_id;
+    uint64_t    tc_manifest_sequence_number;
 } teep_tc_info_t;
 
 /*
@@ -160,9 +173,10 @@ typedef struct teep_tc_info_array {
  * requested-tc-info
  */
 typedef struct teep_requested_tc_info {
-    teep_buf_array_t    component_id;
-    uint64_t            tc_manifest_sequence_number;
-    bool                have_binary;
+    uint64_t    contains;
+    teep_buf_t  component_id;
+    uint64_t    tc_manifest_sequence_number;
+    bool        have_binary;
 } teep_requested_tc_info_t;
 
 /*
