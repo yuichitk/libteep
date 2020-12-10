@@ -65,6 +65,17 @@ make -f Makefile.client -B debug
 ./teep_http_client # client allows server to send also CBOR with cose-sign1 in debug build
 ```
 
+You can parse SUIT\_\* types with [libcsuit](https://github.com/yuichitk/libcsuit/).
+```
+git clone https://github.com/yuichitk/libcsuit.git
+cd libcsuit/
+make install
+
+cd /path/to/libteep/
+make -B -f Makefile.parser suit
+make test
+```
+
 ## TEEP Protocol Message Examples
 The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-04](https://tools.ietf.org/html/draft-ietf-teep-protocol-04).
 - QueryRequest
