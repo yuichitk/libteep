@@ -10,50 +10,26 @@
 #include "teep_common.h"
 #include "teep_message_data.h"
 
-void teep_debug_print(QCBORDecodeContext *message,
-                      QCBORItem *item,
-                      QCBORError *error,
-                      const char *func_name,
-                      uint8_t expecting) {
-    size_t cursor = UsefulInputBuf_Tell(&message->InBuf);
-    size_t len = UsefulInputBuf_GetBufferLength(&message->InBuf) - cursor;
-    uint8_t *at = (uint8_t *)message->InBuf.UB.ptr + cursor;
-
-    len = (len > 12) ? 12 : len;
-
-    printf("DEBUG: %s\n", func_name);
-    printf("msg[%ld:%ld] = ", cursor, cursor + len);
-    print_hex(at, len);
-    printf("\n");
-
-    if (*error != 0) {
-        printf("    Error! nCBORError = %d\n", *error);
-    }
-    if (expecting != QCBOR_TYPE_ANY && expecting != item->uDataType) {
-        printf("    item->uDataType %d != %d\n", item->uDataType, expecting);
-    }
-}
-
-bool qcbor_get_next(QCBORDecodeContext *message,
+bool teep_qcbor_get_next(QCBORDecodeContext *message,
                     QCBORItem *item,
                     QCBORError *error,
                     uint8_t data_type) {
     if ((*error = QCBORDecode_GetNext(message, item))) {
-        teep_debug_print(message, item, error, "qcbor_get_next", QCBOR_TYPE_ANY);
+        teep_debug_print(message, item, error, "teep_qcbor_get_next", QCBOR_TYPE_ANY);
         return false;
     }
     if (data_type != QCBOR_TYPE_ANY && item->uDataType != data_type) {
-        teep_debug_print(message, item, error, "qcbor_get_next", data_type);
+        teep_debug_print(message, item, error, "teep_qcbor_get_next", data_type);
         return false;
     }
     return true;
 }
 
-bool qcbor_get_next_uint(QCBORDecodeContext *message,
+bool teep_qcbor_get_next_uint(QCBORDecodeContext *message,
                          QCBORItem *item,
                          QCBORError *error) {
-    if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
-        teep_debug_print(message, item, error, "qcbor_get_next_uint", QCBOR_TYPE_UINT64);
+    if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+        teep_debug_print(message, item, error, "teep_qcbor_get_next_uint", QCBOR_TYPE_UINT64);
         return false;
     }
     if (item->uDataType == QCBOR_TYPE_INT64) {
@@ -67,11 +43,11 @@ bool qcbor_get_next_uint(QCBORDecodeContext *message,
     return true;
 }
 
-bool qcbor_skip_any(QCBORDecodeContext *message,
+bool teep_qcbor_skip_any(QCBORDecodeContext *message,
                     QCBORItem *item,
                     QCBORError *error);
 
-bool qcbor_skip_array_and_map(QCBORDecodeContext *message,
+bool teep_qcbor_skip_array_and_map(QCBORDecodeContext *message,
                             QCBORItem *item,
                             QCBORError *error) {
     if (item->uDataType != QCBOR_TYPE_ARRAY && item->uDataType != QCBOR_TYPE_MAP) {
@@ -79,23 +55,23 @@ bool qcbor_skip_array_and_map(QCBORDecodeContext *message,
     }
     size_t array_size = item->val.uCount;
     for (size_t i = 0; i < array_size; i++) {
-        if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
             return false;
         }
-        if (!qcbor_skip_any(message, item, error)) {
+        if (!teep_qcbor_skip_any(message, item, error)) {
             return false;
         }
     }
     return true;
 }
 
-bool qcbor_skip_any(QCBORDecodeContext *message,
+bool teep_qcbor_skip_any(QCBORDecodeContext *message,
                     QCBORItem *item,
                     QCBORError *error) {
     switch (item->uDataType) {
         case QCBOR_TYPE_ARRAY:
         case QCBOR_TYPE_MAP:
-            if (!qcbor_skip_array_and_map(message, item, error)) {
+            if (!teep_qcbor_skip_array_and_map(message, item, error)) {
                 return false;
             }
             break;
@@ -144,10 +120,10 @@ bool qcbor_value_is_uint32(QCBORItem *item) {
 /* As QCBOR parse [0, INT32_MAX] values as QCBOR_TYPE_INT64,
  * we need to distinguish the number is in [0, INT64_MAX].
  */
-bool qcbor_get_next_uint64(QCBORDecodeContext *message,
+bool teep_qcbor_get_next_uint64(QCBORDecodeContext *message,
                     QCBORItem *item,
                     QCBORError *error) {
-    if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+    if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
         return false;
     }
     return qcbor_value_is_uint64(item);
@@ -156,10 +132,10 @@ bool qcbor_get_next_uint64(QCBORDecodeContext *message,
 uint64_t get_teep_message_type(QCBORDecodeContext *message) {
     QCBORItem  item;
     QCBORError error;
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ARRAY)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ARRAY)) {
         return TEEP_TYPE_INVALID;
     }
-    if (!qcbor_get_next_uint64(message, &item, &error)) {
+    if (!teep_qcbor_get_next_uint64(message, &item, &error)) {
         return TEEP_TYPE_INVALID;
     }
     return item.val.uint64;
@@ -205,7 +181,7 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
     }
     size_t array_size = item->val.uCount;
     for (size_t j = 0; j < array_size; j++) {
-        if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch(targetDataType) {
@@ -275,13 +251,13 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
     }
     tc_info_arr->len = item->val.uCount;
     for (size_t i = 0; i < tc_info_arr->len; i++) {
-        if (!qcbor_get_next(message, item, error, QCBOR_TYPE_MAP)) {
+        if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_MAP)) {
             tc_info_arr->len = i;
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         size_t map_count = item->val.uCount;
         for (size_t j = 0; j < map_count; j++) {
-            if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+            if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
                 return TEEP_INVALID_TYPE_OF_ARGUMENT;
             }
             tc_info_arr->items[i].contains = 0UL;
@@ -336,13 +312,13 @@ int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
     }
     tc_info_arr->len = item->val.uCount;
     for (size_t i = 0; i < tc_info_arr->len; i++) {
-        if (!qcbor_get_next(message, item, error, QCBOR_TYPE_MAP)) {
+        if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_MAP)) {
             tc_info_arr->len = i;
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         size_t map_count = item->val.uCount;
         for (size_t j = 0; j < map_count; j++) {
-            if (!qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
+            if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
                 return TEEP_INVALID_TYPE_OF_ARGUMENT;
             }
             tc_info_arr->items[i].contains = 0UL;
@@ -405,12 +381,12 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
     }
     query_request->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
-        if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
@@ -453,7 +429,7 @@ int32_t set_teep_query_request(QCBORDecodeContext *message,
                 break;
         }
     }
-    if (!qcbor_get_next_uint64(message, &item, &error)) {
+    if (!teep_qcbor_get_next_uint64(message, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     query_request->data_item_requested = item.val.uint64;
@@ -484,12 +460,12 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
     }
     query_response->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
-        if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
@@ -581,12 +557,12 @@ int32_t set_teep_update(QCBORDecodeContext *message,
     }
     teep_update->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
-        if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
@@ -636,12 +612,12 @@ int32_t set_teep_success(QCBORDecodeContext *message,
     }
     teep_success->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
-        if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
@@ -694,12 +670,12 @@ int32_t set_teep_error(QCBORDecodeContext *message,
     }
     teep_error->contains |= TEEP_MESSAGE_CONTAINS_TYPE;
 
-    if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
+    if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_MAP)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     size_t map_count = item.val.uCount;
     for (size_t i = 0; i < map_count; i++) {
-        if (!qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
+        if (!teep_qcbor_get_next(message, &item, &error, QCBOR_TYPE_ANY)) {
             return TEEP_INVALID_TYPE_OF_ARGUMENT;
         }
         switch (item.label.uint64) {
@@ -727,7 +703,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
                 }
                 teep_error->supported_cipher_suites.len = item.val.uCount;
                 for (size_t j = 0; j < teep_error->supported_cipher_suites.len; j++) {
-                    if (!qcbor_get_next_uint64(message, &item, &error)) {
+                    if (!teep_qcbor_get_next_uint64(message, &item, &error)) {
                         teep_error->supported_cipher_suites.len = j;
                         result = TEEP_INVALID_TYPE_OF_ARGUMENT;
                         break;
@@ -758,7 +734,7 @@ int32_t set_teep_error(QCBORDecodeContext *message,
         }
     }
 
-    if (!qcbor_get_next_uint64(message, &item, &error)) {
+    if (!teep_qcbor_get_next_uint64(message, &item, &error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     teep_error->err_code = item.val.uint64;

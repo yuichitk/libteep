@@ -42,7 +42,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(der_buf, der_len);
+    teep_print_hex(der_buf, der_len);
     printf("\n");
 
     // Read key from der file.
@@ -63,7 +63,7 @@ skip_load_key:
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(cbor_buf, cbor_len);
+    teep_print_hex(cbor_buf, cbor_len);
     printf("\n");
 
     UsefulBufC returned_payload;
@@ -84,7 +84,7 @@ skip_load_key:
         return EXIT_FAILURE;
     }
     printf("\nmain : Success to verify. Print cose payload.\n");
-    print_hex(returned_payload.ptr, returned_payload.len);
+    teep_print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1

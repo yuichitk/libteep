@@ -27,7 +27,7 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
         printf("      challenge : ");
-        print_hex(query_request->challenge.ptr, query_request->challenge.len);
+        teep_print_hex(query_request->challenge.ptr, query_request->challenge.len);
         printf("\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
@@ -39,7 +39,7 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_OCSP_DATA) {
         printf("      ocsp-data : ");
-        print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
+        teep_print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
         printf("\n");
     }
     printf("    data-item-requested : %u\n", query_request->data_item_requested);
@@ -61,17 +61,17 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT) {
         printf("      evidence-format : ");
         if (query_response->evidence_format.len <= MAX_PRINT_TEXT_COUNT) {
-            print_text(query_response->evidence_format.ptr, query_response->evidence_format.len);
+            teep_print_text(query_response->evidence_format.ptr, query_response->evidence_format.len);
             printf("\n");
         }
         else {
-            print_text(query_response->evidence_format.ptr, MAX_PRINT_TEXT_COUNT);
+            teep_print_text(query_response->evidence_format.ptr, MAX_PRINT_TEXT_COUNT);
             printf("..\n");
         }
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE) {
         printf("      evidence : ");
-        print_hex(query_response->evidence.ptr, query_response->evidence.len);
+        teep_print_hex(query_response->evidence.ptr, query_response->evidence.len);
         printf("\n");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
@@ -119,10 +119,10 @@ void print_teep_update(const teep_update_t *teep_update) {
         for (size_t i = 0; i < teep_update->tc_list.len; i++) {
             for (size_t j = 0; j < teep_update->tc_list.len; j++) {
                 if (teep_update->tc_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
-                    print_hex(teep_update->tc_list.items[i].ptr, teep_update->tc_list.items[i].len);
+                    teep_print_hex(teep_update->tc_list.items[i].ptr, teep_update->tc_list.items[i].len);
                 }
                 else {
-                    print_hex(teep_update->tc_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
+                    teep_print_hex(teep_update->tc_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
                     printf("..");
                 }
                 printf(",\n");
@@ -135,10 +135,10 @@ void print_teep_update(const teep_update_t *teep_update) {
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
             printf("        ");
             if (teep_update->manifest_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
-                print_hex(teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len);
+                teep_print_hex(teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len);
             }
             else {
-                print_hex(teep_update->manifest_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
+                teep_print_hex(teep_update->manifest_list.items[i].ptr, MAX_PRINT_BYTE_COUNT);
                 printf("..");
             }
             printf(",\n");
@@ -157,11 +157,11 @@ void print_teep_error(const teep_error_t *teep_error) {
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_MSG) {
         printf("      err-msg : ");
         if (teep_error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
-            print_text(teep_error->err_msg.ptr, teep_error->err_msg.len);
+            teep_print_text(teep_error->err_msg.ptr, teep_error->err_msg.len);
             printf("\n");
         }
         else {
-            print_text(teep_error->err_msg.ptr, MAX_PRINT_TEXT_COUNT);
+            teep_print_text(teep_error->err_msg.ptr, MAX_PRINT_TEXT_COUNT);
             printf("..\n");
         }
     }
@@ -195,11 +195,11 @@ void print_teep_success(const teep_success_t *teep_success) {
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_MSG) {
         printf("    msg : ");
         if (teep_success->msg.len <= MAX_PRINT_TEXT_COUNT) {
-            print_text(teep_success->msg.ptr, teep_success->msg.len);
+            teep_print_text(teep_success->msg.ptr, teep_success->msg.len);
             printf("\n");
         }
         else {
-            print_text(teep_success->msg.ptr, MAX_PRINT_TEXT_COUNT);
+            teep_print_text(teep_success->msg.ptr, MAX_PRINT_TEXT_COUNT);
             printf("..\n");
         }
     }
@@ -247,7 +247,7 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
             print_teep_error(&d.teep_error);
             break;
         default:
-            print_debug_string("print_teep_message : Undefined value.\n");
+            teep_print_debug_string("print_teep_message : Undefined value.\n");
             break;
     }
     QCBORDecode_Finish(&decode_context);
