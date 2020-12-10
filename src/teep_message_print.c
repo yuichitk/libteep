@@ -11,6 +11,10 @@
 #include "teep_message_data.h"
 #include "teep_message_print.h"
 
+#ifdef PARSE_SUIT
+#include "csuit/csuit.h"
+#endif
+
 void print_teep_query_request(const teep_query_request_t *query_request) {
     printf("  QueryRequest :\n");
     printf("    type : %u\n", query_request->type);
@@ -43,6 +47,33 @@ void print_teep_query_request(const teep_query_request_t *query_request) {
         printf("\n");
     }
     printf("    data-item-requested : %u\n", query_request->data_item_requested);
+}
+
+void teep_print_component_id(const teep_buf_t *component_id) {
+#ifdef PARSE_SUIT
+    QCBORDecodeContext decode_context;
+    QCBORDecode_Init(&decode_context, (UsefulBufC){component_id->ptr, component_id->len}, QCBOR_DECODE_MODE_NORMAL);
+    QCBORItem item;
+    QCBORError error = QCBOR_SUCCESS;
+    suit_component_identifier_t identifier;
+    int32_t result = SUIT_SUCCESS;
+    if (!suit_qcbor_get_next(&decode_context, &item, &error, QCBOR_TYPE_ARRAY)) {
+        return;
+    }
+    result = suit_set_component_identifiers(&decode_context, &item, &error, &identifier);
+    if (result != SUIT_SUCCESS) {
+        return;
+    }
+    suit_print_component_identifier(&identifier);
+#else
+    if (component_id->len <= MAX_PRINT_BYTE_COUNT) {
+        teep_print_hex(component_id->ptr, component_id->len);
+    }
+    else {
+        teep_print_hex(component_id->ptr, MAX_PRINT_BYTE_COUNT);
+        printf("..");
+    }
+#endif /* PARSE_SUIT */
 }
 
 void print_teep_query_response(const teep_query_response_t *query_response) {
@@ -80,13 +111,7 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
             printf("        {\n");
             if (query_response->tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_COMPONENT_ID) {
                 printf("          component-id : ");
-                if (query_response->tc_list.items[i].component_id.len <= MAX_PRINT_BYTE_COUNT) {
-                    print_hex(query_response->tc_list.items[i].component_id.ptr, query_response->tc_list.items[i].component_id.len);
-                }
-                else {
-                    print_hex(query_response->tc_list.items[i].component_id.ptr, MAX_PRINT_BYTE_COUNT);
-                    printf("..");
-                }
+                teep_print_component_id(&query_response->tc_list.items[i].component_id);
                 printf(",\n");
             }
             if (query_response->tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER) {

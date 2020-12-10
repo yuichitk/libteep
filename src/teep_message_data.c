@@ -141,6 +141,62 @@ uint64_t get_teep_message_type(QCBORDecodeContext *message) {
     return item.val.uint64;
 }
 
+size_t teep_qcbor_calc_rollback(QCBORItem *item) {
+    uint8_t type = item->uDataType;
+    if (item->uDataType == QCBOR_TYPE_INT64 && qcbor_value_is_uint64(item)) {
+        type = QCBOR_TYPE_UINT64;
+    }
+
+    switch (type) {
+        case QCBOR_TYPE_UINT64:
+            if (item->val.uint64 < 23) {
+                return 1;
+            }
+            else if (item->val.uint64 < UINT8_MAX) {
+                return 2;
+            }
+            else if (item->val.uint64 < UINT16_MAX) {
+                return 3;
+            }
+            else if (item->val.uint64 < UINT32_MAX) {
+                return 4;
+            }
+            return 5;
+        case QCBOR_TYPE_INT64:
+            if (item->val.int64 > -25) {
+                return 1;
+            }
+            else if (item->val.int64 > -1 - UINT8_MAX) {
+                return 2;
+            }
+            else if (item->val.int64 > -1 - UINT16_MAX) {
+                return 3;
+            }
+            else if (item->val.int64 > -1 - UINT32_MAX) {
+                return 4;
+            }
+            return 5;
+        case QCBOR_TYPE_BYTE_STRING:
+        case QCBOR_TYPE_TEXT_STRING:
+        case QCBOR_TYPE_ARRAY:
+        case QCBOR_TYPE_MAP:
+            if (item->val.uCount < 24) {
+                return 1;
+            }
+            else if (item->val.uCount < UINT8_MAX) {
+                return 2;
+            }
+            else if (item->val.uCount < UINT16_MAX) {
+                return 3;
+            }
+            else if (item->val.uCount < UINT32_MAX) {
+                return 4;
+            }
+            return 5;
+    }
+    return 0;
+}
+
 /*
  * set ptr and skip out of teep message cbor part such as suit-report
  */
@@ -148,8 +204,19 @@ int32_t set_out_of_teep_buf(QCBORDecodeContext *message,
                             QCBORItem *item,
                             QCBORError *error,
                             teep_buf_t *teep_buf) {
-    uint8_t *buf = (uint8_t *)message->InBuf.UB.ptr + UsefulInputBuf_Tell(&message->InBuf);
-    if (!qcbor_skip_any(message, item, error)) {
+    /* roll back the cursor locally,
+     * because QCBORDecode_GetNext() to Map's key-value set the cursor after the value end.
+     * e.g. Map { unsigned(1) : array(2) [ unsigned(2), unsigned(2) ] }
+                                          ^
+                                          |
+     */
+    uint8_t *buf;
+    size_t rollback = teep_qcbor_calc_rollback(item);
+    if (rollback == 0) {
+        return TEEP_INVALID_TYPE_OF_ARGUMENT;
+    }
+    buf = (uint8_t *)message->InBuf.UB.ptr + (UsefulInputBuf_Tell(&message->InBuf) - rollback);
+    if (!teep_qcbor_skip_any(message, item, error)) {
         return TEEP_INVALID_TYPE_OF_ARGUMENT;
     }
     teep_buf->ptr = buf;

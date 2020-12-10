@@ -20,9 +20,13 @@ $(OBJDIR)/%.o:	%.c
 				-mkdir -p $(dir $@)
 				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-.PHONY:		all debug debug_test test clean
+.PHONY:		all suit debug debug_test test clean
 
 all:		clean $(TARGET)
+
+suit:		CFLAGS += -DPARSE_SUIT
+suit:		LDFLAGS += -lcsuit
+suit:		all
 
 test:		$(TARGET)
 				$(TARGET) ./testfiles/query_request_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
