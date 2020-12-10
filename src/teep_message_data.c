@@ -259,9 +259,9 @@ int32_t set_teep_byte_string(uint8_t data_type,
 }
 
 int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
-                                QCBORItem *item,
-                                QCBORError *error,
-                                teep_tc_info_array_t *tc_info_arr) {
+                               QCBORItem *item,
+                               QCBORError *error,
+                               teep_tc_info_array_t *tc_info_arr) {
     int32_t result;
 
     INITIALIZE_TEEP_ARRAY_PTR(tc_info_arr);
@@ -320,9 +320,9 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
 }
 
 int32_t set_teep_requested_tc_info_array(QCBORDecodeContext *message,
-                                QCBORItem *item,
-                                QCBORError *error,
-                                teep_requested_tc_info_array_t *tc_info_arr) {
+                                         QCBORItem *item,
+                                         QCBORError *error,
+                                         teep_requested_tc_info_array_t *tc_info_arr) {
     int32_t result;
 
     INITIALIZE_TEEP_ARRAY_PTR(tc_info_arr);
@@ -564,7 +564,7 @@ int32_t set_teep_query_response(QCBORDecodeContext *message,
 }
 
 int32_t set_teep_update(QCBORDecodeContext *message,
-                                     teep_update_t *teep_update) {
+                        teep_update_t *teep_update) {
     QCBORItem  item;
     QCBORError error;
     int32_t result;
