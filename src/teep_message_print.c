@@ -247,50 +247,26 @@ void print_teep_success(const teep_success_t *teep_success, uint32_t indent_spac
     }
 }
 
-void print_teep_message(const uint8_t *message, const size_t message_len, uint32_t indent_space) {
-    // decode cbor : get message type.
-    QCBORDecodeContext  decode_context;
-    QCBORDecode_Init(&decode_context,
-                     (UsefulBufC){message, message_len},
-                     QCBOR_DECODE_MODE_NORMAL);
-    uint64_t message_type = get_teep_message_type(&decode_context);
-    QCBORDecode_Finish(&decode_context);
-
-    // decode cbor : get message.
-    QCBORDecode_Init(&decode_context,
-                     (UsefulBufC){message, message_len},
-                     QCBOR_DECODE_MODE_NORMAL);
-    union {
-        teep_query_request_t query_request;
-        teep_query_response_t query_response;
-        teep_update_t teep_update;
-        teep_success_t teep_success;
-        teep_error_t teep_error;
-    } d;
-    switch (message_type) {
+void print_teep_message(const teep_message_t *msg, uint32_t indent_space) {
+    switch (msg->teep_message.type) {
         case TEEP_TYPE_QUERY_REQUEST:
-            set_teep_query_request(&decode_context, &d.query_request);
-            print_teep_query_request(&d.query_request, indent_space);
+            print_teep_query_request(&msg->query_request, indent_space);
             break;
         case TEEP_TYPE_QUERY_RESPONSE:
-            set_teep_query_response(&decode_context, &d.query_response);
-            print_teep_query_response(&d.query_response, indent_space);
+            print_teep_query_response(&msg->query_response, indent_space);
             break;
         case TEEP_TYPE_UPDATE:
-            set_teep_update(&decode_context, &d.teep_update);
-            print_teep_update(&d.teep_update, indent_space);
+            print_teep_update(&msg->teep_update, indent_space);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
-            set_teep_success(&decode_context, &d.teep_success);
-            print_teep_success(&d.teep_success, indent_space);
+            print_teep_success(&msg->teep_success, indent_space);
             break;
         case TEEP_TYPE_TEEP_ERROR:
-            set_teep_error(&decode_context, &d.teep_error);
-            print_teep_error(&d.teep_error, indent_space);
+            print_teep_error(&msg->teep_error, indent_space);
             break;
         default:
             teep_print_debug_string("print_teep_message : Undefined value.\n");
             break;
     }
-    QCBORDecode_Finish(&decode_context);
+
 }

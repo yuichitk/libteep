@@ -95,9 +95,9 @@ int32_t create_es256_public_key(const char *public_key, struct t_cose_key *cose_
 
 int32_t verify_cose_sign1(UsefulBufC *signed_cose, const char *public_key, UsefulBufC *returned_payload) {
     struct t_cose_key   cose_public_key;
-    int32_t             result = 0;
+    int32_t             result = TEEP_SUCCESS;
     result = create_es256_public_key(public_key, &cose_public_key);
-    if (result) {
+    if (result != TEEP_SUCCESS) {
         printf("Fail make_ossl_ecdsa_key_pair : result = %d\n", result);
         return result;
     }
@@ -111,7 +111,7 @@ int32_t verify_cose_sign1(UsefulBufC *signed_cose, const char *public_key, Usefu
                                       *signed_cose,
                                       returned_payload,
                                       &parameters);
-     if (cose_result) {
+     if (cose_result != TEEP_SUCCESS) {
          printf("Fail t_cose_sign1_verify : result = %d\n", cose_result);
          return TEEP_CBOR_WITHOUT_SIGN1;
      }

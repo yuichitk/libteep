@@ -15,6 +15,7 @@
 #define MAX_FILE_BUFFER_SIZE                512
 
 int main(int argc, const char * argv[]) {
+    int32_t result;
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
     bool verify = true;
     // Check arguments.
@@ -77,9 +78,8 @@ skip_load_key:
     // Verify cbor file.
     printf("\nmain : Verify CBOR file.\n");
     UsefulBufC signed_cose = {cbor_buf, cbor_len};
-    int32_t result;
     result = verify_cose_sign1(&signed_cose, key_buf, &returned_payload);
-    if (result) {
+    if (result != TEEP_SUCCESS) {
         printf("main : Fail to verify CBOR file.\n");
         return EXIT_FAILURE;
     }
@@ -91,7 +91,13 @@ skip_load_key:
 skip_verify_cose:
 #endif
     // Print teep message.
-    print_teep_message(returned_payload.ptr, returned_payload.len, 2);
+    teep_message_t msg;
+    result = set_teep_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Fail to parse CBOR as teep-message.\n");
+        return EXIT_FAILURE;
+    }
+    print_teep_message(&msg, 2);
 
     return EXIT_SUCCESS;
 }

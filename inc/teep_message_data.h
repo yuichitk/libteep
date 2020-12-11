@@ -219,11 +219,21 @@ typedef struct teep_requested_tc_info_array {
 #define TEEP_MESSAGE_CONTAINS_DATA_ITEM_REQUESTED BIT(63)
 
 /*
+ * teep-message-header
+ * XXX: each teep-message MUST have these two members
+ *      at the top of itself in the same order.
+ */
+struct teep_message {
+    teep_type_t                 type;
+    uint64_t                    contains;
+};
+
+/*
  * query-request
  */
 typedef struct teep_query_request {
-    uint64_t                    contains;
     teep_type_t                 type;
+    uint64_t                    contains;
     uint32_t                    token;
     teep_uint64_array_t         supported_cipher_suites;
     teep_buf_t                  challenge;
@@ -238,8 +248,8 @@ typedef struct teep_query_request {
  * query-response
  */
 typedef struct teep_query_response {
-    uint64_t                        contains;
     teep_type_t                     type;
+    uint64_t                        contains;
     uint32_t                        token;
     uint64_t                        selected_cipher_suite;
     uint32_t                        selected_version;
@@ -257,8 +267,8 @@ typedef struct teep_query_response {
  * update
  */
 typedef struct teep_update {
-    uint64_t                contains;
     teep_type_t             type;
+    uint64_t                contains;
     uint32_t                token;
     teep_buf_array_t        tc_list; // [ + SUIT_Component_Identifier ]
     teep_buf_array_t        manifest_list;
@@ -270,8 +280,8 @@ typedef struct teep_update {
  * teep-success
  */
 typedef struct teep_success {
-    uint64_t        contains;
     teep_type_t     type;
+    uint64_t        contains;
     uint32_t        token;
     teep_buf_t      msg;
     teep_buf_t      suit_reports;
@@ -283,8 +293,8 @@ typedef struct teep_success {
  * teep-error
  */
 typedef struct teep_error {
-    uint64_t                contains;
     teep_type_t             type;
+    uint64_t                contains;
     uint32_t                token;
     teep_buf_t              err_msg;
     teep_suite_array_t      supported_cipher_suites;
@@ -295,11 +305,24 @@ typedef struct teep_error {
     teep_err_code_t         err_code;
 } teep_error_t;
 
+/*
+ * teep-message
+ */
+typedef union {
+    struct teep_message teep_message;
+    teep_query_request_t query_request;
+    teep_query_response_t query_response;
+    teep_update_t teep_update;
+    teep_success_t teep_success;
+    teep_error_t teep_error;
+} teep_message_t;
+
 uint64_t get_teep_message_type(QCBORDecodeContext *teep_message);
-int32_t set_teep_query_request(QCBORDecodeContext *teep_message, teep_query_request_t *query_request);
-int32_t set_teep_query_response(QCBORDecodeContext *teep_message, teep_query_response_t *query_response);
-int32_t set_teep_update(QCBORDecodeContext *teep_message, teep_update_t *teep_update);
-int32_t set_teep_success(QCBORDecodeContext *teep_message, teep_success_t *success);
-int32_t set_teep_error(QCBORDecodeContext *teep_message, teep_error_t *error);
+int32_t set_teep_query_request(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_request_t *query_request);
+int32_t set_teep_query_response(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_response_t *query_response);
+int32_t set_teep_update(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_update_t *teep_update);
+int32_t set_teep_success(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_success_t *teep_success);
+int32_t set_teep_error(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_error_t *teep_error);
+int32_t set_teep_message_from_bytes(const uint8_t *buf, const size_t len, teep_message_t *msg);
 
 #endif  /* TEEP_MESSAGE_DATA_H */
