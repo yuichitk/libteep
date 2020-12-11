@@ -91,7 +91,7 @@ skip_load_key:
 skip_verify_cose:
 #endif
     // Print teep message.
-    print_teep_message(returned_payload.ptr, returned_payload.len);
+    print_teep_message(returned_payload.ptr, returned_payload.len, 2);
 
     return EXIT_SUCCESS;
 }

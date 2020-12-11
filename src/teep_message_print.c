@@ -15,38 +15,38 @@
 #include "csuit/csuit.h"
 #endif
 
-void print_teep_query_request(const teep_query_request_t *query_request) {
-    printf("  QueryRequest :\n");
-    printf("    type : %u\n", query_request->type);
-    printf("    options :\n");
+void print_teep_query_request(const teep_query_request_t *query_request, uint32_t indent_space) {
+    printf("%*sQueryRequest :\n", indent_space, "");
+    printf("%*stype : %u\n", indent_space + 2, "", query_request->type);
+    printf("%*soptions :\n", indent_space + 2, "");
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("      token : %u\n", query_request->token);
+        printf("%*stoken : %u\n", indent_space + 4, "", query_request->token);
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("      supported-cipher-suites : [ ");
+        printf("%*ssupported-cipher-suites : [ ", indent_space + 4, "");
         for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
             printf("%lu, ", query_request->supported_cipher_suites.items[i]);
         }
         printf("]\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
-        printf("      challenge : ");
+        printf("%*schallenge : ", indent_space + 4, "");
         teep_print_hex(query_request->challenge.ptr, query_request->challenge.len);
         printf("\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
-        printf("      versions : [ ");
+        printf("%*sversions : [ ", indent_space + 4, "");
         for (size_t i = 0; i < query_request->versions.len; i++) {
             printf("%u, ", query_request->versions.items[i]);
         }
         printf("]\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_OCSP_DATA) {
-        printf("      ocsp-data : ");
+        printf("%*socsp-data : ", indent_space + 4, "");
         teep_print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
         printf("\n");
     }
-    printf("    data-item-requested : %u\n", query_request->data_item_requested);
+    printf("%*sdata-item-requested : %u\n", indent_space + 2, "", query_request->data_item_requested);
 }
 
 void teep_print_component_id(const teep_buf_t *component_id) {
@@ -76,21 +76,21 @@ void teep_print_component_id(const teep_buf_t *component_id) {
 #endif /* PARSE_SUIT */
 }
 
-void print_teep_query_response(const teep_query_response_t *query_response) {
-    printf("  QueryResponse :\n");
-    printf("    type : %u\n", query_response->type);
-    printf("    options :\n");
+void print_teep_query_response(const teep_query_response_t *query_response, uint32_t indent_space) {
+    printf("%*sQueryResponse :\n", indent_space, "");
+    printf("%*stype : %u\n", indent_space + 2, "", query_response->type);
+    printf("%*soptions :\n", indent_space + 2, "");
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("      token : %u\n", query_response->token);
+        printf("%*stoken : %u\n", indent_space + 4, "", query_response->token);
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
-        printf("      selected-cipher-suite : %lu\n", query_response->selected_cipher_suite);
+        printf("%*sselected-cipher-suite : %lu\n", indent_space + 4, "", query_response->selected_cipher_suite);
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
-        printf("      selected-version : %u\n", query_response->selected_version);
+        printf("%*sselected-version : %u\n", indent_space + 4, "", query_response->selected_version);
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT) {
-        printf("      evidence-format : ");
+        printf("%*sevidence-format : ", indent_space + 4, "");
         if (query_response->evidence_format.len <= MAX_PRINT_TEXT_COUNT) {
             teep_print_text(query_response->evidence_format.ptr, query_response->evidence_format.len);
             printf("\n");
@@ -101,14 +101,14 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
         }
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE) {
-        printf("      evidence : ");
+        printf("%*sevidence : ", indent_space + 4, "");
         teep_print_hex(query_response->evidence.ptr, query_response->evidence.len);
         printf("\n");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
-        printf("      tc-list : [\n");
+        printf("%*stc-list : [\n", indent_space + 4, "");
         for (size_t i = 0; i < query_response->tc_list.len; i++) {
-            printf("        {\n");
+            printf("%*s{\n", indent_space + 6, "");
             if (query_response->tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_COMPONENT_ID) {
                 printf("          component-id : ");
                 teep_print_component_id(&query_response->tc_list.items[i].component_id);
@@ -119,12 +119,12 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
                     printf("          tc-manifest-sequence-number : %lu,\n", query_response->tc_list.items[i].tc_manifest_sequence_number);
                 }
             }
-            printf("        },\n");
+            printf("%*s},\n", indent_space + 6, "");
         }
-        printf("      ]\n");
+        printf("%*s]\n", indent_space + 4, "");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EXT_LIST) {
-        printf("      ext-list : [");
+        printf("%*sext-list : [", indent_space + 4, "");
         for (size_t i = 0; i < query_response->ext_list.len; i++) {
             printf("%lu ", query_response->ext_list.items[i]);
         }
@@ -132,15 +132,15 @@ void print_teep_query_response(const teep_query_response_t *query_response) {
     }
 }
 
-void print_teep_update(const teep_update_t *teep_update) {
-    printf("  Update :\n");
-    printf("    type : %u\n", teep_update->type);
-    printf("    options :\n");
+void print_teep_update(const teep_update_t *teep_update, uint32_t indent_space) {
+    printf("%*sUpdate :\n", indent_space, "");
+    printf("%*stype : %u\n", indent_space + 2, "", teep_update->type);
+    printf("%*soptions :\n", indent_space + 2, "");
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("      token : %u\n", teep_update->token);
+        printf("%*stoken : %u\n", indent_space + 4, "", teep_update->token);
     }
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
-        printf("      tc-list : [\n");
+        printf("%*stc-list : [\n", indent_space + 4, "");
         for (size_t i = 0; i < teep_update->tc_list.len; i++) {
             for (size_t j = 0; j < teep_update->tc_list.len; j++) {
                 if (teep_update->tc_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
@@ -156,7 +156,7 @@ void print_teep_update(const teep_update_t *teep_update) {
         }
     }
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_MANIFEST_LIST) {
-        printf("      manifest-list : [\n");
+        printf("%*smanifest-list : [\n", indent_space + 4, "");
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
 #ifdef PARSE_SUIT
             QCBORDecodeContext decode_context;
@@ -185,19 +185,19 @@ void print_teep_update(const teep_update_t *teep_update) {
             printf(",\n");
 #endif /* PARSE_SUIT */
         }
-        printf("      ]\n");
+        printf("%*s]\n", indent_space + 4, "");
     }
 }
 
-void print_teep_error(const teep_error_t *teep_error) {
-    printf("  Error :\n");
-    printf("    type : %u\n", teep_error->type);
-    printf("    options :\n");
+void print_teep_error(const teep_error_t *teep_error, uint32_t indent_space) {
+    printf("%*sError :\n", indent_space, "");
+    printf("%*stype : %u\n", indent_space + 2, "", teep_error->type);
+    printf("%*soptions :\n", indent_space + 2, "");
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("      token : %u\n", teep_error->token);
+        printf("%*stoken : %u\n", indent_space + 4, "", teep_error->token);
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_MSG) {
-        printf("      err-msg : ");
+        printf("%*serr-msg : ", indent_space + 4, "");
         if (teep_error->err_msg.len <= MAX_PRINT_TEXT_COUNT) {
             teep_print_text(teep_error->err_msg.ptr, teep_error->err_msg.len);
             printf("\n");
@@ -208,34 +208,34 @@ void print_teep_error(const teep_error_t *teep_error) {
         }
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("      supported-cipher-suites : ");
+        printf("%*ssupported-cipher-suites : ", indent_space + 4, "");
         for (size_t i = 0; i < teep_error->supported_cipher_suites.len; i++) {
             printf("%u ", teep_error->supported_cipher_suites.items[i]);
         }
         printf("\n");
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
-        printf("      versions : ");
+        printf("%*sversions : ", indent_space + 4, "");
         for (size_t i = 0; i < teep_error->versions.len; i++) {
             printf("%u ", teep_error->versions.items[i]);
         }
         printf("\n");
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_CODE) {
-        printf("    err-code : %u\n", teep_error->err_code);
+        printf("%*serr-code : %u\n", indent_space + 2, "", teep_error->err_code);
     }
     printf("\n");
 }
 
-void print_teep_success(const teep_success_t *teep_success) {
-    printf("  Success :\n");
-    printf("    type : %u\n", teep_success->type);
-    printf("    options :\n");
+void print_teep_success(const teep_success_t *teep_success, uint32_t indent_space) {
+    printf("%*sSuccess :\n", indent_space, "");
+    printf("%*stype : %u\n", indent_space + 2, "", teep_success->type);
+    printf("%*soptions :\n", indent_space + 2, "");
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("      token : %u\n", teep_success->token);
+        printf("%*stoken : %u\n", indent_space + 4, "", teep_success->token);
     }
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_MSG) {
-        printf("    msg : ");
+        printf("%*smsg : ", indent_space + 2, "");
         if (teep_success->msg.len <= MAX_PRINT_TEXT_COUNT) {
             teep_print_text(teep_success->msg.ptr, teep_success->msg.len);
             printf("\n");
@@ -247,7 +247,7 @@ void print_teep_success(const teep_success_t *teep_success) {
     }
 }
 
-void print_teep_message(const uint8_t *message, const size_t message_len) {
+void print_teep_message(const uint8_t *message, const size_t message_len, uint32_t indent_space) {
     // decode cbor : get message type.
     QCBORDecodeContext  decode_context;
     QCBORDecode_Init(&decode_context,
@@ -270,23 +270,23 @@ void print_teep_message(const uint8_t *message, const size_t message_len) {
     switch (message_type) {
         case TEEP_TYPE_QUERY_REQUEST:
             set_teep_query_request(&decode_context, &d.query_request);
-            print_teep_query_request(&d.query_request);
+            print_teep_query_request(&d.query_request, indent_space);
             break;
         case TEEP_TYPE_QUERY_RESPONSE:
             set_teep_query_response(&decode_context, &d.query_response);
-            print_teep_query_response(&d.query_response);
+            print_teep_query_response(&d.query_response, indent_space);
             break;
         case TEEP_TYPE_UPDATE:
             set_teep_update(&decode_context, &d.teep_update);
-            print_teep_update(&d.teep_update);
+            print_teep_update(&d.teep_update, indent_space);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
             set_teep_success(&decode_context, &d.teep_success);
-            print_teep_success(&d.teep_success);
+            print_teep_success(&d.teep_success, indent_space);
             break;
         case TEEP_TYPE_TEEP_ERROR:
             set_teep_error(&decode_context, &d.teep_error);
-            print_teep_error(&d.teep_error);
+            print_teep_error(&d.teep_error, indent_space);
             break;
         default:
             teep_print_debug_string("print_teep_message : Undefined value.\n");
