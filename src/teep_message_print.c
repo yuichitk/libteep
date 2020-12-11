@@ -158,6 +158,22 @@ void print_teep_update(const teep_update_t *teep_update) {
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_MANIFEST_LIST) {
         printf("      manifest-list : [\n");
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
+#ifdef PARSE_SUIT
+            QCBORDecodeContext decode_context;
+            QCBORDecode_Init(&decode_context, (UsefulBufC){teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len}, QCBOR_DECODE_MODE_NORMAL);
+            QCBORItem item;
+            QCBORError error = QCBOR_SUCCESS;
+            suit_envelope_t envelope;
+            int32_t result = SUIT_SUCCESS;
+            if (!suit_qcbor_get_next(&decode_context, &item, &error, QCBOR_TYPE_ARRAY)) {
+                return;
+            }
+            result = suit_set_envelope(&decode_context, &item, &error, &envelope);
+            if (result != SUIT_SUCCESS) {
+                return;
+            }
+            suit_print_envelope(&envelope, 8);
+#else
             printf("        ");
             if (teep_update->manifest_list.items[i].len <= MAX_PRINT_BYTE_COUNT) {
                 teep_print_hex(teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len);
@@ -167,6 +183,7 @@ void print_teep_update(const teep_update_t *teep_update) {
                 printf("..");
             }
             printf(",\n");
+#endif /* PARSE_SUIT */
         }
         printf("      ]\n");
     }
