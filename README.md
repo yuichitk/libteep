@@ -76,6 +76,11 @@ make -B -f Makefile.parser suit
 make test
 ```
 
+## Install
+```
+make install
+```
+
 ## TEEP Protocol Message Examples
 The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-04](https://tools.ietf.org/html/draft-ietf-teep-protocol-04).
 - QueryRequest
@@ -97,7 +102,6 @@ The following description Markdown and CBOR files are compliant with [draft-ietf
   - [teep_success.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.md)
   - [teep_success.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.cbor)
   - [teep_success_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.cbor)
-
 
 - Error
   - [teep_error.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error.md)
