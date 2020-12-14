@@ -4,45 +4,49 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-CC		= gcc
-CFLAGS	= -Wall
-LDFLAGS	= -lt_cose -lqcbor -lcrypto
-INC   	= -I ./inc -I ./examples/inc
-TARGET	= ./teep_message_parser
-SRCS	= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_data.c src/teep_message_print.c src/teep_cose.c
-OBJDIR	= ./obj
-OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
+CC			= gcc
+CFLAGS		= -Wall
+LDFLAGS		= -lt_cose -lqcbor -lcrypto
+INC			= -I ./inc -I ./examples/inc
+TARGET		= ./teep_message_parser
+SRCS		= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_data.c src/teep_message_print.c src/teep_cose.c
+OBJDIR		= ./obj
+OBJS		= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
+COSE_FLAG	= "_cose"
+
+ifdef suit
+    CFLAGS += -DPARSE_SUIT
+    LDFLAGS += -lcsuit
+endif
+ifdef debug
+    CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1
+    COSE_FLAG = ""
+endif
+
+.PHONY:		all test clean debug_test
+
+all:		clean $(BUILD_OPS) $(TARGET)
 
 $(TARGET):	$(OBJS)
-			$(CC) -o $@ $^ $(LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(OBJDIR)/%.o:	%.c
-				-mkdir -p $(dir $@)
-				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-.PHONY:		all suit debug debug_test test clean
+test: $(TARGET)
+	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
+	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
+	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
+	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
+	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
 
-all:		clean $(TARGET)
-
-suit:		CFLAGS += -DPARSE_SUIT
-suit:		LDFLAGS += -lcsuit
-suit:		all
-
-test:		$(TARGET)
-				$(TARGET) ./testfiles/query_request_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/query_response_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/update_cose.cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/teep_success_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-				$(TARGET) ./testfiles/teep_error_cose.cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-
-debug:		CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1
-debug:		all
 
 debug_testfiles := query_request.cbor query_response.cbor update.cbor teep_success.cbor teep_error.cbor
 debug_test:	debug
-				for file in $(debug_testfiles) ; do \
-					$(TARGET) testfiles/$$file || exit 1; \
-				done
+	for file in $(debug_testfiles) ; do \
+		$(TARGET) testfiles/$$file || exit 1; \
+	done
 
 clean:
-			rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET)

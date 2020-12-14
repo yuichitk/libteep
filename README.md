@@ -57,7 +57,7 @@ make -f Makefile.client -B
 ./testfiles/tam_server.sh -d # server sends CBOR without cose-sign1
 ./teep_http_client # it must fail because the server send CBOR without cose-sign1
 
-make -f Makefile.client -B debug
+make -f Makefile.client -B debug=1
 ./testfiles/tam_server.sh -d
 ./teep_http_client # client allows server to send CBOR without cose-sign1
 
@@ -72,8 +72,7 @@ cd libcsuit/
 make install
 
 cd /path/to/libteep/
-make -B -f Makefile.parser suit
-make test
+make -f Makefile.parser suit=1 -B test
 ```
 
 ## Install
