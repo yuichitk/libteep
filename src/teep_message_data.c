@@ -178,6 +178,19 @@ size_t teep_qcbor_calc_rollback(QCBORItem *item) {
             return 5;
         case QCBOR_TYPE_BYTE_STRING:
         case QCBOR_TYPE_TEXT_STRING:
+            if (item->val.string.len < 24) {
+                return 1;
+            }
+            else if (item->val.string.len < UINT8_MAX) {
+                return 2;
+            }
+            else if (item->val.string.len < UINT16_MAX) {
+                return 3;
+            }
+            else if (item->val.string.len < UINT32_MAX) {
+                return 4;
+            }
+            return 5;
         case QCBOR_TYPE_ARRAY:
         case QCBOR_TYPE_MAP:
             if (item->val.uCount < 24) {

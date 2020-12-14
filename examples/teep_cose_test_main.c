@@ -32,7 +32,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(der_buf, der_len);
+    teep_print_hex(der_buf, der_len);
     printf("\n");
 
     // Read key from der file.
