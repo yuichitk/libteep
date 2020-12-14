@@ -19,12 +19,9 @@ int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const
     if (array == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
-    if (size > size_max) {
-        return TEEP_UNEXPECTED_ERROR;
-    }
     size_t print_len = (size < size_max) ? size : size_max;
     for (size_t i = 0; i < size; i++) {
-        printf("%#04x ", (unsigned char)array[i]);
+        printf("0x%02x ", (unsigned char)array[i]);
     }
     if (print_len < size) {
         printf("..");

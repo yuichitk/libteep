@@ -12,7 +12,7 @@ TARGET		= ./teep_message_parser
 SRCS		= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_data.c src/teep_message_print.c src/teep_cose.c
 OBJDIR		= ./obj
 OBJS		= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
-COSE_FLAG	= "_cose"
+COSE_FLAG	= _cose
 
 ifdef suit
     CFLAGS += -DPARSE_SUIT
@@ -20,7 +20,7 @@ ifdef suit
 endif
 ifdef debug
     CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1
-    COSE_FLAG = ""
+    COSE_FLAG=
 endif
 
 .PHONY:		all test clean debug_test
