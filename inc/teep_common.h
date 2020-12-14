@@ -24,8 +24,8 @@ typedef struct teep_buf {
     const uint8_t   *ptr;
 } teep_buf_t;
 
-void teep_print_hex(const uint8_t *array, int32_t size);
-void teep_print_text(const uint8_t *text, int32_t size);
+int32_t teep_print_hex(const uint8_t *array, size_t size);
+int32_t teep_print_text(const uint8_t *text, size_t size);
 void teep_print_error_string(const char *message);
 void teep_print_debug_string(const char *message);
 void teep_print_debug_string_uint32(const char *message, uint32_t value);

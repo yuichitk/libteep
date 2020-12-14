@@ -16,6 +16,7 @@
 
 int main(int argc, const char * argv[]) {
     int32_t result;
+    teep_message_t msg;
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
     bool verify = true;
     // Check arguments.
@@ -80,10 +81,18 @@ skip_load_key:
     UsefulBufC signed_cose = {cbor_buf, cbor_len};
     result = verify_cose_sign1(&signed_cose, key_buf, &returned_payload);
     if (result != TEEP_SUCCESS) {
+#ifdef ALLOW_CBOR_WITHOUT_SIGN1
+        printf("main : Fail to verify CBOR file, so skip this.\n");
+        returned_payload.ptr = cbor_buf;
+        returned_payload.len = cbor_len;
+#else
         printf("main : Fail to verify CBOR file.\n");
         return EXIT_FAILURE;
+#endif
     }
-    printf("\nmain : Success to verify. Print cose payload.\n");
+    else {
+        printf("\nmain : Success to verify. Print cose payload.\n");
+    }
     teep_print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
@@ -91,13 +100,16 @@ skip_load_key:
 skip_verify_cose:
 #endif
     // Print teep message.
-    teep_message_t msg;
     result = set_teep_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
     if (result != TEEP_SUCCESS) {
-        printf("main : Fail to parse CBOR as teep-message.\n");
+        printf("main : Fail to parse CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
-    print_teep_message(&msg, 2);
+    result = print_teep_message(&msg, 2);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Fail to print CBOR as teep-message. (err=%d)\n", result);
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
