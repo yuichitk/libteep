@@ -13,6 +13,8 @@ SRCS		= examples/teep_message_parser_main.c examples/teep_examples_common.c src/
 OBJDIR		= ./obj
 OBJS		= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 COSE_FLAG	= _cose
+TAM_KEY		= ./testfiles/key/tam_prime256v1_pub.der
+DEV_KEY		= ./testfiles/key/teep_agent_prime256v1_pub.der
 
 ifdef suit
     CFLAGS += -DPARSE_SUIT
@@ -35,11 +37,11 @@ $(OBJDIR)/%.o:	%.c
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 test: $(TARGET)
-	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
-	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor ./testfiles/key/tam_prime256v1_pub.der || exit 1
-	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
-	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor ./testfiles/key/teep_agent_prime256v1_pub.der || exit 1
+	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor $(TAM_KEY) || exit 1
+	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
+	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor $(TAM_KEY) || exit 1
+	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
+	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
 
 
 debug_testfiles := query_request.cbor query_response.cbor update.cbor teep_success.cbor teep_error.cbor
