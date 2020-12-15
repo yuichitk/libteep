@@ -220,20 +220,21 @@ int32_t set_out_of_teep_buf(QCBORDecodeContext *message,
     /* roll back the cursor locally,
      * because QCBORDecode_GetNext() to Map's key-value set the cursor after the value end.
      * e.g. Map { unsigned(1) : array(2) [ unsigned(2), unsigned(2) ] }
-                                          ^
-                                          |
+                                                                    ^
+                                                                    |
      */
     uint8_t *buf;
     size_t rollback = teep_qcbor_calc_rollback(item);
     if (rollback == 0) {
-        return TEEP_INVALID_TYPE_OF_ARGUMENT;
+        return TEEP_UNEXPECTED_ERROR;
     }
-    buf = (uint8_t *)message->InBuf.UB.ptr + (UsefulInputBuf_Tell(&message->InBuf) - rollback);
+    size_t cursor = UsefulInputBuf_Tell(&message->InBuf);
+    buf = (uint8_t *)message->InBuf.UB.ptr + (cursor - rollback);
     if (!teep_qcbor_skip_any(message, item, error)) {
-        return TEEP_INVALID_TYPE_OF_ARGUMENT;
+        return TEEP_UNEXPECTED_ERROR;
     }
     teep_buf->ptr = buf;
-    teep_buf->len = (uint8_t *)message->InBuf.UB.ptr + UsefulInputBuf_Tell(&message->InBuf) - buf;
+    teep_buf->len = UsefulInputBuf_Tell(&message->InBuf) - (cursor - rollback);
 
     return TEEP_SUCCESS;
 }
@@ -243,7 +244,6 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                            QCBORError *error,
                            uint8_t targetDataType,
                            void *teep_any_array) {
-    int32_t result = TEEP_SUCCESS;
     union {
         void *v;
         teep_uint64_array_t *u64;
@@ -288,14 +288,6 @@ int32_t set_teep_any_array(QCBORDecodeContext *message,
                 ptr.b->items[j].len = item->val.string.len;
                 ptr.b->len = j + 1;
                 break;
-            case QCBOR_TYPE_ANY:
-                /* out_of_teep type, so directly store the cbor buf ptr */
-                result = set_out_of_teep_buf(message, item, error, &ptr.b->items[j]);
-                if (result != TEEP_SUCCESS) {
-                    return result;
-                }
-                ptr.b->len = j + 1;
-                break;
             default:
                 break;
         }
@@ -338,7 +330,7 @@ int32_t set_teep_tc_info_array(QCBORDecodeContext *message,
         size_t map_count = item->val.uCount;
         for (size_t j = 0; j < map_count; j++) {
             if (!teep_qcbor_get_next(message, item, error, QCBOR_TYPE_ANY)) {
-                return TEEP_INVALID_TYPE_OF_ARGUMENT;
+                return TEEP_UNEXPECTED_ERROR;
             }
             tc_info_arr->items[i].contains = 0UL;
             tc_info_arr->items[i].tc_manifest_sequence_number = TEEP_SUIT_MANIFEST_SEQUENCE_NUMBER_INVALID;
@@ -661,7 +653,7 @@ int32_t set_teep_update(QCBORDecodeContext *message,
                 teep_update->contains |= TEEP_MESSAGE_CONTAINS_TC_LIST;
                 break;
             case TEEP_OPTIONS_KEY_MANIFEST_LIST:
-                result = set_teep_any_array(message, item, error, QCBOR_TYPE_ANY, &teep_update->manifest_list);
+                result = set_teep_any_array(message, item, error, QCBOR_TYPE_BYTE_STRING, &teep_update->manifest_list);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }

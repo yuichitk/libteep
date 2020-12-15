@@ -16,7 +16,7 @@
 
 int main(int argc, const char * argv[]) {
     int32_t result;
-    teep_message_t msg;
+    teep_message_t msg = { 0 };
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
     bool verify = true;
     // Check arguments.

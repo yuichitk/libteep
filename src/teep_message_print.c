@@ -20,7 +20,7 @@ int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const
         return TEEP_UNEXPECTED_ERROR;
     }
     size_t print_len = (size < size_max) ? size : size_max;
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < print_len; i++) {
         printf("0x%02x ", (unsigned char)array[i]);
     }
     if (print_len < size) {
@@ -130,11 +130,11 @@ int32_t teep_print_component_id(const teep_buf_t *component_id) {
     int32_t result = TEEP_SUCCESS;
 #ifdef PARSE_SUIT
     QCBORDecodeContext decode_context;
-    QCBORDecode_Init(&decode_context, (UsefulBufC){component_id->ptr, component_id->len}, QCBOR_DECODE_MODE_NORMAL);
     QCBORItem item;
     QCBORError error = QCBOR_SUCCESS;
+    QCBORDecode_Init(&decode_context, (UsefulBufC){component_id->ptr, component_id->len}, QCBOR_DECODE_MODE_NORMAL);
     suit_component_identifier_t identifier;
-    int32_t suit_result = suit_set_component_identifiers(&decode_context, &item, &error, &identifier);
+    int32_t suit_result = suit_set_component_identifiers(&decode_context, &item, &error, true, &identifier);
     if (suit_result != SUIT_SUCCESS) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -241,11 +241,11 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
 #ifdef PARSE_SUIT
             QCBORDecodeContext decode_context;
-            QCBORDecode_Init(&decode_context, (UsefulBufC){teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len}, QCBOR_DECODE_MODE_NORMAL);
             QCBORItem item;
             QCBORError error = QCBOR_SUCCESS;
+            QCBORDecode_Init(&decode_context, (UsefulBufC){teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len}, QCBOR_DECODE_MODE_NORMAL);
             suit_envelope_t envelope;
-            int32_t suit_result = suit_set_envelope(&decode_context, &item, &error, &envelope, NULL);
+            int32_t suit_result = suit_set_envelope(&decode_context, &item, &error, true, &envelope, NULL);
             if (suit_result != SUIT_SUCCESS) {
                 return TEEP_UNEXPECTED_ERROR;
             }

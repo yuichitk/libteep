@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include "qcbor/qcbor.h"
 
-#define TEEP_MAX_PRINT_BYTE_COUNT       3
+#define TEEP_MAX_PRINT_BYTE_COUNT       12
 #define TEEP_MAX_PRINT_TEXT_COUNT       16
 
 int32_t print_teep_query_request(const teep_query_request_t *query_request, uint32_t indent_space);
