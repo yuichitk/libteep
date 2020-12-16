@@ -318,11 +318,11 @@ typedef union {
 } teep_message_t;
 
 uint64_t get_teep_message_type(QCBORDecodeContext *teep_message);
-int32_t set_teep_query_request(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_request_t *query_request);
-int32_t set_teep_query_response(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_response_t *query_response);
-int32_t set_teep_update(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_update_t *teep_update);
-int32_t set_teep_success(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_success_t *teep_success);
-int32_t set_teep_error(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_error_t *teep_error);
-int32_t set_teep_message_from_bytes(const uint8_t *buf, const size_t len, teep_message_t *msg);
+int32_t teep_set_query_request(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_request_t *query_request);
+int32_t teep_set_query_response(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_query_response_t *query_response);
+int32_t teep_set_update(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_update_t *teep_update);
+int32_t teep_set_success(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_success_t *teep_success);
+int32_t teep_set_error(QCBORDecodeContext *teep_message, QCBORItem *item, QCBORError *error, teep_error_t *teep_error);
+int32_t teep_set_message_from_bytes(const uint8_t *buf, const size_t len, teep_message_t *msg);
 
 #endif  /* TEEP_MESSAGE_DATA_H */

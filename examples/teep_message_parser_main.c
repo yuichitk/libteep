@@ -100,7 +100,7 @@ skip_load_key:
 skip_verify_cose:
 #endif
     // Print teep message.
-    result = set_teep_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
+    result = teep_set_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
     if (result != TEEP_SUCCESS) {
         printf("main : Fail to parse CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;

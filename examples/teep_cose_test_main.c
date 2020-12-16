@@ -61,7 +61,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(cbor_buf, cbor_len);
+    teep_print_hex(cbor_buf, cbor_len);
     printf("\n");
 
     // Create cose signed file.
@@ -83,7 +83,7 @@ int main(int argc, const char * argv[]) {
         printf("Fail t_cose_sign1_sign : result = %d\n", result);
         return EXIT_FAILURE;
     }
-    print_hex(signed_cose.ptr, signed_cose.len);
+    teep_print_hex(signed_cose.ptr, signed_cose.len);
     printf("\n");
 
     EC_KEY_free(private_key.k.key_ptr);
@@ -97,7 +97,7 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
     printf("\nmain : Success to verify. Print cose payload.\n");
-    print_hex(returned_payload.ptr, returned_payload.len);
+    teep_print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
     if (argc > 3) {

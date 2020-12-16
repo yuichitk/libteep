@@ -37,7 +37,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Can't read DER file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(der_buf, der_len);
+    teep_print_hex(der_buf, der_len);
     printf("\n");
 
     // Read key from der file.
@@ -63,7 +63,7 @@ int main(int argc, const char * argv[]) {
     // Verify and print QueryRequest cose.
     UsefulBufC query_request_cose = {recv_buffer.ptr, recv_buffer.len};
     printf("\nmain : Print query_request_cose\n");
-    print_hex(query_request_cose.ptr, query_request_cose.len);
+    teep_print_hex(query_request_cose.ptr, query_request_cose.len);
     printf("\n");
     UsefulBufC query_request_payload;
     int32_t result_cose;
@@ -79,7 +79,7 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
-    print_hex(query_request_payload.ptr, query_request_payload.len);
+    teep_print_hex(query_request_payload.ptr, query_request_payload.len);
     printf("\n");
     printf("\nmain : Print payload\n");
     print_teep_message(query_request_payload.ptr, query_request_payload.len);
@@ -95,7 +95,7 @@ query_response:
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(query_response_file_bytes, file_length);
+    teep_print_hex(query_response_file_bytes, file_length);
     printf("\n");
 
     // Send TEEP/HTTP QueryResponse.
@@ -122,7 +122,7 @@ query_response:
         return EXIT_FAILURE;
     }
     printf("\nmain : Verify payload\n");
-    print_hex(update_payload.ptr, update_payload.len);
+    teep_print_hex(update_payload.ptr, update_payload.len);
     printf("\n");
     printf("\nmain : Print payload\n");
     print_teep_message(update_payload.ptr, update_payload.len);
@@ -138,7 +138,7 @@ teep_success:
         printf("main : Can't read Success cbor file.\n");
         return EXIT_FAILURE;
     }
-    print_hex(success_file_bytes, file_length);
+    teep_print_hex(success_file_bytes, file_length);
     printf("\n");
 
     // Send TEEP/HTTP Success.
