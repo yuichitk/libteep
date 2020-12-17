@@ -131,10 +131,9 @@ int32_t teep_print_component_id(const teep_buf_t *component_id) {
 #ifdef PARSE_SUIT
     QCBORDecodeContext decode_context;
     QCBORItem item;
-    QCBORError error = QCBOR_SUCCESS;
     QCBORDecode_Init(&decode_context, (UsefulBufC){component_id->ptr, component_id->len}, QCBOR_DECODE_MODE_NORMAL);
     suit_component_identifier_t identifier;
-    int32_t suit_result = suit_set_component_identifiers(&decode_context, &item, &error, true, &identifier);
+    int32_t suit_result = suit_set_component_identifiers(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &decode_context, &item, true, &identifier);
     if (suit_result != SUIT_SUCCESS) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -212,7 +211,7 @@ int32_t print_teep_query_response(const teep_query_response_t *query_response, u
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_space) {
+int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key) {
     if (teep_update == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -242,14 +241,13 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
 #ifdef PARSE_SUIT
             QCBORDecodeContext decode_context;
             QCBORItem item;
-            QCBORError error = QCBOR_SUCCESS;
             QCBORDecode_Init(&decode_context, (UsefulBufC){teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len}, QCBOR_DECODE_MODE_NORMAL);
             suit_envelope_t envelope;
-            int32_t suit_result = suit_set_envelope(&decode_context, &item, &error, true, &envelope, NULL);
+            int32_t suit_result = suit_set_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &decode_context, &item, true, &envelope, ta_public_key);
             if (suit_result != SUIT_SUCCESS) {
                 return TEEP_UNEXPECTED_ERROR;
             }
-            suit_result = suit_print_envelope(&envelope, indent_space + 6);
+            suit_result = suit_print_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &envelope, indent_space + 6);
             if (result != SUIT_SUCCESS) {
                 return TEEP_UNEXPECTED_ERROR;
             }
@@ -329,7 +327,7 @@ int32_t print_teep_success(const teep_success_t *teep_success, uint32_t indent_s
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_message(const teep_message_t *msg, uint32_t indent_space) {
+int32_t print_teep_message(const teep_message_t *msg, uint32_t indent_space, const char *ta_public_key) {
     if (msg == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -342,7 +340,7 @@ int32_t print_teep_message(const teep_message_t *msg, uint32_t indent_space) {
             result = print_teep_query_response(&msg->query_response, indent_space);
             break;
         case TEEP_TYPE_UPDATE:
-            result = print_teep_update(&msg->teep_update, indent_space);
+            result = print_teep_update(&msg->teep_update, indent_space, ta_public_key);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
             result = print_teep_success(&msg->teep_success, indent_space);
