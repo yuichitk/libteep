@@ -141,6 +141,23 @@ uint64_t teep_get_message_type(QCBORDecodeContext *message) {
     return item.val.uint64;
 }
 
+/*
+ * counts the CBOR binary offset between the CBOR type and length declaration
+ * and current cursor = UsefulInputBuf_Tell(&context.InBuf).
+ * note that the cursor point the current item's next buffer.
+ * with INT64, UINT64, TEXT_STRING, and BYTE_STRING,
+ * the current cursor is next to the tail of the value.
+ * 0F               # unsigned(15)
+ * O ^
+ * 38 18            # negative(24) = -25
+ * O    ^
+ * however, with ARRAY, MAP, MAP_AS_ARRAY,
+ * the current cursor is next to the tail of the type and length declaration.
+ * 82 01 02         # Array(1) [ unsigned(1), unsigned(2) ]
+ * O  ^
+ * A1 01 82 02 02   # Map(1) { unsigned(1) : Array(2) [ unsigned(2), unsigned(2) ] }
+ * O  ^
+ */
 size_t teep_qcbor_calc_rollback(QCBORItem *item) {
     uint8_t type = item->uDataType;
     if (item->uDataType == QCBOR_TYPE_INT64 && teep_qcbor_value_is_uint64(item)) {
@@ -149,48 +166,48 @@ size_t teep_qcbor_calc_rollback(QCBORItem *item) {
 
     switch (type) {
         case QCBOR_TYPE_UINT64:
-            if (item->val.uint64 < 23) {
+            if (item->val.uint64 <= 23) {
                 return 1;
             }
-            else if (item->val.uint64 < UINT8_MAX) {
+            else if (item->val.uint64 <= UINT8_MAX) {
                 return 2;
             }
-            else if (item->val.uint64 < UINT16_MAX) {
+            else if (item->val.uint64 <= UINT16_MAX) {
                 return 3;
             }
-            else if (item->val.uint64 < UINT32_MAX) {
-                return 4;
+            else if (item->val.uint64 <= UINT32_MAX) {
+                return 5;
             }
-            return 5;
+            return 9;
         case QCBOR_TYPE_INT64:
-            if (item->val.int64 > -25) {
+            if (item->val.int64 + 1 + 23 >= 0) {
                 return 1;
             }
-            else if (item->val.int64 > -1 - UINT8_MAX) {
+            else if (item->val.int64 + 1 + UINT8_MAX >= 0) {
                 return 2;
             }
-            else if (item->val.int64 > -1 - UINT16_MAX) {
+            else if (item->val.int64 + 1 + UINT16_MAX >= 0) {
                 return 3;
             }
-            else if (item->val.int64 > -1 - UINT32_MAX) {
-                return 4;
+            else if (item->val.int64 + 1 + UINT32_MAX >= 0) {
+                return 5;
             }
-            return 5;
+            return 9;
         case QCBOR_TYPE_BYTE_STRING:
         case QCBOR_TYPE_TEXT_STRING:
             if (item->val.string.len < 24) {
-                return 1;
+                return 1 + item->val.string.len;
             }
-            else if (item->val.string.len < UINT8_MAX) {
-                return 2;
+            else if (item->val.string.len <= UINT8_MAX) {
+                return 2 + item->val.string.len;
             }
-            else if (item->val.string.len < UINT16_MAX) {
-                return 3;
+            else if (item->val.string.len <= UINT16_MAX) {
+                return 3 + item->val.string.len;
             }
-            else if (item->val.string.len < UINT32_MAX) {
-                return 4;
+            else if (item->val.string.len <= UINT32_MAX) {
+                return 5 + item->val.string.len;
             }
-            return 5;
+            return 9 + item->val.string.len;
         case QCBOR_TYPE_ARRAY:
         case QCBOR_TYPE_MAP:
             if (item->val.uCount < 24) {
@@ -203,9 +220,9 @@ size_t teep_qcbor_calc_rollback(QCBORItem *item) {
                 return 3;
             }
             else if (item->val.uCount < UINT32_MAX) {
-                return 4;
+                return 5;
             }
-            return 5;
+            return 9;
     }
     return 0;
 }
@@ -218,10 +235,7 @@ int32_t teep_set_out_of_teep_buf(QCBORDecodeContext *message,
                             QCBORError *error,
                             teep_buf_t *teep_buf) {
     /* roll back the cursor locally,
-     * because QCBORDecode_GetNext() to Map's key-value set the cursor after the value end.
-     * e.g. Map { unsigned(1) : array(2) [ unsigned(2), unsigned(2) ] }
-                                                                    ^
-                                                                    |
+     * because QCBORDecode_GetNext() set the cursor after depends on the context.
      */
     uint8_t *buf;
     size_t rollback = teep_qcbor_calc_rollback(item);
