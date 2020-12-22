@@ -129,11 +129,9 @@ int32_t teep_print_component_id(const teep_buf_t *component_id) {
     }
     int32_t result = TEEP_SUCCESS;
 #ifdef PARSE_SUIT
-    QCBORDecodeContext decode_context;
-    QCBORItem item;
-    QCBORDecode_Init(&decode_context, (UsefulBufC){component_id->ptr, component_id->len}, QCBOR_DECODE_MODE_NORMAL);
+    suit_buf_t buf = {.ptr = component_id->ptr, .len = component_id->len};
     suit_component_identifier_t identifier;
-    int32_t suit_result = suit_set_component_identifiers(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &decode_context, &item, true, &identifier);
+    int32_t suit_result = suit_set_component_identifiers(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &identifier);
     if (suit_result != SUIT_SUCCESS) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -239,11 +237,9 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
         printf("%*smanifest-list : [\n", indent_space + 4, "");
         for (size_t i = 0; i < teep_update->manifest_list.len; i++) {
 #ifdef PARSE_SUIT
-            QCBORDecodeContext decode_context;
-            QCBORItem item;
-            QCBORDecode_Init(&decode_context, (UsefulBufC){teep_update->manifest_list.items[i].ptr, teep_update->manifest_list.items[i].len}, QCBOR_DECODE_MODE_NORMAL);
+            suit_buf_t buf = {.ptr = teep_update->manifest_list.items[i].ptr, .len = teep_update->manifest_list.items[i].len};
             suit_envelope_t envelope;
-            int32_t suit_result = suit_set_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &decode_context, &item, true, &envelope, ta_public_key);
+            int32_t suit_result = suit_set_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &envelope, ta_public_key);
             if (suit_result != SUIT_SUCCESS) {
                 return TEEP_UNEXPECTED_ERROR;
             }
