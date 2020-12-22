@@ -5,5 +5,5 @@
  */
 
 #include "teep_common.h"
-#include "teep_manifest_data.h"
-#include "teep_manifest_print.h"
+#include "teep_message_data.h"
+#include "teep_message_print.h"

@@ -69,7 +69,7 @@ void teep_debug_print(QCBORDecodeContext *message,
     teep_print_hex_within_max(at, len, len);
     printf("\n");
 
-    if (*error != 0) {
+    if (error != NULL && *error != QCBOR_SUCCESS) {
         printf("    Error! nCBORError = %d\n", *error);
     }
     if (expecting != QCBOR_TYPE_ANY && expecting != item->uDataType) {
