@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <teep/teep.h>
