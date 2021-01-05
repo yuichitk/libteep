@@ -13,6 +13,7 @@
 #include "qcbor/qcbor.h"
 
 // Function results
+#define TEEP_VALUE_ERROR                    5
 #define TEEP_CBOR_WITHOUT_SIGN1             4
 #define TEEP_NO_MEMORY                      3
 #define TEEP_UNEXPECTED_ERROR               2
@@ -24,6 +25,7 @@ typedef struct teep_buf {
     const uint8_t   *ptr;
 } teep_buf_t;
 
+int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max);
 int32_t teep_print_hex(const uint8_t *array, size_t size);
 int32_t teep_print_text(const uint8_t *text, size_t size);
 void teep_print_error_string(const char *message);

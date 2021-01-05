@@ -663,7 +663,7 @@ int32_t teep_set_success(QCBORDecodeContext *message,
     int32_t result = TEEP_SUCCESS;
 
     INITIALIZE_TEEP_BUF(teep_success->msg);
-    INITIALIZE_TEEP_BUF(teep_success->suit_reports);
+    INITIALIZE_TEEP_ARRAY(teep_success->suit_reports);
 
     result = teep_qcbor_get_next(message, item, QCBOR_TYPE_MAP);
     if (result != TEEP_SUCCESS) {
@@ -711,7 +711,7 @@ int32_t teep_set_error(QCBORDecodeContext *message,
     INITIALIZE_TEEP_BUF(teep_error->err_msg);
     INITIALIZE_TEEP_ARRAY(teep_error->supported_cipher_suites);
     INITIALIZE_TEEP_ARRAY(teep_error->versions);
-    INITIALIZE_TEEP_BUF(teep_error->suit_reports);
+    INITIALIZE_TEEP_ARRAY(teep_error->suit_reports);
     teep_error->err_code = TEEP_ERR_CODE_INVALID;
 
     result = teep_qcbor_get_next(message, item, QCBOR_TYPE_MAP);
@@ -769,7 +769,7 @@ int32_t teep_set_error(QCBORDecodeContext *message,
                 teep_error->contains |= TEEP_MESSAGE_CONTAINS_VERSION;
                 break;
             case TEEP_OPTIONS_KEY_SUIT_REPORTS:
-                result = teep_set_byte_string(QCBOR_TYPE_BYTE_STRING, item, &teep_error->suit_reports);
+                result = teep_set_any_array(message, item, QCBOR_TYPE_ANY, &teep_error->suit_reports);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }

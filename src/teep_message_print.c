@@ -297,7 +297,6 @@ int32_t print_teep_error(const teep_error_t *teep_error, uint32_t indent_space) 
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_CODE) {
         printf("%*serr-code : %u\n", indent_space + 2, "", teep_error->err_code);
     }
-    printf("\n");
     return TEEP_SUCCESS;
 }
 

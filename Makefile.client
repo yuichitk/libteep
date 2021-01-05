@@ -5,27 +5,27 @@
 #
 
 CC		= gcc
-CFLAGS	= -Wall
+CFLAGS	= -Wall -g
 LDFLAGS	= -lt_cose -lqcbor -lcrypto -lcurl
-INC   	= -I ./inc -I ./examples/inc
+INC		= -I ./inc -I ./examples/inc
 TARGET	= ./teep_http_client
-SRCS	= examples/teep_http_client_main.c examples/teep_examples_common.c src/teep_common.c src/teep_cose.c src/teep_message_print.c src/teep_message_data.c examples/teep_http_client.c
+SRCS	= examples/teep_http_client_main.c examples/teep_examples_common.c src/teep_common.c src/teep_cose.c src/teep_message_print.c src/teep_message_decode.c examples/teep_http_client.c
 OBJDIR	= ./obj
 OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 
-$(TARGET):	$(OBJS)
-			$(CC) -o $@ $^ $(LDFLAGS)
+$(TARGET): $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
-$(OBJDIR)/%.o:	%.c
-				-mkdir -p $(dir $@)
-				$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+$(OBJDIR)/%.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-.PHONY:		all debug clean
+.PHONY: all debug clean
 
-all:		clean $(TARGET)
+all: clean $(TARGET)
 
-debug:		CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
-debug:		all
+debug: CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
+debug: all
 
 clean:
-			rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET)

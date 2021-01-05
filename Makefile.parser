@@ -4,51 +4,46 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-CC			= gcc
-CFLAGS		= -Wall
-LDFLAGS		= -lt_cose -lqcbor -lcrypto
-INC			= -I ./inc -I ./examples/inc
-TARGET		= ./teep_message_parser
-SRCS		= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_data.c src/teep_message_print.c src/teep_cose.c
-OBJDIR		= ./obj
-OBJS		= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
-COSE_FLAG	= _cose
-TAM_KEY		= ./testfiles/key/tam_prime256v1_pub.der
-DEV_KEY		= ./testfiles/key/teep_agent_prime256v1_pub.der
+CC				= gcc
+CFLAGS			= -Wall -g
+LDFLAGS			= -lt_cose -lqcbor -lcrypto
+INC				= -I ./inc -I ./examples/inc
+TARGET			= ./teep_message_parser
+SRCS			= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_encode.c src/teep_message_print.c src/teep_cose.c
+OBJDIR			= ./obj
+OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
+COSE_FLAG		= _cose
+TAM_KEY_PAIR	= ./testfiles/key/tam_prime256v1.der
+TAM_PUB_KEY		= ./testfiles/key/tam_prime256v1_pub.der
+DEV_KEY_PAIR	= ./testfiles/key/teep_agent_prime256v1.der
+DEV_PUB_KEY		= ./testfiles/key/teep_agent_prime256v1_pub.der
 
 ifdef suit
     CFLAGS += -DPARSE_SUIT
     LDFLAGS += -lcsuit
 endif
 ifdef debug
-    CFLAGS += -g -DALLOW_CBOR_WITHOUT_SIGN1
+    CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1
     COSE_FLAG=
 endif
 
-.PHONY:		all test clean debug_test
+.PHONY: all test clean debug_test
 
-all:		clean $(BUILD_OPS) $(TARGET)
+all: clean $(BUILD_OPS) $(TARGET)
 
-$(TARGET):	$(OBJS)
+$(TARGET): $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-$(OBJDIR)/%.o:	%.c
+$(OBJDIR)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
 test: $(TARGET)
-	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor $(TAM_KEY) || exit 1
-	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
-	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor $(TAM_KEY) || exit 1
-	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
-	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor $(DEV_KEY) || exit 1
-
-
-debug_testfiles := query_request.cbor query_response.cbor update.cbor teep_success.cbor teep_error.cbor
-debug_test:	debug
-	for file in $(debug_testfiles) ; do \
-		$(TARGET) testfiles/$$file || exit 1; \
-	done
+	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor $(TAM_PUB_KEY) $(TAM_KEY_PAIR) || exit 1
+	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
+	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor $(TAM_PUB_KEY) $(TAM_KEY_PAIR) || exit 1
+	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
+	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
 
 clean:
 	rm -f $(OBJS) $(TARGET)

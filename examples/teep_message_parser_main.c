@@ -5,83 +5,95 @@
  */
 
 #include <stdio.h>
+#include <assert.h>
 #include "qcbor/qcbor.h"
 #include "teep_common.h"
 #include "teep_cose.h"
 #include "teep_message_data.h"
 #include "teep_message_print.h"
 #include "teep_examples_common.h"
+#include "t_cose/t_cose_sign1_sign.h"
+#include "t_cose/t_cose_sign1_verify.h"
+#include "t_cose/q_useful_buf.h"
+#include "openssl/ecdsa.h"
+#include "openssl/obj_mac.h"
 
 #define MAX_FILE_BUFFER_SIZE                512
 
 int main(int argc, const char * argv[]) {
     int32_t result;
     teep_message_t msg = { 0 };
+    const char *cbor_file_name = NULL;
+    const char *teep_ver_key_name = NULL;
+    const char *teep_sig_key_name = NULL;
+    const char *suit_ver_key_name = NULL;
+    uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
+    char teep_ver_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
+    char teep_sig_key_buf[PRIME256V1_PRIVATE_KEY_CHAR_SIZE + 1];
+    char suit_ver_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
+
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
-    bool verify = true;
-    // Check arguments.
     if (argc < 2) {
-        printf("teep_message_parser <CBOR file path> [<TAM DER file path> [<TrustAnchor DER file path]]\n");
+        printf("teep_message_parser <CBOR file path> [<TEEP Verification DER file path> [<TEEP Sign DER file path [<SUIT Verification DER file path>]]]\n");
         return EXIT_FAILURE;
-    }
-    else if (argc == 2) {
-        verify = false;
-        goto skip_load_key;
     }
 #else
-    // Check arguments.
     if (argc < 3) {
-        printf("teep_message_parser <CBOR file path> <DER file path> [<TrustAnchor DER file path]\n");
+        printf("teep_message_parser <CBOR file path> <TEEP Verification DER file path> [<TEEP Sign DER file path> [<SUIT Verification DER file path>]]\n");
         return EXIT_FAILURE;
     }
 #endif
 
-    // Read der file.
-    printf("\nmain : Read TAM DER file.\n");
-    uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
-    size_t der_len = read_from_file(argv[2], PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
-    if (!der_len) {
-        printf("main : Can't read DER file.\n");
-        return EXIT_FAILURE;
+    // Check arguments.
+    if (argc > 4) {
+        argc = 4;
     }
-    teep_print_hex(der_buf, der_len);
-    printf("\n");
+    switch(argc) {
+        case 4:
+            suit_ver_key_name = argv[4];
+        case 3:
+            teep_sig_key_name = argv[3];
+        case 2:
+            teep_ver_key_name = argv[2];
+            cbor_file_name = argv[1];
+            break;
+        default:
+            return EXIT_FAILURE;
+    }
+#ifndef ALLOW_CBOR_WITHOUT_SIGN1
+    assert(teep_ver_key_name != NULL);
+#endif
+    assert(cbor_file_name != NULL);
 
-    // Read key from der file.
-    // This code is only available for openssl prime256v1.
-    printf("\nmain : Read public key from DER file.\n");
-    char key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE];
-    read_prime256v1_public_key(der_buf, key_buf);
-    printf("%s\n", key_buf);
-
-    char *trust_anchor_key = NULL;
-    char ta_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE];
-    if (argc > 3) {
-        printf("\nmain : Read TrustAnchor DER file.\n");
-        uint8_t ta_der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
-        size_t der_len = read_from_file(argv[3], PRIME256V1_PUBLIC_KEY_DER_SIZE, ta_der_buf);
-        if (!der_len) {
-            printf("main : Can't read DER file.\n");
+    if (teep_sig_key_name != NULL) {
+        printf("main : Read TEEP Private&Public Key Pair.\n");
+        result = read_char_key_pair_from_der(teep_sig_key_name, teep_sig_key_buf, teep_ver_key_buf);
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to load key.\n");
             return EXIT_FAILURE;
         }
-        teep_print_hex(ta_der_buf, der_len);
-        printf("\n");
-
-        // Read key from der file.
-        // This code is only available for openssl prime256v1.
-        printf("\nmain : Read public key from DER file.\n");
-        read_prime256v1_public_key(ta_der_buf, ta_key_buf);
-        printf("%s\n", ta_key_buf);
-        trust_anchor_key = ta_key_buf;
+    }
+    else if (teep_ver_key_name != NULL) {
+        printf("main : Read TEEP Public Key.\n");
+        result = read_char_public_key_from_der(teep_ver_key_name, teep_ver_key_buf);
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to load key.\n");
+            return EXIT_FAILURE;
+        }
     }
 
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-skip_load_key:
-#endif
+    if (suit_ver_key_name != NULL) {
+        printf("main : Read SUIT TrustAnchor Public Key.\n");
+        result = read_char_public_key_from_der(suit_ver_key_name, suit_ver_key_buf);
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to load key.\n");
+            return EXIT_FAILURE;
+        }
+    }
+
     // Read cbor file.
-    printf("\nmain : Read CBOR file.\n");
-    uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
-    size_t cbor_len = read_from_file(argv[1], MAX_FILE_BUFFER_SIZE, cbor_buf);
+    printf("main : Read CBOR file.\n");
+    size_t cbor_len = read_from_file(cbor_file_name, MAX_FILE_BUFFER_SIZE, cbor_buf);
     if (!cbor_len) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
@@ -89,21 +101,19 @@ skip_load_key:
     teep_print_hex(cbor_buf, cbor_len);
     printf("\n");
 
+    // Verify cbor file.
     UsefulBufC returned_payload;
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-    if (!verify) {
+    if (teep_ver_key_name == NULL) {
         returned_payload.ptr = cbor_buf;
         returned_payload.len = cbor_len;
         goto skip_verify_cose;
     }
-#endif
-    // Verify cbor file.
-    printf("\nmain : Verify CBOR file.\n");
+    printf("main : Verify CBOR file.\n");
     UsefulBufC signed_cose = {cbor_buf, cbor_len};
-    result = verify_cose_sign1(&signed_cose, key_buf, &returned_payload);
+    result = verify_cose_sign1(&signed_cose, teep_ver_key_buf, &returned_payload);
     if (result != TEEP_SUCCESS) {
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
-        printf("main : Fail to verify CBOR file, so skip this.\n");
+        printf("main : Fail to verify CBOR file, treat this as raw cbor.\n");
         returned_payload.ptr = cbor_buf;
         returned_payload.len = cbor_len;
 #else
@@ -112,25 +122,49 @@ skip_load_key:
 #endif
     }
     else {
-        printf("\nmain : Success to verify. Print cose payload.\n");
+        printf("main : Success to verify. Print cose payload.\n");
     }
     teep_print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
 skip_verify_cose:
-#endif
-    // Print teep message.
+    // Parse teep message.
     result = teep_set_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
     if (result != TEEP_SUCCESS) {
         printf("main : Fail to parse CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
-    result = print_teep_message(&msg, 2, trust_anchor_key);
+
+    // Print teep message.
+    result = print_teep_message(&msg, 2, (suit_ver_key_name == NULL) ? NULL : suit_ver_key_buf);
     if (result != TEEP_SUCCESS) {
         printf("main : Fail to print CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
 
+    // Check whether input cbor payload and encoded cbor is the same
+    uint8_t cbor_encoded_buf[MAX_FILE_BUFFER_SIZE];
+    uint8_t *encoded_ptr = cbor_encoded_buf;
+    size_t encoded_len = MAX_FILE_BUFFER_SIZE;
+    result = teep_encode_message(&msg, &encoded_ptr, &encoded_len);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Fail to encode CBOR from teep-message. (err=%d)\n", result);
+        return EXIT_FAILURE;
+    }
+    if (encoded_len != returned_payload.len || memcmp(returned_payload.ptr, encoded_ptr, encoded_len)) {
+        printf("main : Fail to encode to the same teep-message.\n");
+        teep_print_hex_within_max(returned_payload.ptr, returned_payload.len, returned_payload.len);
+        printf("\n");
+
+        teep_print_hex_within_max(encoded_ptr, encoded_len, encoded_len);
+        printf("\n");
+        return EXIT_FAILURE;
+    }
+    printf("main : Success to encode to the same binary.\n\n");
+
+    /* NOTE:
+        There is no way to check the COSE_Sign1ed output is the same to the original
+        because it generates different outputs for the same input.
+    */
     return EXIT_SUCCESS;
 }

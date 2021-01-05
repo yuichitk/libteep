@@ -6,6 +6,12 @@
 
 #include "teep_cose.h"
 #include "teep_common.h"
+#include "t_cose/t_cose_sign1_sign.h"
+#include "t_cose/t_cose_sign1_verify.h"
+#include "t_cose/q_useful_buf.h"
+#include "openssl/ecdsa.h"
+#include "openssl/obj_mac.h"
+
 
 int32_t create_es256_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair) {
     EC_GROUP    *ec_group = NULL;
@@ -93,12 +99,12 @@ int32_t create_es256_public_key(const char *public_key, struct t_cose_key *cose_
     return TEEP_SUCCESS;
 }
 
-int32_t verify_cose_sign1(UsefulBufC *signed_cose, const char *public_key, UsefulBufC *returned_payload) {
+int32_t verify_cose_sign1(const UsefulBufC *signed_cose, const char *public_key, UsefulBufC *returned_payload) {
     struct t_cose_key   cose_public_key;
     int32_t             result = TEEP_SUCCESS;
     result = create_es256_public_key(public_key, &cose_public_key);
     if (result != TEEP_SUCCESS) {
-        printf("Fail make_ossl_ecdsa_key_pair : result = %d\n", result);
+        printf("Fail make_ossl_ecdsa_public_key : result = %d\n", result);
         return result;
     }
 
@@ -111,11 +117,39 @@ int32_t verify_cose_sign1(UsefulBufC *signed_cose, const char *public_key, Usefu
                                       *signed_cose,
                                       returned_payload,
                                       &parameters);
-     if (cose_result != TEEP_SUCCESS) {
-         printf("Fail t_cose_sign1_verify : result = %d\n", cose_result);
-         return TEEP_CBOR_WITHOUT_SIGN1;
-     }
+    EC_KEY_free(cose_public_key.k.key_ptr);
+    if (cose_result != T_COSE_SUCCESS) {
+        printf("Fail t_cose_sign1_verify : result = %d\n", cose_result);
+        return TEEP_CBOR_WITHOUT_SIGN1;
+    }
 
-     EC_KEY_free(cose_public_key.k.key_ptr);
-     return TEEP_SUCCESS;
+    return TEEP_SUCCESS;
+}
+
+int32_t sign_cose_sign1(const UsefulBufC *raw_cbor, const char *private_key, const char *public_key, UsefulBuf *signed_cose) {
+    // Create cose signed file.
+    struct t_cose_key cose_key_pair;
+    struct t_cose_sign1_sign_ctx sign_ctx;
+    enum t_cose_err_t cose_result;
+    UsefulBufC tmp_signed_cose;
+    UsefulBuf_MAKE_STACK_UB(signed_cose_buffer, 1024);
+
+    int32_t result = create_es256_key_pair(private_key, public_key, &cose_key_pair);
+    if (result != TEEP_SUCCESS) {
+        printf("Fail make_ossl_ecdsa_key_pair : result = %d\n", result);
+        return result;
+    }
+
+    t_cose_sign1_sign_init(&sign_ctx, 0, T_COSE_ALGORITHM_ES256);
+    t_cose_sign1_set_signing_key(&sign_ctx, cose_key_pair, NULL_Q_USEFUL_BUF_C);
+    cose_result = t_cose_sign1_sign(&sign_ctx, *raw_cbor, signed_cose_buffer, &tmp_signed_cose);
+    EC_KEY_free(cose_key_pair.k.key_ptr);
+
+    if (cose_result != T_COSE_SUCCESS) {
+        printf("Fail t_cose_sign1_sign : result = %d\n", result);
+        return TEEP_UNEXPECTED_ERROR;
+    }
+    memcpy(signed_cose->ptr, tmp_signed_cose.ptr, tmp_signed_cose.len);
+    signed_cose->len = tmp_signed_cose.len;
+    return TEEP_SUCCESS;
 }

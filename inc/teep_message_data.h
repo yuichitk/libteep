@@ -280,11 +280,11 @@ typedef struct teep_update {
  * teep-success
  */
 typedef struct teep_success {
-    teep_type_t     type;
-    uint64_t        contains;
-    uint32_t        token;
-    teep_buf_t      msg;
-    teep_buf_t      suit_reports;
+    teep_type_t         type;
+    uint64_t            contains;
+    uint32_t            token;
+    teep_buf_t          msg;
+    teep_buf_array_t    suit_reports;
     // TODO :       $$teep-success-extensions
     // TODO :       $$teep-option-extensions
 } teep_success_t;
@@ -299,7 +299,7 @@ typedef struct teep_error {
     teep_buf_t              err_msg;
     teep_suite_array_t      supported_cipher_suites;
     teep_uint32_array_t     versions;
-    teep_buf_t              suit_reports;
+    teep_buf_array_t        suit_reports;
     // TODO :               $$teep-error--extensions
     // TODO :               $$teep-option-extensions
     teep_err_code_t         err_code;
@@ -325,5 +325,7 @@ int32_t teep_set_update(QCBORDecodeContext *teep_message, QCBORItem *item, teep_
 int32_t teep_set_success(QCBORDecodeContext *teep_message, QCBORItem *item, teep_success_t *teep_success);
 int32_t teep_set_error(QCBORDecodeContext *teep_message, QCBORItem *item, teep_error_t *teep_error);
 int32_t teep_set_message_from_bytes(const uint8_t *buf, const size_t len, teep_message_t *msg);
+
+int32_t teep_encode_message(const teep_message_t *message, uint8_t **buf, size_t *len);
 
 #endif  /* TEEP_MESSAGE_DATA_H */
