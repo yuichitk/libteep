@@ -296,6 +296,13 @@ int32_t teep_set_any_array(QCBORDecodeContext *message,
                 ptr.b->items[j].len = item->val.string.len;
                 ptr.b->len = j + 1;
                 break;
+            case QCBOR_TYPE_ANY:
+                result = teep_set_out_of_teep_buf(message, item, &ptr.b->items[j]);
+                if (result != TEEP_SUCCESS) {
+                    return result;
+                }
+                ptr.b->len = j + 1;
+                break;
             default:
                 break;
         }
