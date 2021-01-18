@@ -199,6 +199,28 @@ int32_t print_teep_query_response(const teep_query_response_t *query_response, u
         }
         printf("%*s]\n", indent_space + 4, "");
     }
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_REQUESTED_TC_LIST) {
+        printf("%*srequested-tc-list : [\n", indent_space + 4, "");
+        for (size_t i = 0; i < query_response->requested_tc_list.len; i++) {
+            printf("%*s{\n", indent_space + 6, "");
+            if (query_response->requested_tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_COMPONENT_ID) {
+                printf("%*scomponent-id : ", indent_space + 8, "");
+                result = teep_print_component_id(&query_response->requested_tc_list.items[i].component_id);
+                if (result != TEEP_SUCCESS) {
+                    return result;
+                }
+                printf(",\n");
+            }
+            if (query_response->requested_tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_TC_MANIFEST_SEQUENCE_NUMBER) {
+                printf("%*stc-manifest-sequence-number : %lu,\n", indent_space + 8, "", query_response->requested_tc_list.items[i].tc_manifest_sequence_number);
+            }
+            if (query_response->requested_tc_list.items[i].contains & TEEP_MESSAGE_CONTAINS_HAVE_BINARY) {
+                printf("%*shave-binary : %s,\n", indent_space + 8, "", (query_response->requested_tc_list.items[i].have_binary) ? "true" : "false");
+            }
+            printf("%*s}\n", indent_space + 6, "");
+        }
+        printf("%*s]\n", indent_space + 4, "");
+    }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_EXT_LIST) {
         printf("%*sext-list : [", indent_space + 4, "");
         for (size_t i = 0; i < query_response->ext_list.len; i++) {
@@ -220,16 +242,15 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         printf("%*stoken : %u\n", indent_space + 4, "", teep_update->token);
     }
-    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
-        printf("%*stc-list : [\n", indent_space + 4, "");
-        for (size_t i = 0; i < teep_update->tc_list.len; i++) {
-            for (size_t j = 0; j < teep_update->tc_list.len; j++) {
-                result = teep_print_hex(teep_update->tc_list.items[i].ptr, teep_update->tc_list.items[i].len);
-                if (result != TEEP_SUCCESS) {
-                    return result;
-                }
-                printf(",\n");
+    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST) {
+        printf("%*sunneeded-tc-list : [\n", indent_space + 4, "");
+        for (size_t i = 0; i < teep_update->unneeded_tc_list.len; i++) {
+            printf("%*s", indent_space + 6, "");
+            result = teep_print_component_id(&teep_update->unneeded_tc_list.items[i]);
+            if (result != TEEP_SUCCESS) {
+                return result;
             }
+            printf(",\n");
         }
         printf("%*s]\n", indent_space + 4, "");
     }

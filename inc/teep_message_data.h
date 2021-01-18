@@ -270,7 +270,7 @@ typedef struct teep_update {
     teep_type_t             type;
     uint64_t                contains;
     uint32_t                token;
-    teep_buf_array_t        tc_list; // [ + SUIT_Component_Identifier ]
+    teep_buf_array_t        unneeded_tc_list; // [ + SUIT_Component_Identifier ]
     teep_buf_array_t        manifest_list;
     // TODO :               update-extensions
     // TODO :               teep-option-extensions

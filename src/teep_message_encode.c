@@ -82,10 +82,10 @@ int32_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext 
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, teep_update->token);
     }
-    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
-        QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_TC_LIST);
-        for (size_t i = 0; i < teep_update->tc_list.len; i++) {
-            teep_QCBOREncode_AddUsefulBufC(context, (UsefulBufC){teep_update->tc_list.items[i].ptr, teep_update->tc_list.items[i].len});
+    if (teep_update->contains & TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST) {
+        QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST);
+        for (size_t i = 0; i < teep_update->unneeded_tc_list.len; i++) {
+            teep_QCBOREncode_AddUsefulBufC(context, (UsefulBufC){teep_update->unneeded_tc_list.items[i].ptr, teep_update->unneeded_tc_list.items[i].len});
         }
         QCBOREncode_CloseArray(context);
     }

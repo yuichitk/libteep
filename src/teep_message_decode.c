@@ -622,7 +622,7 @@ int32_t teep_set_update(QCBORDecodeContext *message,
     int32_t result = TEEP_SUCCESS;
 
     teep_update->token = 0U;
-    INITIALIZE_TEEP_ARRAY(teep_update->tc_list);
+    INITIALIZE_TEEP_ARRAY(teep_update->unneeded_tc_list);
     INITIALIZE_TEEP_ARRAY(teep_update->manifest_list);
 
     result = teep_qcbor_get_next(message, item, QCBOR_TYPE_MAP);
@@ -643,12 +643,12 @@ int32_t teep_set_update(QCBORDecodeContext *message,
                 teep_update->token = (uint32_t)item->val.uint64;
                 teep_update->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
-            case TEEP_OPTIONS_KEY_TC_LIST:
-                result = teep_set_any_array(message, item, QCBOR_TYPE_ANY, &teep_update->tc_list);
+            case TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST:
+                result = teep_set_any_array(message, item, QCBOR_TYPE_ANY, &teep_update->unneeded_tc_list);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                teep_update->contains |= TEEP_MESSAGE_CONTAINS_TC_LIST;
+                teep_update->contains |= TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST;
                 break;
             case TEEP_OPTIONS_KEY_MANIFEST_LIST:
                 result = teep_set_any_array(message, item, QCBOR_TYPE_BYTE_STRING, &teep_update->manifest_list);
