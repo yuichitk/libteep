@@ -26,7 +26,7 @@ void teep_QCBOREncode_AddUsefulBufCToMapN(QCBOREncodeContext *pMe, int64_t uLabe
 int32_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, teep_error->token);
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_error->token.ptr, .len = teep_error->token.len});
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_MSG) {
         QCBOREncode_AddTextToMapN(context, TEEP_OPTIONS_KEY_ERR_MSG, (UsefulBufC){teep_error->err_msg.ptr, teep_error->err_msg.len});
@@ -61,7 +61,7 @@ int32_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *co
 int32_t teep_encode_success(const teep_success_t *teep_success, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, teep_success->token);
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_success->token.ptr, .len = teep_success->token.len});
     }
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_MSG) {
         QCBOREncode_AddTextToMapN(context, TEEP_OPTIONS_KEY_MSG, (UsefulBufC){teep_success->msg.ptr, teep_success->msg.len});
@@ -80,7 +80,7 @@ int32_t teep_encode_success(const teep_success_t *teep_success, QCBOREncodeConte
 int32_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, teep_update->token);
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_update->token.ptr, .len = teep_update->token.len});
     }
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST) {
         QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST);
@@ -103,7 +103,7 @@ int32_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext 
 int32_t teep_encode_query_response(const teep_query_response_t *query_response, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, query_response->token);
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = query_response->token.ptr, .len = query_response->token.len});
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
         QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE, query_response->selected_cipher_suite);
@@ -160,7 +160,7 @@ int32_t teep_encode_query_response(const teep_query_response_t *query_response, 
 int32_t teep_encode_query_request(const teep_query_request_t *query_request, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_TOKEN, query_request->token);
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = query_request->token.ptr, .len = query_request->token.len});
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES);

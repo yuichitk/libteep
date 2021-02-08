@@ -234,7 +234,7 @@ struct teep_message {
 typedef struct teep_query_request {
     teep_type_t                 type;
     uint64_t                    contains;
-    uint32_t                    token;
+    teep_buf_t                  token;
     teep_uint64_array_t         supported_cipher_suites;
     teep_buf_t                  challenge;
     teep_uint32_array_t         versions;
@@ -250,7 +250,7 @@ typedef struct teep_query_request {
 typedef struct teep_query_response {
     teep_type_t                     type;
     uint64_t                        contains;
-    uint32_t                        token;
+    teep_buf_t                      token;
     uint64_t                        selected_cipher_suite;
     uint32_t                        selected_version;
     teep_buf_t                      evidence_format;
@@ -269,7 +269,7 @@ typedef struct teep_query_response {
 typedef struct teep_update {
     teep_type_t             type;
     uint64_t                contains;
-    uint32_t                token;
+    teep_buf_t              token;
     teep_buf_array_t        unneeded_tc_list; // [ + SUIT_Component_Identifier ]
     teep_buf_array_t        manifest_list;
     // TODO :               update-extensions
@@ -282,7 +282,7 @@ typedef struct teep_update {
 typedef struct teep_success {
     teep_type_t         type;
     uint64_t            contains;
-    uint32_t            token;
+    teep_buf_t          token;
     teep_buf_t          msg;
     teep_buf_array_t    suit_reports;
     // TODO :       $$teep-success-extensions
@@ -295,7 +295,7 @@ typedef struct teep_success {
 typedef struct teep_error {
     teep_type_t             type;
     uint64_t                contains;
-    uint32_t                token;
+    teep_buf_t              token;
     teep_buf_t              err_msg;
     teep_suite_array_t      supported_cipher_suites;
     teep_uint32_array_t     versions;

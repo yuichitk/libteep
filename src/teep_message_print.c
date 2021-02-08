@@ -87,7 +87,9 @@ int32_t print_teep_query_request(const teep_query_request_t *query_request, uint
     printf("%*stype : %u\n", indent_space + 2, "", query_request->type);
     printf("%*soptions :\n", indent_space + 2, "");
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("%*stoken : %u\n", indent_space + 4, "", query_request->token);
+        printf("%*stoken : ", indent_space + 4, "");
+        teep_print_hex(query_request->token.ptr, query_request->token.len);
+        printf("\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         printf("%*ssupported-cipher-suites : [ ", indent_space + 4, "");
@@ -154,7 +156,9 @@ int32_t print_teep_query_response(const teep_query_response_t *query_response, u
     printf("%*stype : %u\n", indent_space + 2, "", query_response->type);
     printf("%*soptions :\n", indent_space + 2, "");
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("%*stoken : %u\n", indent_space + 4, "", query_response->token);
+        printf("%*stoken : ", indent_space + 4, "");
+        teep_print_hex(query_response->token.ptr, query_response->token.len);
+        printf("\n");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
         printf("%*sselected-cipher-suite : %lu\n", indent_space + 4, "", query_response->selected_cipher_suite);
@@ -240,7 +244,9 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
     printf("%*stype : %u\n", indent_space + 2, "", teep_update->type);
     printf("%*soptions :\n", indent_space + 2, "");
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("%*stoken : %u\n", indent_space + 4, "", teep_update->token);
+        printf("%*stoken : ", indent_space + 4, "");
+        teep_print_hex(teep_update->token.ptr, teep_update->token.len);
+        printf("\n");
     }
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST) {
         printf("%*sunneeded-tc-list : [\n", indent_space + 4, "");
@@ -291,7 +297,9 @@ int32_t print_teep_error(const teep_error_t *teep_error, uint32_t indent_space) 
     printf("%*stype : %u\n", indent_space + 2, "", teep_error->type);
     printf("%*soptions :\n", indent_space + 2, "");
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("%*stoken : %u\n", indent_space + 4, "", teep_error->token);
+        printf("%*stoken : ", indent_space + 4, "");
+        teep_print_hex(teep_error->token.ptr, teep_error->token.len);
+        printf("\n");
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_MSG) {
         printf("%*serr-msg : ", indent_space + 4, "");
@@ -330,7 +338,9 @@ int32_t print_teep_success(const teep_success_t *teep_success, uint32_t indent_s
     printf("%*stype : %u\n", indent_space + 2, "", teep_success->type);
     printf("%*soptions :\n", indent_space + 2, "");
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
-        printf("%*stoken : %u\n", indent_space + 4, "", teep_success->token);
+        printf("%*stoken : ", indent_space + 4, "");
+        teep_print_hex(teep_success->token.ptr, teep_success->token.len);
+        printf("\n");
     }
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_MSG) {
         printf("%*smsg : ", indent_space + 2, "");
