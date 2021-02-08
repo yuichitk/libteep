@@ -13,8 +13,9 @@
         2,          / type : TEEP-TYPE-query-response = 2 (fixed int) /
         / options : /
         {
-            20 : 2004318071, / token : 0x77777777 (uint), from TAM's QueryRequest
-                               message /
+            20 : 0xaba1a2a3a4a5a6a7,
+                / token : h'aba1a2a3a4a5a6a7' (bstr .size (8..64)) /
+                / given from TAM's QueryRequest message /
             5 : 1,  / selected-cipher-suite = 5(mapkey) :/
                     / TEEP-AES-CCM-16-64-128-HMAC256--256-X25519-EdDSA =
                           1 (uint .size 8) /
@@ -38,7 +39,8 @@
        02                     # unsigned(2)
        A4                     # map(4)
           14                  # unsigned(20)
-          1A 77777777         # unsigned(2004318071, 0x77777777)
+          48                 # bytes(8)
+             ABA1A2A3A4A5A6A7
           05                  # unsigned(5)
           01                  # unsigned(1) within .size 8
           06                  # unsigned(6)
@@ -58,4 +60,4 @@
 
 
 ## Command
-    echo -en "\x82\x02\xA4\x14\x1A\x77\x77\x77\x77\x05\x01\x06\x00\x08\x82\xA1\x10\x81\x4F\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\xA1\x10\x81\x4F\x11\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" > query_response.cbor
+    echo -en "\x82\x02\xA4\x14\x48\xAB\xA1\xA2\xA3\xA4\xA5\xA6\xA7\x05\x01\x06\x00\x08\x82\xA1\x10\x81\x4F\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\xA1\x10\x81\x4F\x11\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F" > query_response.cbor

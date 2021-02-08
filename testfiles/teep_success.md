@@ -13,7 +13,9 @@
         5,          / type : TEEP-TYPE-teep-success = 5 (fixed int) /
         / options :  /
         {
-            20 : 2004318072, / token : 0x777777778 (uint), from Update message /
+            20 : 0xaba1a2a3a4a5a6a7,
+                / token : h'aba1a2a3a4a5a6a7' (bstr .size (8..64)) /
+                / given from TAM's QueryRequest message /
         }
     ]
 
@@ -23,8 +25,9 @@
        05                   # unsigned(5)
        A1                   # map(1)
           14                # unsigned(20)
-          1A 77777778       # unsigned(2004318072, 0x77777778)
+          48                 # bytes(8)
+             ABA1A2A3A4A5A6A7
 
 
 ## Command
-    echo -en "\x82\x05\xA1\x14\x1A\x77\x77\x77\x78" > teep_success.cbor
+    echo -en "\x82\x05\xA1\x14\x48\xAB\xA1\xA2\xA3\xA4\xA5\xA6\xA7" > teep_success.cbor
