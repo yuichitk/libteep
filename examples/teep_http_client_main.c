@@ -65,28 +65,11 @@ int main(int argc, const char * argv[]) {
     printf("\nmain : Print query_request_cose\n");
     teep_print_hex(query_request_cose.ptr, query_request_cose.len);
     printf("\n");
-    UsefulBufC query_request_payload;
-    int32_t result_cose;
 
-    result_cose = verify_cose_sign1(&query_request_cose, key_buf, &query_request_payload);
-    if (result_cose) {
-        printf("main : Fail to verify QueryRequest cose.\n");
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-        if (TEEP_CBOR_WITHOUT_SIGN1 == result_cose) {
-            goto query_response;
-        }
-#endif
-        return EXIT_FAILURE;
-    }
-    printf("\nmain : Verify payload\n");
-    teep_print_hex(query_request_payload.ptr, query_request_payload.len);
-    printf("\n");
-    printf("\nmain : Print payload\n");
-    print_teep_message(query_request_payload.ptr, query_request_payload.len);
+    teep_message_t query_request;
+    result = teep_set_message_from_bytes(query_request_cose.ptr, query_request_cose.len, &query_request);
+    print_teep_message(&query_request, 2, key_buf);
 
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-query_response:
-#endif
     // Read QueryResponse cbor file.
     printf("main : Read QueryResponse cbor file.\n");
     uint8_t query_response_file_bytes[MAX_FILE_BUFFER_SIZE];
@@ -110,26 +93,14 @@ query_response:
 
     // Verify and print Update cose.
     UsefulBufC update_cose = {recv_buffer.ptr, recv_buffer.len};
-    UsefulBufC update_payload;
-    result_cose = verify_cose_sign1(&update_cose, key_buf, &update_payload);
-    if (result_cose) {
-        printf("main : Fail to verify Update cose.\n");
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-        if (TEEP_CBOR_WITHOUT_SIGN1 == result_cose) {
-            goto teep_success;
-        }
-#endif
+    teep_message_t update;
+    result = teep_set_message_from_bytes(update_cose.ptr, update_cose.len, &update);
+    if (result) {
+        printf("main : Fail to decode QueryResponse %d\n", result);
         return EXIT_FAILURE;
     }
-    printf("\nmain : Verify payload\n");
-    teep_print_hex(update_payload.ptr, update_payload.len);
-    printf("\n");
-    printf("\nmain : Print payload\n");
-    print_teep_message(update_payload.ptr, update_payload.len);
+    print_teep_message(&update, 2, key_buf);
 
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
-teep_success:
-#endif
     // Read Success cbor file.
     printf("main : Read Success cbor file.\n");
     uint8_t success_file_bytes[MAX_FILE_BUFFER_SIZE];
