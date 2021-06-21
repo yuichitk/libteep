@@ -62,9 +62,17 @@ int main(int argc, const char * argv[]) {
 
     // Verify and print QueryRequest cose.
     UsefulBufC query_request_cose = {recv_buffer.ptr, recv_buffer.len};
-    printf("\nmain : Print query_request_cose\n");
-    teep_print_hex(query_request_cose.ptr, query_request_cose.len);
+    printf("\nmain : Print QueryRequest\n");
+    teep_print_hex_within_max(query_request_cose.ptr, query_request_cose.len, query_request_cose.len);
     printf("\n");
+
+    result = verify_cose_sign1(&query_request_cose, key_buf, &query_request_cose);
+    if (result != TEEP_SUCCESS) {
+        printf("\nmain : Fail to verify QueryRequest. %d\n", result);
+#ifndef ALLOW_CBOR_WITHOUT_SIGN1
+        return EXIT_FAILURE;
+#endif
+    }
 
     teep_message_t query_request;
     result = teep_set_message_from_bytes(query_request_cose.ptr, query_request_cose.len, &query_request);
@@ -93,12 +101,20 @@ int main(int argc, const char * argv[]) {
 
     // Verify and print Update cose.
     UsefulBufC update_cose = {recv_buffer.ptr, recv_buffer.len};
+    printf("\nmain : Print Update\n");
+    teep_print_hex_within_max(update_cose.ptr, update_cose.len, update_cose.len);
+    printf("\n");
+
+    result = verify_cose_sign1(&update_cose, key_buf, &update_cose);
+    if (result != TEEP_SUCCESS) {
+        printf("\nmain : Fail to verify Update. %d\n", result);
+#ifndef ALLOW_CBOR_WITHOUT_SIGN1
+        return EXIT_FAILURE;
+#endif
+    }
+
     teep_message_t update;
     result = teep_set_message_from_bytes(update_cose.ptr, update_cose.len, &update);
-    if (result) {
-        printf("main : Fail to decode QueryResponse %d\n", result);
-        return EXIT_FAILURE;
-    }
     print_teep_message(&update, 2, key_buf);
 
     // Read Success cbor file.

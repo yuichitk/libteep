@@ -24,8 +24,10 @@ $(OBJDIR)/%.o: %.c
 
 all: clean $(TARGET)
 
-debug: CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
-debug: all
+ifdef debug
+    CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
+endif
+
 
 clean:
 	rm -f $(OBJS) $(TARGET)
