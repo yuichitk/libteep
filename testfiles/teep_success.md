@@ -4,30 +4,28 @@
  SPDX-License-Identifier: BSD-2-Clause
 -->
 
-# Success Message (for Update)
-    https://tools.ietf.org/html/draft-ietf-teep-protocol-04#appendix-D.4
+# Success Message
+    https://tools.ietf.org/html/draft-ietf-teep-protocol-08#appendix-D.5
 
 ## CBOR Diagnostic Notation
     / teep-success = /
     [
-        5,          / type : TEEP-TYPE-teep-success = 5 (fixed int) /
-        / options :  /
-        {
-            20 : 0xaba1a2a3a4a5a6a7,
-                / token : h'aba1a2a3a4a5a6a7' (bstr .size (8..64)) /
-                / given from TAM's QueryRequest message /
-        }
+      / type: / 5 / TEEP-TYPE-teep-success = 5 /,
+      / options: /
+      {
+        20 : h'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'
+      }
     ]
 
 
 ## CBOR Binary Representation
-    82                      # array(2)
-       05                   # unsigned(5)
-       A1                   # map(1)
-          14                # unsigned(20)
-          48                 # bytes(8)
-             ABA1A2A3A4A5A6A7
+    82                  # array(2)
+       05               # unsigned(5)
+       A1               # map(1)
+          14            # unsigned(20)
+          50            # bytes(16)
+             A0A1A2A3A4A5A6A7A8A9AAABACADAEAF
 
 
 ## Command
-    echo -en "\x82\x05\xA1\x14\x48\xAB\xA1\xA2\xA3\xA4\xA5\xA6\xA7" > teep_success.cbor
+    echo -en "\x82\x05\xA1\x14\x50\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF" > teep_success.cbor
