@@ -15,9 +15,10 @@
 #include "openssl/ecdsa.h"
 #include "openssl/obj_mac.h"
 
-int32_t create_es256_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
-int32_t create_es256_public_key(const char *public_key, struct t_cose_key *cose_public_key);
-int32_t verify_cose_sign1(const UsefulBufC *signed_cose, const char *public_key, UsefulBufC *returned_payload);
-int32_t sign_cose_sign1(const UsefulBufC *raw_cbor, const char *private_key, const char *public_key, UsefulBuf *signed_cose);
+int32_t create_key_pair(int nid, const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
+int32_t create_public_key(int nid, const char *public_key, struct t_cose_key *cose_public_key);
+
+int32_t verify_cose_sign1(const UsefulBufC signed_cose, struct t_cose_key *cose_key, UsefulBufC *returned_payload);
+int32_t sign_cose_sign1(const UsefulBufC raw_cbor, struct t_cose_key *cose_key_pair, int32_t cose_algorithm_id, UsefulBuf *signed_cose);
 
 #endif  /* TEEP_COSE_H */

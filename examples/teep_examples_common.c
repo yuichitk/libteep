@@ -6,6 +6,7 @@
 
 #include "teep_common.h"
 #include "teep_examples_common.h"
+#include "teep_cose.h"
 
 size_t read_from_file(const char *file_path, const size_t buf_len, uint8_t *buf) {
     size_t read_len = 0;
@@ -27,6 +28,30 @@ size_t write_to_file(const char *file_path, const size_t buf_len, const void *bu
     write_len = fwrite(buf, 1, buf_len, fp);
     fclose(fp);
     return write_len;
+}
+
+int32_t create_es256_public_key(const char *public_key, struct t_cose_key *cose_public_key) {
+    return create_public_key(NID_X9_62_prime256v1, public_key, cose_public_key);
+}
+
+int32_t create_es384_public_key(const char *public_key, struct t_cose_key *cose_public_key) {
+    return create_public_key(NID_secp384r1, public_key, cose_public_key);
+}
+
+int32_t create_ed25519_public_key(const char *public_key, struct t_cose_key *cose_public_key) {
+    return create_public_key(NID_ED25519, public_key, cose_public_key);
+}
+
+int32_t create_es256_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair) {
+    return create_key_pair(NID_X9_62_prime256v1, private_key, public_key, cose_key_pair);
+}
+
+int32_t create_es384_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair) {
+    return create_key_pair(NID_secp384r1, private_key, public_key, cose_key_pair);
+}
+
+int32_t create_ed25519_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair) {
+    return create_key_pair(NID_ED25519, private_key, public_key, cose_key_pair);
 }
 
 void read_prime256v1_key_pair(const uint8_t *key_der, char *private_key, char *public_key) {
