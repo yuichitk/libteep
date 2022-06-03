@@ -8,23 +8,27 @@
     https://tools.ietf.org/html/draft-ietf-teep-protocol-08#appendix-D.5
 
 ## CBOR Diagnostic Notation
-    / teep-success = /
-    [
-      / type: / 5 / TEEP-TYPE-teep-success = 5 /,
-      / options: /
-      {
-        20 : h'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'
-      }
-    ]
+~~~~
+/ teep-success = /
+[
+  / type: / 5 / TEEP-TYPE-teep-success /,
+  / options: /
+  {
+    / token / 20 : h'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF'
+  }
+]
+~~~~
 
 
 ## CBOR Binary Representation
-    82                  # array(2)
-       05               # unsigned(5)
-       A1               # map(1)
-          14            # unsigned(20)
-          50            # bytes(16)
-             A0A1A2A3A4A5A6A7A8A9AAABACADAEAF
+~~~~
+82                  # array(2)
+   05               # unsigned(5) / TEEP-TYPE-teep-success /
+   A1               # map(1)
+      14            # unsigned(20) / token: /
+      50            # bytes(16)
+         A0A1A2A3A4A5A6A7A8A9AAABACADAEAF
+~~~~
 
 
 ## Command
