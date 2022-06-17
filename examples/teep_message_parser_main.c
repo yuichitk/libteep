@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
 #include "qcbor/qcbor.h"
 #include "teep_common.h"
@@ -18,83 +19,47 @@
 #include "openssl/ecdsa.h"
 #include "openssl/obj_mac.h"
 
+
 #define MAX_FILE_BUFFER_SIZE                512
+
+#if TEEP_ACTOR_AGENT == 1
+#include "tam_es256_public_key.h"
+#include "teep_agent_es256_private_key.h"
+const char *teep_public_key = tam_es256_public_key;
+const char *teep_private_key = teep_agent_es256_private_key;
+#else /* TEEP_ACTOR_TAM as default */
+#include "tam_es256_private_key.h"
+#include "teep_agent_es256_public_key.h"
+const char *teep_public_key = teep_agent_es256_public_key;
+const char *teep_private_key = tam_es256_private_key;
+#endif
 
 int main(int argc, const char * argv[]) {
     int32_t result;
     teep_message_t msg = { 0 };
     const char *cbor_file_name = NULL;
-    const char *teep_ver_key_name = NULL;
-    const char *teep_sig_key_name = NULL;
-    const char *suit_ver_key_name = NULL;
     uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
-    char teep_ver_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
-    char teep_sig_key_buf[PRIME256V1_PRIVATE_KEY_CHAR_SIZE + 1];
-    char suit_ver_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
 
-#ifdef ALLOW_CBOR_WITHOUT_SIGN1
     if (argc < 2) {
-        printf("teep_message_parser <CBOR file path> [<TEEP Verification DER file path> [<TEEP Sign DER file path [<SUIT Verification DER file path>]]]\n");
+        printf("%s <CBOR file path>\n", argv[0]);
         return EXIT_FAILURE;
     }
-#else
-    if (argc < 3) {
-        printf("teep_message_parser <CBOR file path> <TEEP Verification DER file path> [<TEEP Sign DER file path> [<SUIT Verification DER file path>]]\n");
-        return EXIT_FAILURE;
-    }
-#endif
+    cbor_file_name = argv[1];
 
-    // Check arguments.
-    if (argc > 4) {
-        argc = 4;
-    }
-    switch(argc) {
-        case 4:
-            suit_ver_key_name = argv[4];
-        case 3:
-            teep_sig_key_name = argv[3];
-        case 2:
-            teep_ver_key_name = argv[2];
-            cbor_file_name = argv[1];
-            break;
-        default:
-            return EXIT_FAILURE;
-    }
-#ifndef ALLOW_CBOR_WITHOUT_SIGN1
-    assert(teep_ver_key_name != NULL);
-#endif
-    assert(cbor_file_name != NULL);
+    assert(strlen(teep_public_key) == PRIME256V1_PUBLIC_KEY_CHAR_SIZE);
+    assert(strlen(teep_private_key) == PRIME256V1_PRIVATE_KEY_CHAR_SIZE);
 
-    if (teep_sig_key_name != NULL) {
-        printf("main : Read TEEP Private&Public Key Pair.\n");
-        result = read_char_key_pair_from_der(teep_sig_key_name, teep_sig_key_buf, teep_ver_key_buf);
-        if (result != TEEP_SUCCESS) {
-            printf("main : Failed to load key.\n");
-            return EXIT_FAILURE;
-        }
+    struct t_cose_key t_cose_public_key;
+    result = create_public_key(NID_X9_62_prime256v1, teep_public_key, &t_cose_public_key);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Failed to parse t_cose_key. (%d)\n", result);
     }
-    else if (teep_ver_key_name != NULL) {
-        printf("main : Read TEEP Public Key.\n");
-        result = read_char_public_key_from_der(teep_ver_key_name, teep_ver_key_buf);
-        if (result != TEEP_SUCCESS) {
-            printf("main : Failed to load key.\n");
-            return EXIT_FAILURE;
-        }
-    }
-
-    if (suit_ver_key_name != NULL) {
-        printf("main : Read SUIT TrustAnchor Public Key.\n");
-        result = read_char_public_key_from_der(suit_ver_key_name, suit_ver_key_buf);
-        if (result != TEEP_SUCCESS) {
-            printf("main : Failed to load key.\n");
-            return EXIT_FAILURE;
-        }
-    }
+    printf("public_key : %s\n", teep_public_key);
 
     // Read cbor file.
     printf("main : Read CBOR file.\n");
     size_t cbor_len = read_from_file(cbor_file_name, MAX_FILE_BUFFER_SIZE, cbor_buf);
-    if (!cbor_len) {
+    if (cbor_len == 0) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
@@ -102,22 +67,18 @@ int main(int argc, const char * argv[]) {
     printf("\n");
 
     // Verify cbor file.
-    UsefulBufC returned_payload;
-    if (teep_ver_key_name == NULL) {
-        returned_payload.ptr = cbor_buf;
-        returned_payload.len = cbor_len;
-        goto skip_verify_cose;
-    }
     printf("main : Verify CBOR file.\n");
     UsefulBufC signed_cose = {cbor_buf, cbor_len};
-    result = verify_cose_sign1(&signed_cose, teep_ver_key_buf, &returned_payload);
+    UsefulBufC returned_payload;
+    result = verify_cose_sign1(signed_cose, &t_cose_public_key, &returned_payload);
+
     if (result != TEEP_SUCCESS) {
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
-        printf("main : Fail to verify CBOR file, treat this as raw cbor.\n");
+        printf("main : Failed to verify CBOR file, treat this as raw cbor.\n");
         returned_payload.ptr = cbor_buf;
         returned_payload.len = cbor_len;
 #else
-        printf("main : Fail to verify CBOR file.\n");
+        printf("main : Failed to verify CBOR file.\n");
         return EXIT_FAILURE;
 #endif
     }
@@ -127,7 +88,6 @@ int main(int argc, const char * argv[]) {
     teep_print_hex(returned_payload.ptr, returned_payload.len);
     printf("\n");
 
-skip_verify_cose:
     // Parse teep message.
     result = teep_set_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
     if (result != TEEP_SUCCESS) {
@@ -136,35 +96,11 @@ skip_verify_cose:
     }
 
     // Print teep message.
-    result = print_teep_message(&msg, 2, (suit_ver_key_name == NULL) ? NULL : suit_ver_key_buf);
+    result = teep_print_message(&msg, 2, NULL);
     if (result != TEEP_SUCCESS) {
         printf("main : Fail to print CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
 
-    // Check whether input cbor payload and encoded cbor is the same
-    uint8_t cbor_encoded_buf[MAX_FILE_BUFFER_SIZE];
-    uint8_t *encoded_ptr = cbor_encoded_buf;
-    size_t encoded_len = MAX_FILE_BUFFER_SIZE;
-    result = teep_encode_message(&msg, &encoded_ptr, &encoded_len);
-    if (result != TEEP_SUCCESS) {
-        printf("main : Fail to encode CBOR from teep-message. (err=%d)\n", result);
-        return EXIT_FAILURE;
-    }
-    if (encoded_len != returned_payload.len || memcmp(returned_payload.ptr, encoded_ptr, encoded_len)) {
-        printf("main : Fail to encode to the same teep-message.\n");
-        teep_print_hex_within_max(returned_payload.ptr, returned_payload.len, returned_payload.len);
-        printf("\n");
-
-        teep_print_hex_within_max(encoded_ptr, encoded_len, encoded_len);
-        printf("\n");
-        return EXIT_FAILURE;
-    }
-    printf("main : Success to encode to the same binary.\n\n");
-
-    /* NOTE:
-        There is no way to check the COSE_Sign1ed output is the same to the original
-        because it generates different outputs for the same input.
-    */
     return EXIT_SUCCESS;
 }

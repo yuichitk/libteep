@@ -4,12 +4,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-CC				= gcc
 CFLAGS			= -Wall -g
 LDFLAGS			= -lt_cose -lqcbor -lcrypto
 INC				= -I ./inc -I ./examples/inc
-TARGET			= ./teep_message_parser
-SRCS			= examples/teep_message_parser_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_encode.c src/teep_message_print.c src/teep_cose.c
+TAM				= ./teep_message_parser_tam
+AGENT			= ./teep_message_parser_agent
+SRCS			= examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
+TAM_OBJ			= examples/teep_message_parser_tam.o
+AGENT_OBJ		= examples/teep_message_parser_agent.o
 OBJDIR			= ./obj
 OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 COSE_FLAG		= _cose
@@ -29,21 +31,30 @@ endif
 
 .PHONY: all test clean debug_test
 
-all: clean $(BUILD_OPS) $(TARGET)
-
-$(TARGET): $(OBJS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+all: $(TAM) $(AGENT)
 
 $(OBJDIR)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-test: $(TARGET)
-	$(TARGET) ./testfiles/query_request$(COSE_FLAG).cbor $(TAM_PUB_KEY) $(TAM_KEY_PAIR) || exit 1
-	$(TARGET) ./testfiles/query_response$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
-	$(TARGET) ./testfiles/update$(COSE_FLAG).cbor $(TAM_PUB_KEY) $(TAM_KEY_PAIR) || exit 1
-	$(TARGET) ./testfiles/teep_success$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
-	$(TARGET) ./testfiles/teep_error$(COSE_FLAG).cbor $(DEV_PUB_KEY) $(DEV_KEY_PAIR) || exit 1
+$(TAM_OBJ): examples/teep_message_parser_main.c
+	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_TAM=1 -o $@ -c $<
+
+$(AGENT_OBJ): examples/teep_message_parser_main.c
+	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_AGENT=1 -o $@ -c $<
+
+$(TAM): $(OBJS) $(TAM_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(AGENT): $(OBJS) $(AGENT_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+test: $(TAM) $(AGENT)
+	$(AGENT) ./testfiles/query_request$(COSE_FLAG).cbor || exit 1
+	$(TAM) ./testfiles/query_response$(COSE_FLAG).cbor || exit 1
+	$(AGENT) ./testfiles/update$(COSE_FLAG).cbor || exit 1
+	$(TAM) ./testfiles/teep_success$(COSE_FLAG).cbor || exit 1
+	$(TAM) ./testfiles/teep_error$(COSE_FLAG).cbor || exit 1
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TAM_OBJ) $(AGENT_OBJ) $(TAM) $(AGENT)

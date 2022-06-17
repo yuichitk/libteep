@@ -119,11 +119,16 @@ int32_t teep_print_query_request(const teep_query_request_t *query_request, uint
         printf("\n");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("%*ssupported-cipher-suites : [ ", indent_space + 4, "");
+        printf("%*ssupported-cipher-suites : [ \n", indent_space + 4, "");
         for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
-            printf("%lu, ", query_request->supported_cipher_suites.items[i]);
+            printf("%*s", indent_space + 6, "");
+            result = teep_print_ciphersuite(&query_request->supported_cipher_suites.items[i]);
+            if (result != TEEP_SUCCESS) {
+                return result;
+            }
+            printf(",\n");
         }
-        printf("]\n");
+        printf("%*s]\n", indent_space + 4, "");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
         printf("%*schallenge : ", indent_space + 4, "");
@@ -188,7 +193,12 @@ int32_t teep_print_query_response(const teep_query_response_t *query_response, u
         printf("\n");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
-        printf("%*sselected-cipher-suite : %lu\n", indent_space + 4, "", query_response->selected_cipher_suite);
+        printf("%*sselected-cipher-suite : ", indent_space + 4, "");
+        result = teep_print_ciphersuite(&query_response->selected_cipher_suite);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        printf("\n");
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
         printf("%*sselected-version : %u\n", indent_space + 4, "", query_response->selected_version);
@@ -337,11 +347,16 @@ int32_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_space) 
         printf("\n");
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("%*ssupported-cipher-suites : ", indent_space + 4, "");
+        printf("%*ssupported-cipher-suites : [ \n", indent_space + 4, "");
         for (size_t i = 0; i < teep_error->supported_cipher_suites.len; i++) {
-            printf("%u ", teep_error->supported_cipher_suites.items[i]);
+            printf("%*s", indent_space + 6, "");
+            result = teep_print_ciphersuite(&teep_error->supported_cipher_suites.items[i]);
+            if (result != TEEP_SUCCESS) {
+                return result;
+            }
+            printf(",\n");
         }
-        printf("\n");
+        printf("%*s]\n", indent_space + 4, "");
     }
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_VERSION) {
         printf("%*sversions : ", indent_space + 4, "");

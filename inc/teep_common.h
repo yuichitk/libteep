@@ -13,6 +13,7 @@
 #include "qcbor/qcbor.h"
 
 // Function results
+#define TEEP_INVALID_LENGTH                 6
 #define TEEP_VALUE_ERROR                    5
 #define TEEP_CBOR_WITHOUT_SIGN1             4
 #define TEEP_NO_MEMORY                      3

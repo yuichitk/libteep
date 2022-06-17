@@ -15,6 +15,11 @@
 #include "openssl/ecdsa.h"
 #include "openssl/obj_mac.h"
 
+#define PRIME256V1_PUBLIC_KEY_DER_SIZE      91
+#define PRIME256V1_PUBLIC_KEY_CHAR_SIZE     130
+#define PRIME256V1_PRIVATE_KEY_DER_SIZE     121
+#define PRIME256V1_PRIVATE_KEY_CHAR_SIZE    64
+
 int32_t create_key_pair(int nid, const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
 int32_t create_public_key(int nid, const char *public_key, struct t_cose_key *cose_public_key);
 

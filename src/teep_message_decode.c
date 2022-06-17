@@ -321,6 +321,103 @@ int32_t teep_set_byte_string(uint8_t data_type,
     return TEEP_SUCCESS;
 }
 
+int32_t teep_set_ciphersuite(QCBORDecodeContext *message,
+                             QCBORItem *item,
+                             teep_ciphersuite_t *ciphersuite) {
+    if (item->uDataType != QCBOR_TYPE_ARRAY) {
+        printf("\nteep_set_ciphersuite : Error! uDataType = %d\n", item->uDataType);
+        return TEEP_INVALID_TYPE_OF_ARGUMENT;
+    }
+    if (item->val.uCount != TEEP_CIPHERSUITE_LENGTH) {
+        return TEEP_NO_MEMORY;
+    }
+
+    for (size_t i = 0; i < TEEP_CIPHERSUITE_LENGTH; i++) {
+        int32_t result = teep_qcbor_get_next(message, item, QCBOR_TYPE_ANY);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        switch (item->uDataType) {
+        case QCBOR_TYPE_UINT64:
+            switch (i) {
+            case 0: /* sign */
+                ciphersuite->sign = item->val.uint64;
+                break;
+            case 1: /* encrypt */
+                ciphersuite->encrypt = item->val.uint64;
+                break;
+            case 2: /* mac */
+                ciphersuite->mac = item->val.uint64;
+                break;
+            default:
+                return TEEP_INVALID_LENGTH;
+            }
+            break;
+        case QCBOR_TYPE_INT64:
+            switch (i) {
+            case 0: /* sign */
+                ciphersuite->sign = item->val.int64;
+                break;
+            case 1: /* encrypt */
+                ciphersuite->encrypt = item->val.int64;
+                break;
+            case 2: /* mac */
+                ciphersuite->mac = item->val.int64;
+                break;
+            default:
+                return TEEP_INVALID_LENGTH;
+            }
+            break;
+        case QCBOR_TYPE_NULL:
+            switch (i) {
+            case 0: /* sign */
+                ciphersuite->sign = TEEP_COSE_SIGN_NONE;
+                break;
+            case 1: /* encrypt */
+                ciphersuite->encrypt = TEEP_COSE_ENCRYPT_NONE;
+                break;
+            case 2: /* mac */
+                ciphersuite->mac = TEEP_COSE_MAC_NONE;
+                break;
+            default:
+                return TEEP_INVALID_LENGTH;
+            }
+            break;
+        default:
+            return TEEP_INVALID_TYPE_OF_ARGUMENT;
+        }
+    }
+
+    return TEEP_SUCCESS;
+}
+
+int32_t teep_set_ciphersuite_array(QCBORDecodeContext *message,
+                                   QCBORItem *item,
+                                   teep_ciphersuite_array_t *ciphersuites) {
+    if (item->uDataType != QCBOR_TYPE_ARRAY) {
+        printf("\nteep_set_ciphersuite_array : Error! uDataType = %d\n", item->uDataType);
+        return TEEP_INVALID_TYPE_OF_ARGUMENT;
+    }
+    if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
+        return TEEP_NO_MEMORY;
+    }
+    size_t array_size = item->val.uCount;
+    for (size_t i = 0 ; i < array_size; i++) {
+        int32_t result = teep_qcbor_get_next(message, item, QCBOR_TYPE_ARRAY);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+
+        result = teep_set_ciphersuite(message, item, &ciphersuites->items[i]);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+    }
+    ciphersuites->len = array_size;
+
+    return TEEP_SUCCESS;
+}
+
 int32_t teep_set_tc_info_array(QCBORDecodeContext *message,
                                QCBORItem *item,
                                teep_tc_info_array_t *tc_info_arr) {
@@ -481,7 +578,7 @@ int32_t teep_set_query_request(QCBORDecodeContext *message,
                 query_request->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES:
-                result = teep_set_any_array(message, item, QCBOR_TYPE_UINT64, &query_request->supported_cipher_suites);
+                result = teep_set_ciphersuite_array(message, item, &query_request->supported_cipher_suites);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
@@ -527,7 +624,7 @@ int32_t teep_set_query_response(QCBORDecodeContext *message,
 
     query_response->token.ptr = NULL;
     query_response->token.len = 0;
-    query_response->selected_cipher_suite = TEEP_SUITE_INVALID;
+    query_response->selected_cipher_suite = TEEP_CIPHERSUITE_INVALID;
     query_response->selected_version = 0U;
     INITIALIZE_TEEP_BUF(query_response->evidence_format);
     INITIALIZE_TEEP_BUF(query_response->evidence);
@@ -555,10 +652,10 @@ int32_t teep_set_query_response(QCBORDecodeContext *message,
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
                 break;
             case TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE:
-                if (!teep_qcbor_value_is_uint64(item)) {
-                    return TEEP_INVALID_TYPE_OF_ARGUMENT;
+                result = teep_set_ciphersuite(message, item, &query_response->selected_cipher_suite);
+                if (result != TEEP_SUCCESS) {
+                    return result;
                 }
-                query_response->selected_cipher_suite = item->val.uint64;
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE;
                 break;
             case TEEP_OPTIONS_KEY_SELECTED_VERSION:
@@ -750,22 +847,7 @@ int32_t teep_set_error(QCBORDecodeContext *message,
                 teep_error->contains |= TEEP_MESSAGE_CONTAINS_ERR_MSG;
                 break;
             case TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES:
-                if (item->uDataType != QCBOR_TYPE_ARRAY) {
-                    printf("\nteep_set_error : Error! uDataType = %d\n", item->uDataType);
-                    return TEEP_INVALID_TYPE_OF_ARGUMENT;
-                }
-                if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
-                    return TEEP_NO_MEMORY;
-                }
-                teep_error->supported_cipher_suites.len = item->val.uCount;
-                for (size_t j = 0; j < teep_error->supported_cipher_suites.len; j++) {
-                    result = teep_qcbor_get_next_uint64(message, item);
-                    if (result != TEEP_SUCCESS) {
-                        teep_error->supported_cipher_suites.len = j;
-                        break;
-                    }
-                    teep_error->supported_cipher_suites.items[j] = item->val.uint64;
-                }
+                result = teep_set_ciphersuite_array(message, item, &teep_error->supported_cipher_suites);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
