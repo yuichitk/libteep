@@ -53,6 +53,23 @@ int32_t teep_print_string(const teep_buf_t *string) {
     return teep_print_text(string->ptr, string->len);
 }
 
+char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
+    switch (cose_algs_key) {
+    case 0:
+        return "NONE";
+    case TEEP_COSE_SIGN_ES256:
+        return "ES256";
+    case TEEP_COSE_SIGN_EDDSA:
+        return "EdDSA";
+    case TEEP_COSE_ENCRYPT_ACCM_16_64_128:
+        return "AES-CCM-16-64-128";
+    case TEEP_COSE_MAC_HMAC256:
+        return "HMAC 256/256";
+    default:
+        return "UNKNOWN";
+    }
+}
+
 void teep_debug_print(QCBORDecodeContext *message,
                       QCBORItem *item,
                       QCBORError *error,
@@ -77,8 +94,18 @@ void teep_debug_print(QCBORDecodeContext *message,
     }
 }
 
+int32_t teep_print_ciphersuite(const teep_ciphersuite_t *ciphersuite) {
+    if (ciphersuite == NULL) {
+        return TEEP_UNEXPECTED_ERROR;
+    }
+    printf("{sign: %s(%d), encrypt: %s(%d), mac: %s(%d)}",
+        teep_cose_algs_key_to_str(ciphersuite->sign), ciphersuite->sign,
+        teep_cose_algs_key_to_str(ciphersuite->encrypt), ciphersuite->encrypt,
+        teep_cose_algs_key_to_str(ciphersuite->mac), ciphersuite->mac);
+    return TEEP_SUCCESS;
+}
 
-int32_t print_teep_query_request(const teep_query_request_t *query_request, uint32_t indent_space) {
+int32_t teep_print_query_request(const teep_query_request_t *query_request, uint32_t indent_space) {
     if (query_request == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -147,7 +174,7 @@ int32_t teep_print_component_id(const teep_buf_t *component_id) {
     return result;
 }
 
-int32_t print_teep_query_response(const teep_query_response_t *query_response, uint32_t indent_space) {
+int32_t teep_print_query_response(const teep_query_response_t *query_response, uint32_t indent_space) {
     if (query_response == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -235,7 +262,7 @@ int32_t print_teep_query_response(const teep_query_response_t *query_response, u
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key) {
+int32_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key) {
     if (teep_update == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -288,7 +315,7 @@ int32_t print_teep_update(const teep_update_t *teep_update, uint32_t indent_spac
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_error(const teep_error_t *teep_error, uint32_t indent_space) {
+int32_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_space) {
     if (teep_error == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -329,7 +356,7 @@ int32_t print_teep_error(const teep_error_t *teep_error, uint32_t indent_space) 
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_success(const teep_success_t *teep_success, uint32_t indent_space) {
+int32_t teep_print_success(const teep_success_t *teep_success, uint32_t indent_space) {
     if (teep_success == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
@@ -353,30 +380,30 @@ int32_t print_teep_success(const teep_success_t *teep_success, uint32_t indent_s
     return TEEP_SUCCESS;
 }
 
-int32_t print_teep_message(const teep_message_t *msg, uint32_t indent_space, const char *ta_public_key) {
+int32_t teep_print_message(const teep_message_t *msg, uint32_t indent_space, const char *ta_public_key) {
     if (msg == NULL) {
         return TEEP_UNEXPECTED_ERROR;
     }
     int32_t result = TEEP_SUCCESS;
     switch (msg->teep_message.type) {
         case TEEP_TYPE_QUERY_REQUEST:
-            result = print_teep_query_request(&msg->query_request, indent_space);
+            result = teep_print_query_request(&msg->query_request, indent_space);
             break;
         case TEEP_TYPE_QUERY_RESPONSE:
-            result = print_teep_query_response(&msg->query_response, indent_space);
+            result = teep_print_query_response(&msg->query_response, indent_space);
             break;
         case TEEP_TYPE_UPDATE:
-            result = print_teep_update(&msg->teep_update, indent_space, ta_public_key);
+            result = teep_print_update(&msg->teep_update, indent_space, ta_public_key);
             break;
         case TEEP_TYPE_TEEP_SUCCESS:
-            result = print_teep_success(&msg->teep_success, indent_space);
+            result = teep_print_success(&msg->teep_success, indent_space);
             break;
         case TEEP_TYPE_TEEP_ERROR:
-            result = print_teep_error(&msg->teep_error, indent_space);
+            result = teep_print_error(&msg->teep_error, indent_space);
             break;
         default:
             result = TEEP_UNEXPECTED_ERROR;
-            teep_print_debug_string("print_teep_message : Undefined value.\n");
+            teep_print_debug_string("teep_print_message : Undefined value.\n");
             break;
     }
     return result;
