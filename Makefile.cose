@@ -4,38 +4,44 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-CC				= gcc
 CFLAGS			= -Wall -g
 LDFLAGS			= -lt_cose -lqcbor -lcrypto
 INC				= -I ./inc -I ./examples/inc
-TARGET			= ./teep_cose_test
-SRCS			= examples/teep_cose_test_main.c examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
+TAM				= ./teep_cose_tam
+AGENT			= ./teep_cose_agent
+SRCS			= examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
 OBJDIR			= ./obj
 OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
-TAM_KEY_PAIR	= ./testfiles/key/tam_prime256v1.der
-DEV_KEY_PAIR	= ./testfiles/key/teep_agent_prime256v1.der
+TAM_OBJ			= obj/examples/teep_cose_tam.o
+AGENT_OBJ		= obj/examples/teep_cose_agent.o
 
-$(TARGET):	$(OBJS)
-	$(CC) -o $@ $^ $(LDFLAGS)
+.PHONY: all debug clean test
+
+all: $(TAM) $(AGENT)
 
 $(OBJDIR)/%.o:	%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
 
-.PHONY: all debug clean test
+$(TAM_OBJ): examples/teep_cose_test_main.c
+	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_TAM=1 -o $@ -c $<
 
-all: clean $(TARGET)
+$(AGENT_OBJ): examples/teep_cose_test_main.c
+	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_AGENT=1 -o $@ -c $<
 
-debug: CFLAGS += -g 
-debug: all
+$(TAM): $(OBJS) $(TAM_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(AGENT): $(OBJS) $(AGENT_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TAM_OBJ) $(AGENT_OBJ) $(TAM) $(AGENT)
 
 test: $(TARGET)
-	$(TARGET) $(TAM_KEY_PAIR) ./testfiles/query_request.cbor  ./testfiles/query_request_cose.cbor  || exit 1
-	$(TARGET) $(DEV_KEY_PAIR) ./testfiles/query_response.cbor ./testfiles/query_response_cose.cbor || exit 1
-	$(TARGET) $(TAM_KEY_PAIR) ./testfiles/update.cbor         ./testfiles/update_cose.cbor         || exit 1
-	$(TARGET) $(DEV_KEY_PAIR) ./testfiles/teep_success.cbor   ./testfiles/teep_success_cose.cbor   || exit 1
-	$(TARGET) $(DEV_KEY_PAIR) ./testfiles/teep_error.cbor     ./testfiles/teep_error_cose.cbor     || exit 1
+	$(TAM)   ./testfiles/query_request.cbor  ./testfiles/query_request_cose.cbor  || exit 1
+	$(AGENT) ./testfiles/query_response.cbor ./testfiles/query_response_cose.cbor || exit 1
+	$(TAM)   ./testfiles/update.cbor         ./testfiles/update_cose.cbor         || exit 1
+	$(AGENT) ./testfiles/teep_success.cbor   ./testfiles/teep_success_cose.cbor   || exit 1
+	$(AGENT) ./testfiles/teep_error.cbor     ./testfiles/teep_error_cose.cbor     || exit 1
 

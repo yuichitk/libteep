@@ -11,6 +11,18 @@
 
 #define MAX_FILE_BUFFER_SIZE                1024
 
+#if TEEP_ACTOR_AGENT == 1
+#include "teep_agent_es256_private_key.h"
+#include "teep_agent_es256_public_key.h"
+const char *teep_private_key = teep_agent_es256_private_key;
+const char *teep_public_key = teep_agent_es256_public_key;
+#else /* TEEP_ACTOR_TAM as default */
+#include "tam_es256_private_key.h"
+#include "tam_es256_public_key.h"
+const char *teep_private_key = tam_es256_private_key;
+const char *teep_public_key = tam_es256_public_key;
+#endif
+
 int main(int argc, const char * argv[]) {
     int32_t result;
 
@@ -21,8 +33,9 @@ int main(int argc, const char * argv[]) {
     }
 
     // Read der file.
-    char private_key_buf[PRIME256V1_PRIVATE_KEY_CHAR_SIZE + 1];
-    char public_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
+    //char private_key_buf[PRIME256V1_PRIVATE_KEY_CHAR_SIZE + 1];
+    //char public_key_buf[PRIME256V1_PUBLIC_KEY_CHAR_SIZE + 1];
+    /*
     printf("\nmain : Read keys from DER file.\n");
     result = read_char_key_pair_from_der(argv[1], private_key_buf, public_key_buf);
     if (result != TEEP_SUCCESS) {
@@ -31,28 +44,36 @@ int main(int argc, const char * argv[]) {
     }
     printf("private_key_buf : %s\n", private_key_buf);
     printf("public_key_buf : %s\n\n", public_key_buf);
+    */
+    struct t_cose_key t_cose_key_pair;
+    result = create_key_pair(NID_X9_62_prime256v1, teep_private_key, teep_public_key, &t_cose_key_pair);
 
     // Read cbor file.
     printf("main : Read CBOR file.\n");
-    uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
-    size_t cbor_len = read_from_file(argv[2], MAX_FILE_BUFFER_SIZE, cbor_buf);
-    if (!cbor_len) {
+    UsefulBuf_MAKE_STACK_UB(cbor_buf, MAX_FILE_BUFFER_SIZE);
+    cbor_buf.len = read_from_file(argv[2], MAX_FILE_BUFFER_SIZE, cbor_buf.ptr);
+    if (!cbor_buf.len) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
-    teep_print_hex_within_max(cbor_buf, cbor_len, cbor_len);
+    teep_print_hex_within_max(cbor_buf.ptr, cbor_buf.len, cbor_buf.len);
     printf("\n");
 
     // Create cose signed file.
     printf("main : Create signed cose file.\n");
-    UsefulBufC raw_cbor = {cbor_buf, cbor_len};
-    UsefulBuf tmp_signed_cose = {cbor_buf, 0}; // reuse the original cbor buffer for signed cose
-    result = sign_cose_sign1(&raw_cbor, private_key_buf, public_key_buf, &tmp_signed_cose);
+    UsefulBuf_MAKE_STACK_UB(signed_cose, MAX_FILE_BUFFER_SIZE);
+    result = sign_cose_sign1(UsefulBuf_Const(cbor_buf), &t_cose_key_pair, T_COSE_ALGORITHM_ES256, &signed_cose);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Failed to sign. (%d)\n", result);
+        return EXIT_FAILURE;
+    }
+
+    teep_print_hex_within_max(signed_cose.ptr, signed_cose.len, signed_cose.len);
+    printf("\n");
 
     // Verify cose signed file.
-    UsefulBufC signed_cose = {tmp_signed_cose.ptr, tmp_signed_cose.len};
     UsefulBufC returned_payload;
-    result = verify_cose_sign1(&signed_cose, public_key_buf, &returned_payload);
+    result = verify_cose_sign1(UsefulBuf_Const(signed_cose), &t_cose_key_pair, &returned_payload);
     if (result != TEEP_SUCCESS) {
         printf("Fail to verify file.\n");
         return EXIT_FAILURE;
