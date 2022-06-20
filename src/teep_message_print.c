@@ -53,7 +53,7 @@ teep_err_t teep_print_string(const teep_buf_t *string) {
     return teep_print_text(string->ptr, string->len);
 }
 
-char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
+const char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
     switch (cose_algs_key) {
     case 0:
         return "NONE";

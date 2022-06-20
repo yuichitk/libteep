@@ -15,7 +15,7 @@
 #define TEEP_MAX_PRINT_BYTE_COUNT       12
 #define TEEP_MAX_PRINT_TEXT_COUNT       16
 
-char *teep_cose_algs_key_to_str(int32_t cose_algs_key);
+const char *teep_cose_algs_key_to_str(int32_t cose_algs_key);
 teep_err_t teep_print_query_request(const teep_query_request_t *query_request, uint32_t indent_space);
 teep_err_t teep_print_query_response(const teep_query_response_t *query_response, uint32_t indent_space);
 teep_err_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key);
