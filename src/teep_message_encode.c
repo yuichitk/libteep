@@ -23,6 +23,14 @@ void teep_QCBOREncode_AddUsefulBufCToMapN(QCBOREncodeContext *pMe, int64_t uLabe
     teep_QCBOREncode_AddUsefulBufC(pMe, buf);
 }
 
+void teep_encode_add_cipher_suite(QCBOREncodeContext *pMe, teep_ciphersuite_t ciphersuite) {
+    QCBOREncode_OpenArray(pMe);
+    QCBOREncode_AddInt64(pMe, ciphersuite.sign);
+    QCBOREncode_AddInt64(pMe, ciphersuite.encrypt);
+    QCBOREncode_AddInt64(pMe, ciphersuite.mac);
+    QCBOREncode_CloseArray(pMe);
+}
+
 teep_err_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
@@ -34,7 +42,7 @@ teep_err_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext 
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES);
         for (size_t i = 0; i < teep_error->supported_cipher_suites.len; i++) {
-            QCBOREncode_AddUInt64(context, teep_error->supported_cipher_suites.items[i]);
+            teep_encode_add_cipher_suite(context, teep_error->supported_cipher_suites.items[i]);
         }
         QCBOREncode_CloseArray(context);
     }
@@ -106,7 +114,8 @@ teep_err_t teep_encode_query_response(const teep_query_response_t *query_respons
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = query_response->token.ptr, .len = query_response->token.len});
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
-        QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE, query_response->selected_cipher_suite);
+        QCBOREncode_AddInt64(context, TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE);
+        teep_encode_add_cipher_suite(context, query_response->selected_cipher_suite);
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
         QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_SELECTED_VERSION, query_response->selected_version);
@@ -165,7 +174,7 @@ teep_err_t teep_encode_query_request(const teep_query_request_t *query_request, 
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
         QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES);
         for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
-            QCBOREncode_AddUInt64(context, query_request->supported_cipher_suites.items[i]);
+            teep_encode_add_cipher_suite(context, query_request->supported_cipher_suites.items[i]);
         }
         QCBOREncode_CloseArray(context);
     }
