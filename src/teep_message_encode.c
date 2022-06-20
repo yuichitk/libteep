@@ -23,7 +23,7 @@ void teep_QCBOREncode_AddUsefulBufCToMapN(QCBOREncodeContext *pMe, int64_t uLabe
     teep_QCBOREncode_AddUsefulBufC(pMe, buf);
 }
 
-int32_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *context) {
+teep_err_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_error->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_error->token.ptr, .len = teep_error->token.len});
@@ -58,7 +58,7 @@ int32_t teep_encode_error(const teep_error_t *teep_error, QCBOREncodeContext *co
     return TEEP_SUCCESS;
 }
 
-int32_t teep_encode_success(const teep_success_t *teep_success, QCBOREncodeContext *context) {
+teep_err_t teep_encode_success(const teep_success_t *teep_success, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_success->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_success->token.ptr, .len = teep_success->token.len});
@@ -77,7 +77,7 @@ int32_t teep_encode_success(const teep_success_t *teep_success, QCBOREncodeConte
     return TEEP_SUCCESS;
 }
 
-int32_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext *context) {
+teep_err_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (teep_update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = teep_update->token.ptr, .len = teep_update->token.len});
@@ -100,7 +100,7 @@ int32_t teep_encode_update(const teep_update_t *teep_update, QCBOREncodeContext 
     return TEEP_SUCCESS;
 }
 
-int32_t teep_encode_query_response(const teep_query_response_t *query_response, QCBOREncodeContext *context) {
+teep_err_t teep_encode_query_response(const teep_query_response_t *query_response, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = query_response->token.ptr, .len = query_response->token.len});
@@ -157,7 +157,7 @@ int32_t teep_encode_query_response(const teep_query_response_t *query_response, 
     return TEEP_SUCCESS;
 }
 
-int32_t teep_encode_query_request(const teep_query_request_t *query_request, QCBOREncodeContext *context) {
+teep_err_t teep_encode_query_request(const teep_query_request_t *query_request, QCBOREncodeContext *context) {
     QCBOREncode_OpenMap(context);
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_TOKEN, (UsefulBufC){.ptr = query_request->token.ptr, .len = query_request->token.len});
@@ -191,8 +191,8 @@ int32_t teep_encode_query_request(const teep_query_request_t *query_request, QCB
     return TEEP_SUCCESS;
 }
 
-int32_t teep_encode_message(const teep_message_t *message, uint8_t **buf, size_t *len) {
-    int32_t result;
+teep_err_t teep_encode_message(const teep_message_t *message, uint8_t **buf, size_t *len) {
+    teep_err_t result;
     QCBOREncodeContext context;
     QCBOREncode_Init(&context, (UsefulBuf){*buf, *len});
     QCBOREncode_OpenArray(&context);

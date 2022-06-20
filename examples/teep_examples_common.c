@@ -91,7 +91,7 @@ int32_t read_char_key_pair_from_der(const char *der_file_path, char *private_key
     uint8_t der_buf[PRIME256V1_PRIVATE_KEY_DER_SIZE];
     size_t der_len = read_from_file(der_file_path, PRIME256V1_PRIVATE_KEY_DER_SIZE, der_buf);
     if (!der_len) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     read_prime256v1_key_pair(der_buf, private_key, public_key);
     return TEEP_SUCCESS;
@@ -101,7 +101,7 @@ int32_t read_char_public_key_from_der(const char *der_file_path, char *public_ke
     uint8_t der_buf[PRIME256V1_PUBLIC_KEY_DER_SIZE];
     size_t der_len = read_from_file(der_file_path, PRIME256V1_PUBLIC_KEY_DER_SIZE, der_buf);
     if (!der_len) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     read_prime256v1_public_key(der_buf, public_key);
     return TEEP_SUCCESS;

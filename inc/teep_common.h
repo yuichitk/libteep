@@ -13,22 +13,25 @@
 #include "qcbor/qcbor.h"
 
 // Function results
-#define TEEP_INVALID_LENGTH                 6
-#define TEEP_VALUE_ERROR                    5
-#define TEEP_CBOR_WITHOUT_SIGN1             4
-#define TEEP_NO_MEMORY                      3
-#define TEEP_UNEXPECTED_ERROR               2
-#define TEEP_INVALID_TYPE_OF_ARGUMENT       1
-#define TEEP_SUCCESS                        0
+typedef enum teep_err {
+    TEEP_SUCCESS                        = 0,
+    TEEP_ERR_INVALID_TYPE_OF_ARGUMENT   = 1,
+    TEEP_ERR_UNEXPECTED_ERROR           = 2,
+    TEEP_ERR_NO_MEMORY                  = 3,
+    TEEP_ERR_CBOR_WITHOUT_SIGN1         = 4,
+    TEEP_ERR_INVALID_VALUE              = 5,
+    TEEP_ERR_INVALID_LENGTH             = 6,
+    TEEP_ERR_INVALID_MESSAGE_TYPE       = 7
+} teep_err_t;
 
 typedef struct teep_buf {
     size_t          len;
     const uint8_t   *ptr;
 } teep_buf_t;
 
-int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max);
-int32_t teep_print_hex(const uint8_t *array, size_t size);
-int32_t teep_print_text(const uint8_t *text, size_t size);
+teep_err_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max);
+teep_err_t teep_print_hex(const uint8_t *array, size_t size);
+teep_err_t teep_print_text(const uint8_t *text, size_t size);
 void teep_print_error_string(const char *message);
 void teep_print_debug_string(const char *message);
 void teep_print_debug_string_uint32(const char *message, uint32_t value);

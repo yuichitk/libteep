@@ -15,9 +15,9 @@
 #include "csuit/csuit.h"
 #endif
 
-int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max) {
+teep_err_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max) {
     if (array == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     size_t print_len = (size < size_max) ? size : size_max;
     for (size_t i = 0; i < print_len; i++) {
@@ -29,13 +29,13 @@ int32_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_hex(const uint8_t *array, const size_t size) {
+teep_err_t teep_print_hex(const uint8_t *array, const size_t size) {
     return teep_print_hex_within_max(array, size, TEEP_MAX_PRINT_BYTE_COUNT);
 }
 
-int32_t teep_print_text(const uint8_t *text, const size_t size) {
+teep_err_t teep_print_text(const uint8_t *text, const size_t size) {
     if (text == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     size_t print_len = (size < TEEP_MAX_PRINT_TEXT_COUNT) ? size : TEEP_MAX_PRINT_TEXT_COUNT;
     printf("\"");
@@ -49,7 +49,7 @@ int32_t teep_print_text(const uint8_t *text, const size_t size) {
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_string(const teep_buf_t *string) {
+teep_err_t teep_print_string(const teep_buf_t *string) {
     return teep_print_text(string->ptr, string->len);
 }
 
@@ -94,9 +94,9 @@ void teep_debug_print(QCBORDecodeContext *message,
     }
 }
 
-int32_t teep_print_ciphersuite(const teep_ciphersuite_t *ciphersuite) {
+teep_err_t teep_print_ciphersuite(const teep_ciphersuite_t *ciphersuite) {
     if (ciphersuite == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     printf("{sign: %s(%d), encrypt: %s(%d), mac: %s(%d)}",
         teep_cose_algs_key_to_str(ciphersuite->sign), ciphersuite->sign,
@@ -105,11 +105,11 @@ int32_t teep_print_ciphersuite(const teep_ciphersuite_t *ciphersuite) {
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_query_request(const teep_query_request_t *query_request, uint32_t indent_space) {
+teep_err_t teep_print_query_request(const teep_query_request_t *query_request, uint32_t indent_space) {
     if (query_request == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
     printf("%*sQueryRequest :\n", indent_space, "");
     printf("%*stype : %u\n", indent_space + 2, "", query_request->type);
     printf("%*soptions :\n", indent_space + 2, "");
@@ -157,21 +157,21 @@ int32_t teep_print_query_request(const teep_query_request_t *query_request, uint
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_component_id(const teep_buf_t *component_id) {
+teep_err_t teep_print_component_id(const teep_buf_t *component_id) {
     if (component_id == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
 #ifdef PARSE_SUIT
     suit_buf_t buf = {.ptr = component_id->ptr, .len = component_id->len};
     suit_component_identifier_t identifier;
-    int32_t suit_result = suit_set_component_identifiers(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &identifier);
+    suit_err_t suit_result = suit_set_component_identifiers(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &identifier);
     if (suit_result != SUIT_SUCCESS) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
     suit_result = suit_print_component_identifier(&identifier);
     if (suit_result != SUIT_SUCCESS) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
 #else
     result = teep_print_hex(component_id->ptr, component_id->len);
@@ -179,11 +179,11 @@ int32_t teep_print_component_id(const teep_buf_t *component_id) {
     return result;
 }
 
-int32_t teep_print_query_response(const teep_query_response_t *query_response, uint32_t indent_space) {
+teep_err_t teep_print_query_response(const teep_query_response_t *query_response, uint32_t indent_space) {
     if (query_response == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
     printf("%*sQueryResponse :\n", indent_space, "");
     printf("%*stype : %u\n", indent_space + 2, "", query_response->type);
     printf("%*soptions :\n", indent_space + 2, "");
@@ -272,11 +272,11 @@ int32_t teep_print_query_response(const teep_query_response_t *query_response, u
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key) {
+teep_err_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_space, const char *ta_public_key) {
     if (teep_update == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
     printf("%*sUpdate :\n", indent_space, "");
     printf("%*stype : %u\n", indent_space + 2, "", teep_update->type);
     printf("%*soptions :\n", indent_space + 2, "");
@@ -303,13 +303,13 @@ int32_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_spac
 #ifdef PARSE_SUIT
             suit_buf_t buf = {.ptr = teep_update->manifest_list.items[i].ptr, .len = teep_update->manifest_list.items[i].len};
             suit_envelope_t envelope;
-            int32_t suit_result = suit_set_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &envelope, ta_public_key);
+            suit_err_t suit_result = suit_set_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &buf, &envelope, ta_public_key);
             if (suit_result != SUIT_SUCCESS) {
-                return TEEP_UNEXPECTED_ERROR;
+                return TEEP_ERR_UNEXPECTED_ERROR;
             }
             suit_result = suit_print_envelope(SUIT_DECODE_MODE_SKIP_ANY_ERROR, &envelope, indent_space + 6);
             if (result != SUIT_SUCCESS) {
-                return TEEP_UNEXPECTED_ERROR;
+                return TEEP_ERR_UNEXPECTED_ERROR;
             }
 #else
             printf("%*s", indent_space + 6, "");
@@ -325,11 +325,11 @@ int32_t teep_print_update(const teep_update_t *teep_update, uint32_t indent_spac
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_space) {
+teep_err_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_space) {
     if (teep_error == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
     printf("%*sError :\n", indent_space, "");
     printf("%*stype : %u\n", indent_space + 2, "", teep_error->type);
     printf("%*soptions :\n", indent_space + 2, "");
@@ -371,11 +371,11 @@ int32_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_space) 
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_success(const teep_success_t *teep_success, uint32_t indent_space) {
+teep_err_t teep_print_success(const teep_success_t *teep_success, uint32_t indent_space) {
     if (teep_success == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result;
+    teep_err_t result;
     printf("%*sSuccess :\n", indent_space, "");
     printf("%*stype : %u\n", indent_space + 2, "", teep_success->type);
     printf("%*soptions :\n", indent_space + 2, "");
@@ -395,11 +395,11 @@ int32_t teep_print_success(const teep_success_t *teep_success, uint32_t indent_s
     return TEEP_SUCCESS;
 }
 
-int32_t teep_print_message(const teep_message_t *msg, uint32_t indent_space, const char *ta_public_key) {
+teep_err_t teep_print_message(const teep_message_t *msg, uint32_t indent_space, const char *ta_public_key) {
     if (msg == NULL) {
-        return TEEP_UNEXPECTED_ERROR;
+        return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    int32_t result = TEEP_SUCCESS;
+    teep_err_t result = TEEP_SUCCESS;
     switch (msg->teep_message.type) {
         case TEEP_TYPE_QUERY_REQUEST:
             result = teep_print_query_request(&msg->query_request, indent_space);
@@ -417,8 +417,7 @@ int32_t teep_print_message(const teep_message_t *msg, uint32_t indent_space, con
             result = teep_print_error(&msg->teep_error, indent_space);
             break;
         default:
-            result = TEEP_UNEXPECTED_ERROR;
-            teep_print_debug_string("teep_print_message : Undefined value.\n");
+            result = TEEP_ERR_INVALID_MESSAGE_TYPE;
             break;
     }
     return result;

@@ -6,18 +6,6 @@
 
 #include "teep_common.h"
 
-void teep_print_error_string(const char *message) {
-    printf("Error : %s\n", message);
-}
-
-void teep_print_debug_string(const char *message) {
-    printf("Debug : %s\n", message);
-}
-
-void teep_print_debug_string_uint32(const char *message, uint32_t value) {
-    printf("Debug : %s : %u\n", message, value);
-}
-
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count) {
     uint32_t value = 0;
     switch (byte_count) {
