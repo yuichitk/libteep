@@ -7,10 +7,8 @@
 #ifndef TEEP_MESSAGE_PRINT_H
 #define TEEP_MESSAGE_PRINT_H
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "qcbor/qcbor.h"
+#include "teep_common.h"
 
 #define TEEP_MAX_PRINT_BYTE_COUNT       12
 #define TEEP_MAX_PRINT_TEXT_COUNT       16

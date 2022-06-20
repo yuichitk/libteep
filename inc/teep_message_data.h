@@ -8,10 +8,8 @@
 #ifndef TEEP_MESSAGE_DATA_H
 #define TEEP_MESSAGE_DATA_H
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "qcbor/qcbor.h"
+#include "teep_common.h"
 
 #ifndef TEEP_MAX_ARRAY_LENGTH
   #define TEEP_MAX_ARRAY_LENGTH               20
