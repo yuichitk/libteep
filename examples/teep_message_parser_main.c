@@ -34,7 +34,6 @@ int main(int argc, const char * argv[]) {
     int32_t result;
     teep_message_t msg = { 0 };
     const char *cbor_file_name = NULL;
-    uint8_t cbor_buf[MAX_FILE_BUFFER_SIZE];
 
     if (argc < 2) {
         printf("%s <CBOR file path>\n", argv[0]);
@@ -52,26 +51,26 @@ int main(int argc, const char * argv[]) {
     printf("public_key : %s\n", teep_public_key);
 
     // Read cbor file.
+    UsefulBuf_MAKE_STACK_UB(cbor_buf, MAX_FILE_BUFFER_SIZE);
     printf("main : Read CBOR file.\n");
-    size_t cbor_len = read_from_file(cbor_file_name, MAX_FILE_BUFFER_SIZE, cbor_buf);
-    if (cbor_len == 0) {
+    cbor_buf.len = read_from_file(cbor_file_name, MAX_FILE_BUFFER_SIZE, cbor_buf.ptr);
+    if (cbor_buf.len == 0) {
         printf("main : Can't read CBOR file.\n");
         return EXIT_FAILURE;
     }
-    teep_print_hex(cbor_buf, cbor_len);
+    teep_print_hex(cbor_buf.ptr, cbor_buf.len);
     printf("\n");
 
     // Verify cbor file.
     printf("main : Verify CBOR file.\n");
-    UsefulBufC signed_cose = {cbor_buf, cbor_len};
+    UsefulBufC signed_cose = UsefulBuf_Const(cbor_buf);
     UsefulBufC returned_payload;
     result = verify_cose_sign1(signed_cose, &t_cose_public_key, &returned_payload);
 
     if (result != TEEP_SUCCESS) {
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
         printf("main : Failed to verify CBOR file, treat this as raw cbor.\n");
-        returned_payload.ptr = cbor_buf;
-        returned_payload.len = cbor_len;
+        returned_payload = cbor_buf;
 #else
         printf("main : Failed to verify CBOR file.\n");
         return EXIT_FAILURE;
