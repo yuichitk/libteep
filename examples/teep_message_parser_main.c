@@ -85,14 +85,14 @@ int main(int argc, const char * argv[]) {
     // Parse teep message.
     result = teep_set_message_from_bytes(returned_payload.ptr, returned_payload.len, &msg);
     if (result != TEEP_SUCCESS) {
-        printf("main : Fail to parse CBOR as teep-message. (err=%d)\n", result);
+        printf("main : Failed to parse CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
 
     // Print teep message.
     result = teep_print_message(&msg, 2, NULL);
     if (result != TEEP_SUCCESS) {
-        printf("main : Fail to print CBOR as teep-message. (err=%d)\n", result);
+        printf("main : Failed to print CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
 

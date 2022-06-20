@@ -7,13 +7,8 @@
 #ifndef TEEP_HTTP_CLIENT_H
 #define TEEP_HTTP_CLIENT_H
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <curl/curl.h>
-#include "teep_common.h"
 
-int32_t teep_send_http_post(const char *url, teep_buf_t *send_buffer, teep_buf_t *recv_buffer);
+teep_err_t teep_send_http_post(const char *url, UsefulBufC send_buffer, UsefulBuf *recv_buffer);
 
 #endif  // TEEP_HTTP_CLIENT_H
