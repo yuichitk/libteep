@@ -24,14 +24,10 @@
 
 #if TEEP_ACTOR_AGENT == 1
 #include "tam_es256_public_key.h"
-#include "teep_agent_es256_private_key.h"
 const char *teep_public_key = tam_es256_public_key;
-const char *teep_private_key = teep_agent_es256_private_key;
 #else /* TEEP_ACTOR_TAM as default */
-#include "tam_es256_private_key.h"
 #include "teep_agent_es256_public_key.h"
 const char *teep_public_key = teep_agent_es256_public_key;
-const char *teep_private_key = tam_es256_private_key;
 #endif
 
 int main(int argc, const char * argv[]) {
@@ -47,7 +43,6 @@ int main(int argc, const char * argv[]) {
     cbor_file_name = argv[1];
 
     assert(strlen(teep_public_key) == PRIME256V1_PUBLIC_KEY_CHAR_SIZE);
-    assert(strlen(teep_private_key) == PRIME256V1_PRIVATE_KEY_CHAR_SIZE);
 
     struct t_cose_key t_cose_public_key;
     result = create_public_key(NID_X9_62_prime256v1, teep_public_key, &t_cose_public_key);
