@@ -98,7 +98,7 @@ teep_err_t create_public_key(int nid, const char *public_key, struct t_cose_key 
     return TEEP_SUCCESS;
 }
 
-teep_err_t verify_cose_sign1(const UsefulBufC signed_cose, struct t_cose_key *cose_key, UsefulBufC *returned_payload) {
+teep_err_t verify_cose_sign1(const UsefulBufC signed_cose, const struct t_cose_key *cose_key, UsefulBufC *returned_payload) {
     struct t_cose_sign1_verify_ctx  verify_ctx;
     struct t_cose_parameters        parameters;
     enum t_cose_err_t               cose_result;
@@ -115,7 +115,7 @@ teep_err_t verify_cose_sign1(const UsefulBufC signed_cose, struct t_cose_key *co
     return TEEP_SUCCESS;
 }
 
-teep_err_t sign_cose_sign1(const UsefulBufC raw_cbor, struct t_cose_key *cose_key_pair, int32_t cose_algorithm_id, UsefulBuf *signed_cose) {
+teep_err_t sign_cose_sign1(const UsefulBufC raw_cbor, const struct t_cose_key *cose_key_pair, int32_t cose_algorithm_id, UsefulBuf *signed_cose) {
     // Create cose signed file.
     struct t_cose_sign1_sign_ctx sign_ctx;
     enum t_cose_err_t cose_result;

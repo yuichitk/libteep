@@ -260,7 +260,6 @@ teep_err_t teep_set_any_array(QCBORDecodeContext *message,
     ptr.v = teep_any_array;
 
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
-        printf("\nteep_set_any_array(%d) : Error! uDataType = %d\n", targetDataType, item->uDataType);
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
     if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
@@ -325,7 +324,6 @@ teep_err_t teep_set_ciphersuite(QCBORDecodeContext *message,
                              QCBORItem *item,
                              teep_ciphersuite_t *ciphersuite) {
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
-        printf("\nteep_set_ciphersuite : Error! uDataType = %d\n", item->uDataType);
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
     if (item->val.uCount != TEEP_CIPHERSUITE_LENGTH) {
@@ -395,7 +393,6 @@ teep_err_t teep_set_ciphersuite_array(QCBORDecodeContext *message,
                                    QCBORItem *item,
                                    teep_ciphersuite_array_t *ciphersuites) {
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
-        printf("\nteep_set_ciphersuite_array : Error! uDataType = %d\n", item->uDataType);
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
     if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
@@ -426,7 +423,6 @@ teep_err_t teep_set_tc_info_array(QCBORDecodeContext *message,
     INITIALIZE_TEEP_ARRAY_PTR(tc_info_arr);
 
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
-        printf("\nteep_set_tc_info_array : Error! uDataType = %d\n", item->uDataType);
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
     if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {
@@ -488,7 +484,6 @@ teep_err_t teep_set_requested_tc_info_array(QCBORDecodeContext *message,
     INITIALIZE_TEEP_ARRAY_PTR(tc_info_arr);
 
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
-        printf("\nteep_set_tc_info_array : Error! uDataType = %d\n", item->uDataType);
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
     if (item->val.uCount > TEEP_MAX_ARRAY_LENGTH) {

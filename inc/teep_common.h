@@ -7,9 +7,6 @@
 #ifndef TEEP_COMMON_H
 #define TEEP_COMMON_H
 
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "qcbor/qcbor.h"
 
 // Function results
@@ -21,7 +18,11 @@ typedef enum teep_err {
     TEEP_ERR_CBOR_WITHOUT_SIGN1         = 4,
     TEEP_ERR_INVALID_VALUE              = 5,
     TEEP_ERR_INVALID_LENGTH             = 6,
-    TEEP_ERR_INVALID_MESSAGE_TYPE       = 7
+    TEEP_ERR_INVALID_MESSAGE_TYPE       = 7,
+    TEEP_ERR_ON_HTTP_POST               = 8,
+    TEEP_ERR_SIGNING_FAILED             = 9,
+    TEEP_ERR_NO_SUPPORTED_VERSION       = 10,
+    TEEP_ERR_NO_SUPPORTED_CIPHERSUITE   = 11,
 } teep_err_t;
 
 typedef struct teep_buf {

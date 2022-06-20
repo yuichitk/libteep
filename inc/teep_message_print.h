@@ -7,6 +7,7 @@
 #ifndef TEEP_MESSAGE_PRINT_H
 #define TEEP_MESSAGE_PRINT_H
 
+#include <stdio.h>
 #include "qcbor/qcbor.h"
 #include "teep_common.h"
 

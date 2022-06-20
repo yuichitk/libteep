@@ -5,6 +5,11 @@
  */
 
 #include "teep_common.h"
+#include "teep_message_data.h"
+
+bool teep_ciphersuite_is_same(teep_ciphersuite_t a, teep_ciphersuite_t b) {
+    return (a.sign == b.sign) && (a.encrypt == b.encrypt) && (a.mac == b.mac);
+}
 
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count) {
     uint32_t value = 0;

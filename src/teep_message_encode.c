@@ -185,16 +185,16 @@ teep_err_t teep_encode_query_request(const teep_query_request_t *query_request, 
     QCBOREncode_CloseMap(context);
 
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_DATA_ITEM_REQUESTED) {
-        return TEEP_VALUE_ERROR;
+        return TEEP_ERR_INVALID_VALUE;
     }
     QCBOREncode_AddUInt64(context, query_request->data_item_requested);
     return TEEP_SUCCESS;
 }
 
-teep_err_t teep_encode_message(const teep_message_t *message, uint8_t **buf, size_t *len) {
+teep_err_t teep_encode_message(const teep_message_t *message, void **buf, size_t *len) {
     teep_err_t result;
     QCBOREncodeContext context;
-    QCBOREncode_Init(&context, (UsefulBuf){*buf, *len});
+    QCBOREncode_Init(&context, (UsefulBuf){.ptr = *buf, .len = *len});
     QCBOREncode_OpenArray(&context);
     QCBOREncode_AddUInt64(&context, message->teep_message.type);
 
@@ -215,13 +215,13 @@ teep_err_t teep_encode_message(const teep_message_t *message, uint8_t **buf, siz
             result = teep_encode_error(&message->teep_error, &context);
             break;
         default:
-            result = TEEP_VALUE_ERROR;
+            result = TEEP_ERR_INVALID_MESSAGE_TYPE;
     }
     QCBOREncode_CloseArray(&context);
     UsefulBufC tmp;
     QCBORError error = QCBOREncode_Finish(&context, &tmp);
     if (error != QCBOR_SUCCESS) {
-        result = TEEP_UNEXPECTED_ERROR;
+        result = TEEP_ERR_UNEXPECTED_ERROR;
     }
 
     if (result != TEEP_SUCCESS) {
