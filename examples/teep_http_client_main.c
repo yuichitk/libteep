@@ -5,6 +5,7 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
 #include "teep_cose.h"
 #include "teep_http_client.h"
 #include "teep_message_data.h"
@@ -28,11 +29,15 @@ const teep_ciphersuite_t supported_ciphersuites[] = {
     {.sign = TEEP_COSE_SIGN_ES256, .encrypt = TEEP_COSE_ENCRYPT_NONE, .mac = TEEP_COSE_MAC_NONE}
 };
 
-teep_err_t get_update(const char *tam_url,
-                      const teep_message_t *query_response,
-                      UsefulBuf cbor_buf,
-                      const struct t_cose_key *verifying_key,
-                      teep_message_t *update) {
+teep_err_t create_success_or_error(const teep_update_t *update,
+                                   teep_message_t *message) {
+    /* TODO: Process SUIT Manifest */
+
+    // create SUCCESS message
+    teep_success_t *success = (teep_success_t *)message;
+    success->type = TEEP_TYPE_TEEP_SUCCESS;
+    success->contains = TEEP_MESSAGE_CONTAINS_TOKEN;
+    success->token = update->token;
     return TEEP_SUCCESS;
 }
 
@@ -88,30 +93,29 @@ teep_err_t create_query_response(const teep_query_request_t *query_request,
     return TEEP_SUCCESS;
 }
 
-teep_err_t get_query_request(const char *tam_url,
-                             UsefulBuf cbor_buf,
-                             const struct t_cose_key *verifying_key,
-                             teep_query_request_t *query_request) {
+teep_err_t get_teep_message(const char *tam_url,
+                            UsefulBufC send_buf,
+                            const struct t_cose_key *verifying_key,
+                            UsefulBuf recv_buf,
+                            teep_message_t *message) {
     teep_err_t result;
 
     // Send TEEP/HTTP POST request.
-    printf("\nmain : Send TEEP/HTTP POST request.\n");
-    result = teep_send_http_post(tam_url, NULLUsefulBufC, &cbor_buf);
-    if (result) {
-        printf("main : Failed to send TEEP/HTTP POST request.\n");
-        return TEEP_ERR_ON_HTTP_POST;
+    printf("main : Send Buffer(len=%ld) on TEEP/HTTP POST request.\n", send_buf.len);
+    result = teep_send_http_post(tam_url, send_buf, &recv_buf);
+    if (result != TEEP_SUCCESS) {
+        return result;
     }
 
     // Verify and print QueryRequest cose.
     UsefulBufC payload;
-    result = verify_cose_sign1(UsefulBuf_Const(cbor_buf), verifying_key, &payload);
+    result = verify_cose_sign1(UsefulBuf_Const(recv_buf), verifying_key, &payload);
     if (result != TEEP_SUCCESS) {
-        printf("\nmain : Failed to verify QueryRequest. %d\n", result);
-        return TEEP_ERR_SIGNING_FAILED;
+        printf("main : Failed to verify QueryRequest. %d\n", result);
+        return result;
     }
 
-    result = teep_set_message_from_bytes(payload.ptr, payload.len, (teep_message_t *)query_request);
-    return result;
+    return teep_set_message_from_bytes(payload.ptr, payload.len, message);
 }
 
 int main(int argc, const char * argv[]) {
@@ -120,6 +124,9 @@ int main(int argc, const char * argv[]) {
     if (argc > 1) {
         tam_url = argv[1];
     }
+    UsefulBuf_MAKE_STACK_UB(cbor_recv_buf, MAX_RECEIVE_BUFFER_SIZE);
+    UsefulBuf_MAKE_STACK_UB(cbor_send_buf, MAX_SEND_BUFFER_SIZE);
+    UsefulBuf_MAKE_STACK_UB(cose_send_buf, MAX_SEND_BUFFER_SIZE);
 
     struct t_cose_key t_cose_signing_key;
     result = create_key_pair(NID_X9_62_prime256v1, teep_agent_es256_private_key, teep_agent_es256_public_key, &t_cose_signing_key);
@@ -135,33 +142,58 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 
-    UsefulBuf_MAKE_STACK_UB(cbor_recv_buf, MAX_RECEIVE_BUFFER_SIZE);
-    printf("cbor_buf = %p, %ld\n", cbor_recv_buf.ptr, cbor_recv_buf.len);
-    teep_query_request_t query_request;
-    result = get_query_request(tam_url, cbor_recv_buf, &t_cose_verifying_key, &query_request);
-    if (result != TEEP_SUCCESS) {
-        printf("main : Failed to parse QueryRequest. (%d)\n", result);
-        return EXIT_FAILURE;
-    }
-    teep_print_message((teep_message_t *)&query_request, 2, NULL);
+    teep_message_t send_message;
+    teep_message_t recv_message;
 
-    teep_query_response_t query_response;
-    result = create_query_response(&query_request, &query_response);
-    if (result != TEEP_SUCCESS) {
-        printf("main : Failed to create query_response message. (%d)\n", result);
-        return EXIT_FAILURE;
+    cose_send_buf.len = 0;
+    while (1) {
+        result = get_teep_message(tam_url, UsefulBuf_Const(cose_send_buf), &t_cose_verifying_key, cbor_recv_buf, &recv_message);
+        if (result != TEEP_SUCCESS) {
+            if (result == TEEP_ERR_ABORT) {
+                /* just the TAM terminated the connection */
+                result = TEEP_SUCCESS;
+                printf("main : The TAM terminated the connection.\n");
+                break;
+            }
+            printf("main : Failed to parse received message. (%d)\n", result);
+            return EXIT_FAILURE;
+        }
+        teep_print_message(&recv_message, 2, NULL);
+
+        cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
+        switch (recv_message.teep_message.type) {
+        case TEEP_TYPE_QUERY_REQUEST:
+            result = create_query_response((const teep_query_request_t *)&recv_message, (teep_query_response_t *)&send_message);
+            break;
+        case TEEP_TYPE_UPDATE:
+            result = create_success_or_error((const teep_update_t *)&recv_message, &send_message);
+            break;
+        case TEEP_TYPE_TEEP_ERROR:
+            printf("main : TAM sent Error.\n");
+            break;
+        default:
+            printf("main : Unexpected message type %d\n.", recv_message.teep_message.type);
+            return EXIT_FAILURE;
+        }
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to create teep message. (%d)\n", result);
+            return EXIT_FAILURE;
+        }
+
+        cbor_send_buf.len = MAX_SEND_BUFFER_SIZE;
+        result = teep_encode_message(&send_message, &cbor_send_buf.ptr, &cbor_send_buf.len);
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to encode query_response message. (%d)\n", result);
+            return EXIT_FAILURE;
+        }
+        cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
+        result = sign_cose_sign1(UsefulBuf_Const(cbor_send_buf), &t_cose_signing_key, T_COSE_ALGORITHM_ES256, &cose_send_buf);
+        if (result != TEEP_SUCCESS) {
+            printf("main : Failed to sign to query_response message. (%d)\n", result);
+            return EXIT_FAILURE;
+        }
+        sleep(1);
     }
-    UsefulBuf_MAKE_STACK_UB(cbor_send_buf, MAX_SEND_BUFFER_SIZE);
-    result = teep_encode_message((teep_message_t *)&query_response, &cbor_send_buf.ptr, &cbor_send_buf.len);
-    if (result != TEEP_SUCCESS) {
-        printf("main : Failed to encode query_response message. (%d)\n", result);
-        return EXIT_FAILURE;
-    }
-    UsefulBuf_MAKE_STACK_UB(cose_send_buf, MAX_SEND_BUFFER_SIZE);
-    result = sign_cose_sign1(UsefulBuf_Const(cbor_send_buf), &t_cose_signing_key, T_COSE_ALGORITHM_ES256, &cose_send_buf);
-    if (result != TEEP_SUCCESS) {
-        printf("main : Failed to sign to query_response message. (%d)\n", result);
-        return EXIT_FAILURE;
-    }
+
     return EXIT_SUCCESS;
 }

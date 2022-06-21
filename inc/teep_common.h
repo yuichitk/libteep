@@ -23,6 +23,7 @@ typedef enum teep_err {
     TEEP_ERR_SIGNING_FAILED             = 9,
     TEEP_ERR_NO_SUPPORTED_VERSION       = 10,
     TEEP_ERR_NO_SUPPORTED_CIPHERSUITE   = 11,
+    TEEP_ERR_ABORT                      = 31,
 } teep_err_t;
 
 typedef struct teep_buf {

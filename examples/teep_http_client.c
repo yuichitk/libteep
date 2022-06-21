@@ -26,8 +26,9 @@ static size_t write_callback(void *recv_buffer_ptr,
 teep_err_t teep_send_http_post(const char *url,
                                UsefulBufC send_buffer,
                                UsefulBuf *recv_buffer) {
+    teep_err_t          result = TEEP_SUCCESS;
     CURL                *curl = NULL;
-    CURLcode            result;
+    CURLcode            curl_result;
     struct curl_slist   *curl_slist = NULL;
 
     // Set parameter.
@@ -56,12 +57,22 @@ teep_err_t teep_send_http_post(const char *url,
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 
     // Send request.
-    result = curl_easy_perform(curl);
-    if (result != CURLE_OK) {
+    curl_result = curl_easy_perform(curl);
+    if (curl_result != CURLE_OK) {
         printf("teep_send_post_request : curl_easy_perform : Fail.\n");
-        return TEEP_ERR_UNEXPECTED_ERROR;
+        result = TEEP_ERR_ON_HTTP_POST;
+        goto out;
     }
-    curl_easy_cleanup(curl);
 
-    return TEEP_SUCCESS;
+    // Get status code.
+    int64_t response_code = -1;
+    curl_result = curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+    if (curl_result != CURLE_OK || response_code < 0 || response_code != 200) {
+        result = TEEP_ERR_ABORT;
+        goto out;
+    }
+
+out:
+    curl_easy_cleanup(curl);
+    return result;
 }
