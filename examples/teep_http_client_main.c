@@ -29,6 +29,30 @@ const teep_ciphersuite_t supported_ciphersuites[] = {
     {.sign = TEEP_COSE_SIGN_ES256, .encrypt = TEEP_COSE_ENCRYPT_NONE, .mac = TEEP_COSE_MAC_NONE}
 };
 
+teep_err_t create_error(teep_buf_t token,
+                        uint64_t err_code_contains,
+                        teep_message_t *message) {
+    teep_error_t *error = (teep_error_t *)message;
+    error->type = TEEP_TYPE_TEEP_ERROR;
+    error->contains = err_code_contains | TEEP_MESSAGE_CONTAINS_TOKEN;
+
+    if (err_code_contains & TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION) {
+        error->versions.len = 1;
+        error->versions.items[0] = SUPPORTED_VERSION;
+        error->contains |= TEEP_MESSAGE_CONTAINS_VERSION;
+        error->err_code = TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION;
+    }
+    else if (err_code_contains & TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES) {
+        error->supported_cipher_suites.len = sizeof(supported_ciphersuites) / sizeof(teep_ciphersuite_t);
+        for (size_t i = 0; i < error->supported_cipher_suites.len; i++) {
+            error->supported_cipher_suites.items[i] = supported_ciphersuites[i];
+        }
+        error->contains |= TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES;
+        error->err_code = TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES;
+    }
+    return TEEP_SUCCESS;
+}
+
 teep_err_t create_success_or_error(const teep_update_t *update,
                                    teep_message_t *message) {
     /* TODO: Process SUIT Manifest */
@@ -41,10 +65,10 @@ teep_err_t create_success_or_error(const teep_update_t *update,
     return TEEP_SUCCESS;
 }
 
-teep_err_t create_query_response(const teep_query_request_t *query_request,
-                                 teep_query_response_t *query_response) {
+teep_err_t create_query_response_or_error(const teep_query_request_t *query_request,
+                                          teep_message_t *message) {
     size_t i;
-
+    uint64_t err_code_contains = 0;
     int32_t version = -1;
     teep_ciphersuite_t ciphersuite = TEEP_CIPHERSUITE_INVALID;
 
@@ -62,7 +86,8 @@ teep_err_t create_query_response(const teep_query_request_t *query_request,
         version = 0;
     }
     if (version != SUPPORTED_VERSION) {
-        return TEEP_ERR_NO_SUPPORTED_VERSION;
+        err_code_contains |= TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION;
+        goto error;
     }
 
     if (!(query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES)) {
@@ -78,9 +103,16 @@ teep_err_t create_query_response(const teep_query_request_t *query_request,
         }
     }
     if (teep_ciphersuite_is_same(ciphersuite, TEEP_CIPHERSUITE_INVALID)) {
-        return TEEP_ERR_NO_SUPPORTED_CIPHERSUITE;
+        err_code_contains |= TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES;
+        goto error;
     }
 
+error: /* would be unneeded if the err-code becomes bit field */
+    if (err_code_contains != 0) {
+        return create_error(query_request->token, err_code_contains, message);
+    }
+
+    teep_query_response_t *query_response = (teep_query_response_t *)message;
     memset(query_response, 0, sizeof(teep_query_response_t));
     query_response->type = TEEP_TYPE_QUERY_RESPONSE;
     query_response->contains = TEEP_MESSAGE_CONTAINS_TOKEN |
@@ -163,7 +195,7 @@ int main(int argc, const char * argv[]) {
         cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
         switch (recv_message.teep_message.type) {
         case TEEP_TYPE_QUERY_REQUEST:
-            result = create_query_response((const teep_query_request_t *)&recv_message, (teep_query_response_t *)&send_message);
+            result = create_query_response_or_error((const teep_query_request_t *)&recv_message, &send_message);
             break;
         case TEEP_TYPE_UPDATE:
             result = create_success_or_error((const teep_update_t *)&recv_message, &send_message);
