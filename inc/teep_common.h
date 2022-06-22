@@ -13,16 +13,21 @@
 typedef enum teep_err {
     TEEP_SUCCESS                        = 0,
     TEEP_ERR_INVALID_TYPE_OF_ARGUMENT   = 1,
-    TEEP_ERR_UNEXPECTED_ERROR           = 2,
-    TEEP_ERR_NO_MEMORY                  = 3,
-    TEEP_ERR_CBOR_WITHOUT_SIGN1         = 4,
-    TEEP_ERR_INVALID_VALUE              = 5,
-    TEEP_ERR_INVALID_LENGTH             = 6,
-    TEEP_ERR_INVALID_MESSAGE_TYPE       = 7,
-    TEEP_ERR_ON_HTTP_POST               = 8,
-    TEEP_ERR_SIGNING_FAILED             = 9,
-    TEEP_ERR_NO_SUPPORTED_VERSION       = 10,
-    TEEP_ERR_NO_SUPPORTED_CIPHERSUITE   = 11,
+    TEEP_ERR_INVALID_VALUE              = 2,
+    TEEP_ERR_INVALID_LENGTH             = 3,
+    TEEP_ERR_INVALID_MESSAGE_TYPE       = 4,
+
+    TEEP_ERR_CBOR_WITHOUT_SIGN1         = 5,
+    TEEP_ERR_VERIFICATION_FAILED        = 6,
+    TEEP_ERR_SIGNING_FAILED             = 7,
+
+    TEEP_ERR_NO_SUPPORTED_VERSION       = 8,
+    TEEP_ERR_NO_SUPPORTED_CIPHERSUITE   = 9,
+
+    TEEP_ERR_NO_MEMORY                  = 10,
+    TEEP_ERR_ON_HTTP_POST               = 11,
+
+    TEEP_ERR_UNEXPECTED_ERROR           = 30,
     TEEP_ERR_ABORT                      = 31,
 } teep_err_t;
 
