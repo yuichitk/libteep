@@ -39,30 +39,12 @@ make -f Makefile.cose test
 
 3. teep_http_client
 ```bash
-make -f Makefile.client
-./testfiles/tam_server.sh
-./teep_http_client
+make -f Makefile.client run
 ```
 
 * In some cases, teep_http_client Requires to install libcurl.
 ```bash
 sudo apt-get install libcurl4-openssl-dev
-```
-
-You can try to send cbor without cose-sign1 for debug.
-
-1. teep_http_client
-```
-make -f Makefile.client -B
-./testfiles/tam_server.sh -d # server sends CBOR without cose-sign1
-./teep_http_client # it must fail because the server send CBOR without cose-sign1
-
-make -f Makefile.client -B debug=1
-./testfiles/tam_server.sh -d
-./teep_http_client # client allows server to send CBOR without cose-sign1
-
-./testfiles/tam_server.sh
-./teep_http_client # client allows server to send also CBOR with cose-sign1 in debug build
 ```
 
 You can parse SUIT\_\* types with [libcsuit](https://github.com/yuichitk/libcsuit/).
