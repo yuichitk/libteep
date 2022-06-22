@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #ifndef TAM_PRIVATE_KEY_H
 #define TAM_PRIVATE_KEY_H
 

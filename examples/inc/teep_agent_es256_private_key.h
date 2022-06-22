@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
 #ifndef TEEP_AGENT_PRIVATE_KEY_H
 #define TEEP_AGENT_PRIVATE_KEY_H
 
