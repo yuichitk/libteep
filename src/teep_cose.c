@@ -109,7 +109,7 @@ teep_err_t verify_cose_sign1(const UsefulBufC signed_cose, const struct t_cose_k
                                       returned_payload,
                                       &parameters);
     if (cose_result != T_COSE_SUCCESS) {
-        return TEEP_ERR_CBOR_WITHOUT_SIGN1;
+        return TEEP_ERR_VERIFICATION_FAILED;
     }
 
     return TEEP_SUCCESS;
