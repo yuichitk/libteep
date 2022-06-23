@@ -363,11 +363,9 @@ teep_err_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_spac
         for (size_t i = 0; i < teep_error->versions.len; i++) {
             printf("%u ", teep_error->versions.items[i]);
         }
-        printf("\n");
+        printf("]\n");
     }
-    if (teep_error->contains & TEEP_MESSAGE_CONTAINS_ERR_CODE) {
-        printf("%*serr-code : %u\n", indent_space + 2, "", teep_error->err_code);
-    }
+    printf("%*serr-code : %s(%u)\n", indent_space + 2, "", teep_err_code_to_str(teep_error->err_code), teep_error->err_code);
     return TEEP_SUCCESS;
 }
 

@@ -872,7 +872,6 @@ teep_err_t teep_set_error(QCBORDecodeContext *message,
         return result;
     }
     teep_error->err_code = item->val.uint64;
-    teep_error->contains |= TEEP_MESSAGE_CONTAINS_ERR_CODE;
     return TEEP_SUCCESS;
 }
 
