@@ -27,9 +27,10 @@ ifdef debug
     CFLAGS += -DALLOW_CBOR_WITHOUT_SIGN1 -DSEND_CBOR_WITHOUT_SIGN1
 endif
 
-run:
-	./testfiles/tam_server.sh &
-	$(TARGET)
+run: $(TARGET)
+	sh -c "./testfiles/tam_server.sh > tam_stdout.txt &"
+	sleep 1
+	sh -c "$(TARGET) > agent_stdout.txt"
 
 clean:
 	rm -f $(OBJS) $(TARGET)
