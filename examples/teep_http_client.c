@@ -12,7 +12,7 @@ static size_t write_callback(void *recv_buffer_ptr,
                              size_t nitems,
                              void *user_ptr) {
     UsefulBuf *recv_buffer = (UsefulBuf *)user_ptr;
-    printf("\nwrite_callback : start \n");
+    printf("\nwrite_callback : start\n");
     size_t recv_size = size * nitems;
 
     if (recv_size > recv_buffer->len) {

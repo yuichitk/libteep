@@ -2,7 +2,6 @@
 echo -ne "\nRun TAM Server.\n"
 
 DIR=`dirname "${0}"`
-ENABLE_COSE="_cose"
 while getopts d OPT
 do
     case $OPT in
@@ -17,8 +16,12 @@ do
     esac
 done
 
-QUERY_REQUEST_FILE=${DIR}"/query_request${ENABLE_COSE}.cbor"
-UPDATE_FILE=${DIR}"/update${ENABLE_COSE}.cbor"
+QUERY_REQUEST_ERR0_FILE="${DIR}/query_request.cbor"
+QUERY_REQUEST_ERR1_FILE="${DIR}/query_request_err1_cose.cbor"
+QUERY_REQUEST_ERR2_FILE="${DIR}/query_request_err2_cose.cbor"
+QUERY_REQUEST_ERR3_FILE="${DIR}/query_request_err3_cose.cbor"
+QUERY_REQUEST_FILE="${DIR}/query_request_cose.cbor"
+UPDATE_FILE="${DIR}/update_cose.cbor"
 
 function send_teep_cbor {
     # send_teep_cbor PATH_TO_CBOR_FILE
@@ -42,10 +45,24 @@ function send_teep_cbor {
     ) | nc -l 8080
 }
 
-send_teep_cbor $QUERY_REQUEST_FILE
-echo -ne "\nSend TEEP/HTTP QueryRequest.\n"
+
+echo -ne "\nSend TEEP/HTTP Update with illegal timing.\n"
 send_teep_cbor $UPDATE_FILE
+
+echo -ne "\nSend TEEP/HTTP QueryRequest without cose.\n"
+send_teep_cbor $QUERY_REQUEST_ERR0_FILE
+
+echo -ne "\nSend TEEP/HTTP QueryRequest with versions = [1].\n"
+send_teep_cbor $QUERY_REQUEST_ERR1_FILE
+
+echo -ne "\nSend TEEP/HTTP QueryRequest with ciphersuites = {enc: a256gcm}.\n"
+send_teep_cbor $QUERY_REQUEST_ERR2_FILE
+
+echo -ne "\nSend TEEP/HTTP QueryRequest.\n"
+send_teep_cbor $QUERY_REQUEST_FILE
+
 echo -ne "\nSend TEEP/HTTP Update.\n"
+send_teep_cbor $UPDATE_FILE
 
 ( \
 echo "HTTP/1.1 204 No Content"; \

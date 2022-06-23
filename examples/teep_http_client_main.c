@@ -30,19 +30,30 @@ const teep_ciphersuite_t supported_ciphersuites[] = {
 };
 
 teep_err_t create_error(teep_buf_t token,
-                        uint64_t err_code_contains,
+                        uint64_t err_code,
                         teep_message_t *message) {
     teep_error_t *error = (teep_error_t *)message;
     error->type = TEEP_TYPE_TEEP_ERROR;
-    error->contains = err_code_contains | TEEP_MESSAGE_CONTAINS_TOKEN;
+    error->contains = 0;
 
-    if (err_code_contains & TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION) {
+    if (token.ptr != NULL && 8 <= token.len && token.len <= 64) {
+        error->token = token;
+        error->contains = TEEP_MESSAGE_CONTAINS_TOKEN;
+    }
+
+    if (err_code == TEEP_ERR_CODE_PERMANENT_ERROR) {
+        if (token.ptr == NULL || token.len < 8 || 64 < token.len) {
+            /* the token is incorrect */
+            error->err_code = TEEP_ERR_CODE_PERMANENT_ERROR;
+        }
+    }
+    else if (err_code == TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION) {
         error->versions.len = 1;
         error->versions.items[0] = SUPPORTED_VERSION;
-        error->contains |= TEEP_MESSAGE_CONTAINS_VERSION;
+        error->contains = TEEP_MESSAGE_CONTAINS_VERSION;
         error->err_code = TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION;
     }
-    else if (err_code_contains & TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES) {
+    else if (err_code == TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES) {
         error->supported_cipher_suites.len = sizeof(supported_ciphersuites) / sizeof(teep_ciphersuite_t);
         for (size_t i = 0; i < error->supported_cipher_suites.len; i++) {
             error->supported_cipher_suites.items[i] = supported_ciphersuites[i];
@@ -55,7 +66,14 @@ teep_err_t create_error(teep_buf_t token,
 
 teep_err_t create_success_or_error(const teep_update_t *update,
                                    teep_message_t *message) {
-    /* TODO: Process SUIT Manifest */
+    if (!(update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) ||
+        update->token.len < 8 || 64 < update->token.len) {
+        return create_error(update->token, TEEP_ERR_CODE_PERMANENT_ERROR, message);
+    }
+
+    /* TODO: Process SUIT Manifest
+     * MAY cause TEEP_ERR_CODE_TEMPORARY_ERROR, ERR_MANIFEST_PROCESSING_FAILED
+     */
 
     // create SUCCESS message
     teep_success_t *success = (teep_success_t *)message;
@@ -115,10 +133,12 @@ error: /* would be unneeded if the err-code becomes bit field */
     teep_query_response_t *query_response = (teep_query_response_t *)message;
     memset(query_response, 0, sizeof(teep_query_response_t));
     query_response->type = TEEP_TYPE_QUERY_RESPONSE;
-    query_response->contains = TEEP_MESSAGE_CONTAINS_TOKEN |
-                               TEEP_MESSAGE_CONTAINS_VERSION |
+    query_response->contains = TEEP_MESSAGE_CONTAINS_VERSION |
                                TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE;
-    query_response->token = query_request->token;
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
+        query_response->token = query_request->token;
+        query_response->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
+    }
     query_response->selected_version = version;
     query_response->selected_cipher_suite = ciphersuite;
 
@@ -133,7 +153,7 @@ teep_err_t get_teep_message(const char *tam_url,
     teep_err_t result;
 
     // Send TEEP/HTTP POST request.
-    printf("main : Send Buffer(len=%ld) on TEEP/HTTP POST request.\n", send_buf.len);
+    printf("main : Send TEEP/HTTP POST request.\n");
     result = teep_send_http_post(tam_url, send_buf, &recv_buf);
     if (result != TEEP_SUCCESS) {
         return result;
@@ -143,7 +163,7 @@ teep_err_t get_teep_message(const char *tam_url,
     UsefulBufC payload;
     result = verify_cose_sign1(UsefulBuf_Const(recv_buf), verifying_key, &payload);
     if (result != TEEP_SUCCESS) {
-        printf("main : Failed to verify QueryRequest. %d\n", result);
+        printf("main : Failed to verify TEEP message. %d\n", result);
         return result;
     }
 
@@ -152,6 +172,11 @@ teep_err_t get_teep_message(const char *tam_url,
 
 int main(int argc, const char * argv[]) {
     teep_err_t          result;
+    typedef enum teep_agent_status {
+        WAITING_QUERY_REQUEST,
+        WAITING_UPDATE_OR_QUERY_REQUEST,
+    } teep_agent_status_t;
+    teep_agent_status_t status = WAITING_QUERY_REQUEST;
     const char *tam_url = DEFAULT_TAM_URL;
     if (argc > 1) {
         tam_url = argv[1];
@@ -187,6 +212,11 @@ int main(int argc, const char * argv[]) {
                 printf("main : The TAM terminated the connection.\n");
                 break;
             }
+            else if (result == TEEP_ERR_VERIFICATION_FAILED) {
+                /* could not authenticate the TAM's message, ignore */
+                printf("main : Could not authenticate the TAM's message.\n");
+                goto interval;
+            }
             printf("main : Failed to parse received message. (%d)\n", result);
             return EXIT_FAILURE;
         }
@@ -198,6 +228,10 @@ int main(int argc, const char * argv[]) {
             result = create_query_response_or_error((const teep_query_request_t *)&recv_message, &send_message);
             break;
         case TEEP_TYPE_UPDATE:
+            if (status == WAITING_QUERY_REQUEST) {
+                printf("main : Received Update message without QueryRequest.\n");
+                goto interval;
+            }
             result = create_success_or_error((const teep_update_t *)&recv_message, &send_message);
             break;
         case TEEP_TYPE_TEEP_ERROR:
@@ -212,6 +246,17 @@ int main(int argc, const char * argv[]) {
             return EXIT_FAILURE;
         }
 
+        printf("main : Sending...\n");
+        teep_print_message(&send_message, 2, NULL);
+        if (status == WAITING_QUERY_REQUEST &&
+            send_message.teep_message.type == TEEP_TYPE_QUERY_RESPONSE) {
+            status = WAITING_UPDATE_OR_QUERY_REQUEST;
+        }
+        else if (status == WAITING_UPDATE_OR_QUERY_REQUEST &&
+            send_message.teep_message.type == TEEP_TYPE_TEEP_SUCCESS) {
+            status = WAITING_QUERY_REQUEST;
+        }
+
         cbor_send_buf.len = MAX_SEND_BUFFER_SIZE;
         result = teep_encode_message(&send_message, &cbor_send_buf.ptr, &cbor_send_buf.len);
         if (result != TEEP_SUCCESS) {
@@ -224,6 +269,7 @@ int main(int argc, const char * argv[]) {
             printf("main : Failed to sign to query_response message. (%d)\n", result);
             return EXIT_FAILURE;
         }
+interval:
         sleep(1);
     }
 
