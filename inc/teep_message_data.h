@@ -89,11 +89,13 @@ typedef enum teep_cose_sign_algs {
     TEEP_COSE_SIGN_INVALID          = -1,
     TEEP_COSE_SIGN_ES256            = -7, // cose-alg-es256
     TEEP_COSE_SIGN_EDDSA            = -8, // cose-alg-eddsa
+    TEEP_COSE_SIGN_HSS_LMS          = -46, // cose-alg-hss-lms
 } teep_cose_sign_algs_t;
 
 typedef enum teep_cose_encrypt_algs {
     TEEP_COSE_ENCRYPT_NONE              = 0,
     TEEP_COSE_ENCRYPT_INVALID           = -1,
+    TEEP_COSE_ENCRYPT_A256_GCM          = 3, // cose-alg-aes-gcm-256
     TEEP_COSE_ENCRYPT_ACCM_16_64_128    = 10, // cose-alg-aes-ccm-16-64-128
 } teep_cose_encrypt_algs_t;
 

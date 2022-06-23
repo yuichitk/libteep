@@ -53,6 +53,31 @@ teep_err_t teep_print_string(const teep_buf_t *string) {
     return teep_print_text(string->ptr, string->len);
 }
 
+const char *teep_err_code_to_str(int32_t err_code) {
+    switch (err_code) {
+    case TEEP_ERR_CODE_PERMANENT_ERROR:
+        return "ERR_PERMANENT_ERROR";
+    case TEEP_ERR_CODE_UNSUPPORTED_EXTENSION:
+        return "ERR_UNSUPPORTED_EXTENSION";
+    case TEEP_ERR_CODE_UNSUPPORTED_FRESHNESS_MECHANISMS:
+        return "ERR_UNSUPPORTED_FRESHNESS_MECHANISMS";
+    case TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION:
+        return "ERR_UNSUPPORTED_MSG_VERSION";
+    case TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES:
+        return "ERR_UNSUPPORTED_CIPHER_SUITES";
+    case TEEP_ERR_CODE_BAD_CERTIFICATE:
+        return "ERR_BAD_CERTIFICATE";
+    case TEEP_ERR_CODE_CERTIFICATE_EXPIRED:
+        return "ERR_CERTIFICATE_EXPIRED";
+    case TEEP_ERR_CODE_TEMPORARY_ERROR:
+        return "ERR_TEMPORARY_ERROR";
+    case TEEP_ERR_CODE_MANIFEST_PROCESSING_FAILED:
+        return "ERR_MANIFEST_PROCESSING_FAILED";
+    default:
+        return "ERR_UNKNOWN";
+    }
+}
+
 const char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
     switch (cose_algs_key) {
     case 0:
@@ -61,6 +86,10 @@ const char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
         return "ES256";
     case TEEP_COSE_SIGN_EDDSA:
         return "EdDSA";
+    case TEEP_COSE_SIGN_HSS_LMS:
+        return "HSS-LMS";
+    case TEEP_COSE_ENCRYPT_A256_GCM:
+        return "AES-GCM-256";
     case TEEP_COSE_ENCRYPT_ACCM_16_64_128:
         return "AES-CCM-16-64-128";
     case TEEP_COSE_MAC_HMAC256:
