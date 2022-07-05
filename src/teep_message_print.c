@@ -159,6 +159,13 @@ teep_err_t teep_print_query_request(const teep_query_request_t *query_request, u
         }
         printf("%*s]\n", indent_space + 4, "");
     }
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_FRESHNESS_MECHANISMS) {
+        printf("%*ssupported-freshness-mechanisms : [ ", indent_space + 4, "");
+        for (size_t i = 0; i < query_request->supported_freshness_mechanisms.len; i++) {
+            printf("%u, ", query_request->supported_freshness_mechanisms.items[i]);
+        }
+        printf("]\n");
+    }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
         printf("%*schallenge : ", indent_space + 4, "");
         result = teep_print_hex(query_request->challenge.ptr, query_request->challenge.len);
@@ -173,14 +180,6 @@ teep_err_t teep_print_query_request(const teep_query_request_t *query_request, u
             printf("%u, ", query_request->versions.items[i]);
         }
         printf("]\n");
-    }
-    if (query_request->contains & TEEP_MESSAGE_CONTAINS_OCSP_DATA) {
-        printf("%*socsp-data : ", indent_space + 4, "");
-        result = teep_print_hex(query_request->ocsp_data.ptr, query_request->ocsp_data.len);
-        if (result != TEEP_SUCCESS) {
-            return result;
-        }
-        printf("\n");
     }
     printf("%*sdata-item-requested : %u\n", indent_space + 2, "", query_request->data_item_requested);
     return TEEP_SUCCESS;

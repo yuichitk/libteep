@@ -178,6 +178,14 @@ teep_err_t teep_encode_query_request(const teep_query_request_t *query_request, 
         }
         QCBOREncode_CloseArray(context);
     }
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_FRESHNESS_MECHANISMS) {
+        QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_SUPPORTED_FRESHNESS_MECHANISMS);
+        for (size_t i = 0; i < query_request->supported_freshness_mechanisms.len; i++) {
+            QCBOREncode_AddUInt64(context, query_request->supported_freshness_mechanisms.items[i]);
+
+        }
+        QCBOREncode_CloseArray(context);
+    }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_CHALLENGE) {
         QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_CHALLENGE, (UsefulBufC){query_request->challenge.ptr, query_request->challenge.len});
     }
@@ -187,9 +195,6 @@ teep_err_t teep_encode_query_request(const teep_query_request_t *query_request, 
             QCBOREncode_AddUInt64(context, query_request->versions.items[i]);
         }
         QCBOREncode_CloseArray(context);
-    }
-    if (query_request->contains & TEEP_MESSAGE_CONTAINS_OCSP_DATA) {
-        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_OCSP_DATA, (UsefulBufC){query_request->ocsp_data.ptr, query_request->ocsp_data.len});
     }
     QCBOREncode_CloseMap(context);
 

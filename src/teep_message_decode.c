@@ -549,9 +549,9 @@ teep_err_t teep_set_query_request(QCBORDecodeContext *message,
     query_request->token.ptr = NULL;
     query_request->token.len = 0;
     INITIALIZE_TEEP_ARRAY(query_request->supported_cipher_suites);
+    INITIALIZE_TEEP_ARRAY(query_request->supported_freshness_mechanisms);
     INITIALIZE_TEEP_BUF(query_request->challenge);
     INITIALIZE_TEEP_ARRAY(query_request->versions);
-    INITIALIZE_TEEP_BUF(query_request->ocsp_data);
     query_request->data_item_requested = TEEP_DATA_ITEM_INVALID;
 
     result = teep_qcbor_get_next(message, item, QCBOR_TYPE_MAP);
@@ -593,12 +593,12 @@ teep_err_t teep_set_query_request(QCBORDecodeContext *message,
                 }
                 query_request->contains |= TEEP_MESSAGE_CONTAINS_VERSION;
                 break;
-            case TEEP_OPTIONS_KEY_OCSP_DATA:
-                result = teep_set_byte_string(QCBOR_TYPE_BYTE_STRING, item, &query_request->ocsp_data);
+            case TEEP_OPTIONS_KEY_SUPPORTED_FRESHNESS_MECHANISMS:
+                result = teep_set_any_array(message, item, QCBOR_TYPE_UINT32, &query_request->supported_freshness_mechanisms);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                query_request->contains |= TEEP_MESSAGE_CONTAINS_OCSP_DATA;
+                query_request->contains |= TEEP_MESSAGE_CONTAINS_SUPPORTED_FRESHNESS_MECHANISMS;
                 break;
             default:
                 return TEEP_ERR_UNEXPECTED_ERROR;

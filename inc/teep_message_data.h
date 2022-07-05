@@ -50,27 +50,27 @@ typedef enum teep_type {
  * key of options
  */
 typedef enum teep_options_key {
-    TEEP_OPTIONS_KEY_INVALID                     = 0,
-    TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES     = 1,
-    TEEP_OPTIONS_KEY_CHALLENGE                   = 2,
-    TEEP_OPTIONS_KEY_VERSION                     = 3,
-    TEEP_OPTIONS_KEY_OCSP_DATA                   = 4,
-    TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE       = 5,
-    TEEP_OPTIONS_KEY_SELECTED_VERSION            = 6,
-    TEEP_OPTIONS_KEY_EVIDENCE                    = 7,
-    TEEP_OPTIONS_KEY_TC_LIST                     = 8,
-    TEEP_OPTIONS_KEY_EXT_LIST                    = 9,
-    TEEP_OPTIONS_KEY_MANIFEST_LIST               = 10,
-    TEEP_OPTIONS_KEY_MSG                         = 11,
-    TEEP_OPTIONS_KEY_ERR_MSG                     = 12,
-    TEEP_OPTIONS_KEY_EVIDENCE_FORMAT             = 13,
-    TEEP_OPTIONS_KEY_REQUESTED_TC_LIST           = 14,
-    TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST            = 15,
-    TEEP_OPTIONS_KEY_COMPONENT_ID                = 16,
-    TEEP_OPTIONS_KEY_TC_MANIFEST_SEQUENCE_NUMBER = 17,
-    TEEP_OPTIONS_KEY_HAVE_BINARY                 = 18,
-    TEEP_OPTIONS_KEY_SUIT_REPORTS                = 19,
-    TEEP_OPTIONS_KEY_TOKEN                       = 20
+    TEEP_OPTIONS_KEY_INVALID                        = 0,
+    TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES        = 1,
+    TEEP_OPTIONS_KEY_CHALLENGE                      = 2,
+    TEEP_OPTIONS_KEY_VERSION                        = 3,
+    TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE          = 5,
+    TEEP_OPTIONS_KEY_SELECTED_VERSION               = 6,
+    TEEP_OPTIONS_KEY_EVIDENCE                       = 7,
+    TEEP_OPTIONS_KEY_TC_LIST                        = 8,
+    TEEP_OPTIONS_KEY_EXT_LIST                       = 9,
+    TEEP_OPTIONS_KEY_MANIFEST_LIST                  = 10,
+    TEEP_OPTIONS_KEY_MSG                            = 11,
+    TEEP_OPTIONS_KEY_ERR_MSG                        = 12,
+    TEEP_OPTIONS_KEY_EVIDENCE_FORMAT                = 13,
+    TEEP_OPTIONS_KEY_REQUESTED_TC_LIST              = 14,
+    TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST               = 15,
+    TEEP_OPTIONS_KEY_COMPONENT_ID                   = 16,
+    TEEP_OPTIONS_KEY_TC_MANIFEST_SEQUENCE_NUMBER    = 17,
+    TEEP_OPTIONS_KEY_HAVE_BINARY                    = 18,
+    TEEP_OPTIONS_KEY_SUIT_REPORTS                   = 19,
+    TEEP_OPTIONS_KEY_TOKEN                          = 20,
+    TEEP_OPTIONS_KEY_SUPPORTED_FRESHNESS_MECHANISMS = 21,
 } teep_options_key_t;
 
 /*
@@ -220,7 +220,6 @@ typedef struct teep_requested_tc_info_array {
 #define TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES BIT(TEEP_OPTIONS_KEY_SUPPORTED_CIPHER_SUITES)
 #define TEEP_MESSAGE_CONTAINS_CHALLENGE BIT(TEEP_OPTIONS_KEY_CHALLENGE)
 #define TEEP_MESSAGE_CONTAINS_VERSION BIT(TEEP_OPTIONS_KEY_VERSION)
-#define TEEP_MESSAGE_CONTAINS_OCSP_DATA BIT(TEEP_OPTIONS_KEY_OCSP_DATA)
 #define TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE BIT(TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE)
 #define TEEP_MESSAGE_CONTAINS_SELECTED_VERSION BIT(TEEP_OPTIONS_KEY_SELECTED_VERSION)
 #define TEEP_MESSAGE_CONTAINS_EVIDENCE BIT(TEEP_OPTIONS_KEY_EVIDENCE)
@@ -237,8 +236,8 @@ typedef struct teep_requested_tc_info_array {
 #define TEEP_MESSAGE_CONTAINS_HAVE_BINARY BIT(TEEP_OPTIONS_KEY_HAVE_BINARY)
 #define TEEP_MESSAGE_CONTAINS_SUIT_REPORTS BIT(TEEP_OPTIONS_KEY_SUIT_REPORTS)
 #define TEEP_MESSAGE_CONTAINS_TOKEN BIT(TEEP_OPTIONS_KEY_TOKEN)
-/* 21 <= unused <= 61 */
-//#define TEEP_MESSAGE_CONTAINS_ERR_CODE BIT(62)
+#define TEEP_MESSAGE_CONTAINS_SUPPORTED_FRESHNESS_MECHANISMS BIT(TEEP_OPTIONS_KEY_SUPPORTED_FRESHNESS_MECHANISMS)
+/* 22 <= unused <= 62 */
 #define TEEP_MESSAGE_CONTAINS_DATA_ITEM_REQUESTED BIT(63)
 
 /*
@@ -259,9 +258,9 @@ typedef struct teep_query_request {
     uint64_t                    contains;
     teep_buf_t                  token;
     teep_ciphersuite_array_t    supported_cipher_suites;
+    teep_uint32_array_t         supported_freshness_mechanisms;
     teep_buf_t                  challenge;
     teep_uint32_array_t         versions;
-    teep_buf_t                  ocsp_data;
     // TODO :                   query-request-extensions
     // TODO :                   teep-option-extensions
     teep_data_item_requested_t  data_item_requested;
