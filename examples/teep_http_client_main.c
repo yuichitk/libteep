@@ -135,7 +135,7 @@ error: /* would be unneeded if the err-code becomes bit field */
     query_response->type = TEEP_TYPE_QUERY_RESPONSE;
     query_response->contains = TEEP_MESSAGE_CONTAINS_VERSION |
                                TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE;
-    if (query_response->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
+    if (query_request->contains & TEEP_MESSAGE_CONTAINS_TOKEN) {
         query_response->token = query_request->token;
         query_response->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
     }
@@ -154,6 +154,8 @@ teep_err_t get_teep_message(const char *tam_url,
 
     // Send TEEP/HTTP POST request.
     printf("main : Send TEEP/HTTP POST request.\n");
+    teep_print_hex_within_max(send_buf.ptr, send_buf.len, send_buf.len);
+    printf("\n");
     result = teep_send_http_post(tam_url, send_buf, &recv_buf);
     if (result != TEEP_SUCCESS) {
         return result;
