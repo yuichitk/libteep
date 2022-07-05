@@ -1,0 +1,23 @@
+version: '3'
+services:
+    server: # TAM
+        build: ../tamproto/
+        command: node --trace-warnings app.js
+        ports:
+            - "8888:8888"
+            - "8443:8443"
+        extra_hosts:
+            - "tam_srv_ip:172.17.0.1"
+        healthcheck:
+            test: exit 0
+            interval: 1s
+            timeout: 1s
+            retries: 3
+            start_period: 1s
+    client: # TEEP Agent
+        build: .
+        depends_on:
+            server:
+                condition: service_healthy # wait tamproto's up
+        environment:
+            - "TAM_URI=http://172.17.0.1:8888/api/tam_cose"

@@ -57,6 +57,15 @@ cd /path/to/libteep/
 make -f Makefile.parser suit=1 -B test
 ```
 
+4. with [tamproto](https://github.com/ko-isobe/tamproto)
+```
+cd /path/to/libteep/
+cd ..
+git clone https://github.com/ko-isobe/tamproto.git
+cd ./libteep/
+docker-compose up
+```
+
 ## Install
 ```
 make install
