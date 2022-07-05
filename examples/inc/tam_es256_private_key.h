@@ -8,6 +8,6 @@
 #define TAM_PRIVATE_KEY_H
 
 const char tam_es256_private_key[] =
-    "ac56b410b2fadbdd3411044d29c58bd4c5ea5b60e6a1601e79b8e6b6070d1bc6";
+    "841aebb7b9ea6f0260be7355a24588b977d23d2ac5bf2b6b2d8379432a1fea98";
 
 #endif /* TAM_PRIVATE_KEY_H */

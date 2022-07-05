@@ -32,7 +32,7 @@ teep_err_t teep_send_http_post(const char *url,
     struct curl_slist   *curl_slist = NULL;
 
     // Set parameter.
-    printf("teep_send_post_request : Send HTTP Post request.\n");
+    printf("HTTP POST %s\n", url);
     curl = curl_easy_init();
     if (curl == NULL) {
         printf("teep_send_post_request : curl_easy_init : Fail.\n");

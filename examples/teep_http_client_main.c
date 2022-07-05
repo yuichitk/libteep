@@ -198,6 +198,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Failed to parse t_cose public key. (%d)\n", result);
         return EXIT_FAILURE;
     }
+    printf("main : Verifying key = %s(%ld)\n", tam_es256_public_key, strlen(tam_es256_public_key));
 
     teep_message_t send_message;
     teep_message_t recv_message;
