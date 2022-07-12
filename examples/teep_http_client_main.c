@@ -276,5 +276,7 @@ interval:
         sleep(1);
     }
 
+    EC_KEY_free(t_cose_verifying_key.k.key_ptr);
+    EC_KEY_free(t_cose_signing_key.k.key_ptr);
     return EXIT_SUCCESS;
 }
