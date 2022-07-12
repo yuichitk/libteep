@@ -17,7 +17,7 @@ typedef enum teep_err {
     TEEP_ERR_INVALID_LENGTH             = 3,
     TEEP_ERR_INVALID_MESSAGE_TYPE       = 4,
 
-    TEEP_ERR_CBOR_WITHOUT_SIGN1         = 5,
+    TEEP_ERR_CBOR_WITHOUT_COSE          = 5,
     TEEP_ERR_VERIFICATION_FAILED        = 6,
     TEEP_ERR_SIGNING_FAILED             = 7,
 
@@ -27,8 +27,9 @@ typedef enum teep_err {
     TEEP_ERR_NO_MEMORY                  = 10,
     TEEP_ERR_ON_HTTP_POST               = 11,
 
-    TEEP_ERR_UNEXPECTED_ERROR           = 30,
-    TEEP_ERR_ABORT                      = 31,
+    TEEP_ERR_UNEXPECTED_ERROR           = 29,
+    TEEP_ERR_ABORT                      = 30,
+    TEEP_ERR_FATAL                      = 31,
 } teep_err_t;
 
 typedef struct teep_buf {

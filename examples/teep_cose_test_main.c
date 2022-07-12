@@ -14,13 +14,13 @@
 #if TEEP_ACTOR_AGENT == 1
 #include "teep_agent_es256_private_key.h"
 #include "teep_agent_es256_public_key.h"
-const char *teep_private_key = teep_agent_es256_private_key;
-const char *teep_public_key = teep_agent_es256_public_key;
+const unsigned char *teep_private_key = teep_agent_es256_private_key;
+const unsigned char *teep_public_key = teep_agent_es256_public_key;
 #else /* TEEP_ACTOR_TAM as default */
 #include "tam_es256_private_key.h"
 #include "tam_es256_public_key.h"
-const char *teep_private_key = tam_es256_private_key;
-const char *teep_public_key = tam_es256_public_key;
+const unsigned char *teep_private_key = tam_es256_private_key;
+const unsigned char *teep_public_key = tam_es256_public_key;
 #endif
 
 int main(int argc, const char * argv[]) {
@@ -32,8 +32,8 @@ int main(int argc, const char * argv[]) {
         return EXIT_FAILURE;
     }
 
-    struct t_cose_key t_cose_key_pair;
-    result = create_key_pair(NID_X9_62_prime256v1, teep_private_key, teep_public_key, &t_cose_key_pair);
+    teep_key_t key_pair;
+    result = teep_key_init_es256_key_pair(teep_private_key, teep_public_key, &key_pair);
 
     // Read cbor file.
     printf("main : Read CBOR file.\n");
@@ -49,7 +49,7 @@ int main(int argc, const char * argv[]) {
     // Create cose signed file.
     printf("main : Create signed cose file.\n");
     UsefulBuf_MAKE_STACK_UB(signed_cose, MAX_FILE_BUFFER_SIZE);
-    result = sign_cose_sign1(UsefulBuf_Const(cbor_buf), &t_cose_key_pair, T_COSE_ALGORITHM_ES256, &signed_cose);
+    result = teep_sign_cose_sign1(UsefulBuf_Const(cbor_buf), &key_pair, &signed_cose);
     if (result != TEEP_SUCCESS) {
         printf("main : Failed to sign. (%d)\n", result);
         return EXIT_FAILURE;
@@ -60,7 +60,7 @@ int main(int argc, const char * argv[]) {
 
     // Verify cose signed file.
     UsefulBufC returned_payload;
-    result = verify_cose_sign1(UsefulBuf_Const(signed_cose), &t_cose_key_pair, &returned_payload);
+    result = teep_verify_cose_sign1(UsefulBuf_Const(signed_cose), &key_pair, &returned_payload);
     if (result != TEEP_SUCCESS) {
         printf("Failed to verify file.\n");
         return EXIT_FAILURE;
@@ -77,6 +77,7 @@ int main(int argc, const char * argv[]) {
         }
         printf("main : Succeed to write to \"%s\".\n", argv[2]);
     }
+    teep_key_free(&key_pair);
 
     return EXIT_SUCCESS;
 }

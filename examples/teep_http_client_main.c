@@ -14,10 +14,10 @@
 
 #include "teep_agent_es256_private_key.h"
 #include "teep_agent_es256_public_key.h"
-const char *teep_agent_private_key = teep_agent_es256_private_key;
-const char *teep_agent_public_key = teep_agent_es256_public_key;
+const unsigned char *teep_agent_private_key = teep_agent_es256_private_key;
+const unsigned char *teep_agent_public_key = teep_agent_es256_public_key;
 #include "tam_es256_public_key.h"
-const char *tam_public_key = tam_es256_public_key;
+const unsigned char *tam_public_key = tam_es256_public_key;
 
 const char DEFAULT_TAM_URL[] =          "http://localhost:8080/tam";
 #define MAX_RECEIVE_BUFFER_SIZE         1024
@@ -147,7 +147,7 @@ error: /* would be unneeded if the err-code becomes bit field */
 
 teep_err_t get_teep_message(const char *tam_url,
                             UsefulBufC send_buf,
-                            const struct t_cose_key *verifying_key,
+                            const teep_key_t *verifying_key,
                             UsefulBuf recv_buf,
                             teep_message_t *message) {
     teep_err_t result;
@@ -163,7 +163,7 @@ teep_err_t get_teep_message(const char *tam_url,
 
     // Verify and print QueryRequest cose.
     UsefulBufC payload;
-    result = verify_cose_sign1(UsefulBuf_Const(recv_buf), verifying_key, &payload);
+    result = teep_verify_cose_sign1(UsefulBuf_Const(recv_buf), verifying_key, &payload);
     if (result != TEEP_SUCCESS) {
         printf("main : Failed to verify TEEP message. %d\n", result);
         return result;
@@ -187,27 +187,29 @@ int main(int argc, const char * argv[]) {
     UsefulBuf_MAKE_STACK_UB(cbor_send_buf, MAX_SEND_BUFFER_SIZE);
     UsefulBuf_MAKE_STACK_UB(cose_send_buf, MAX_SEND_BUFFER_SIZE);
 
-    struct t_cose_key t_cose_signing_key;
-    result = create_key_pair(NID_X9_62_prime256v1, teep_agent_es256_private_key, teep_agent_es256_public_key, &t_cose_signing_key);
+    teep_key_t signing_key;
+    result = teep_key_init_es256_key_pair(teep_agent_es256_private_key, teep_agent_es256_public_key, &signing_key);
     if (result != TEEP_SUCCESS) {
         printf("main : Failed to create t_cose key pair. (%d)\n", result);
         return EXIT_FAILURE;
     }
 
-    struct t_cose_key t_cose_verifying_key;
-    result = create_public_key(NID_X9_62_prime256v1, tam_es256_public_key, &t_cose_verifying_key);
+    teep_key_t verifying_key;
+    result = teep_key_init_es256_public_key(tam_es256_public_key, &verifying_key);
     if (result != TEEP_SUCCESS) {
         printf("main : Failed to parse t_cose public key. (%d)\n", result);
         return EXIT_FAILURE;
     }
-    printf("main : Verifying key = %s(%ld)\n", tam_es256_public_key, strlen(tam_es256_public_key));
+    printf("main : Verifying key = ");
+    teep_print_hex(tam_es256_public_key, sizeof(tam_es256_public_key));
+    printf("\n");
 
     teep_message_t send_message;
     teep_message_t recv_message;
 
     cose_send_buf.len = 0;
     while (1) {
-        result = get_teep_message(tam_url, UsefulBuf_Const(cose_send_buf), &t_cose_verifying_key, cbor_recv_buf, &recv_message);
+        result = get_teep_message(tam_url, UsefulBuf_Const(cose_send_buf), &verifying_key, cbor_recv_buf, &recv_message);
         if (result != TEEP_SUCCESS) {
             if (result == TEEP_ERR_ABORT) {
                 /* just the TAM terminated the connection */
@@ -267,7 +269,7 @@ int main(int argc, const char * argv[]) {
             return EXIT_FAILURE;
         }
         cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
-        result = sign_cose_sign1(UsefulBuf_Const(cbor_send_buf), &t_cose_signing_key, T_COSE_ALGORITHM_ES256, &cose_send_buf);
+        result = teep_sign_cose_sign1(UsefulBuf_Const(cbor_send_buf), &signing_key, &cose_send_buf);
         if (result != TEEP_SUCCESS) {
             printf("main : Failed to sign to query_response message. (%d)\n", result);
             return EXIT_FAILURE;
@@ -276,7 +278,7 @@ interval:
         sleep(1);
     }
 
-    EC_KEY_free(t_cose_verifying_key.k.key_ptr);
-    EC_KEY_free(t_cose_signing_key.k.key_ptr);
+    teep_key_free(&verifying_key);
+    teep_key_free(&signing_key);
     return EXIT_SUCCESS;
 }

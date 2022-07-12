@@ -24,10 +24,10 @@
 
 #if TEEP_ACTOR_AGENT == 1
 #include "tam_es256_public_key.h"
-const char *teep_public_key = tam_es256_public_key;
+const unsigned char *teep_public_key = tam_es256_public_key;
 #else /* TEEP_ACTOR_TAM as default */
 #include "teep_agent_es256_public_key.h"
-const char *teep_public_key = teep_agent_es256_public_key;
+const unsigned char *teep_public_key = teep_agent_es256_public_key;
 #endif
 
 int main(int argc, const char * argv[]) {
@@ -41,14 +41,14 @@ int main(int argc, const char * argv[]) {
     }
     cbor_file_name = argv[1];
 
-    assert(strlen(teep_public_key) == PRIME256V1_PUBLIC_KEY_CHAR_SIZE);
-
-    struct t_cose_key t_cose_public_key;
-    result = create_public_key(NID_X9_62_prime256v1, teep_public_key, &t_cose_public_key);
+    teep_key_t public_key;
+    result = teep_key_init_es256_public_key(teep_public_key, &public_key);
     if (result != TEEP_SUCCESS) {
         printf("main : Failed to parse t_cose_key. (%d)\n", result);
     }
-    printf("public_key : %s\n", teep_public_key);
+    printf("public_key : ");
+    teep_print_hex(teep_public_key, PRIME256V1_PUBLIC_KEY_LENGTH);
+    printf("\n");
 
     // Read cbor file.
     UsefulBuf_MAKE_STACK_UB(cbor_buf, MAX_FILE_BUFFER_SIZE);
@@ -65,14 +65,14 @@ int main(int argc, const char * argv[]) {
     printf("main : Verify CBOR file.\n");
     UsefulBufC signed_cose = UsefulBuf_Const(cbor_buf);
     UsefulBufC returned_payload;
-    result = verify_cose_sign1(signed_cose, &t_cose_public_key, &returned_payload);
+    result = teep_verify_cose_sign1(signed_cose, &public_key, &returned_payload);
 
     if (result != TEEP_SUCCESS) {
 #ifdef ALLOW_CBOR_WITHOUT_SIGN1
         printf("main : Failed to verify CBOR file, treat this as raw cbor.\n");
         returned_payload = cbor_buf;
 #else
-        printf("main : Failed to verify CBOR file.\n");
+        printf("main : Failed to verify CBOR file. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
 #endif
     }
@@ -95,6 +95,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Failed to print CBOR as teep-message. (err=%d)\n", result);
         return EXIT_FAILURE;
     }
+    teep_key_free(&public_key);
 
     return EXIT_SUCCESS;
 }
