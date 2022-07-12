@@ -8,126 +8,176 @@
 #include "t_cose/t_cose_sign1_sign.h"
 #include "t_cose/t_cose_sign1_verify.h"
 #include "t_cose/q_useful_buf.h"
-#include "openssl/ecdsa.h"
-#include "openssl/obj_mac.h"
 
+teep_err_t teep_create_es_key(teep_key_t *key) {
+    teep_err_t      result = TEEP_SUCCESS;
+    EVP_PKEY        *pkey = NULL;
+    EVP_PKEY_CTX    *ctx = NULL;
+    OSSL_PARAM_BLD  *param_bld = NULL;
+    OSSL_PARAM      *params = NULL;
+    BIGNUM *priv;
 
-teep_err_t create_key_pair(int nid, const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair) {
-    EC_GROUP    *ec_group = NULL;
-    EC_KEY      *ec_key = NULL;
-    BIGNUM      *private_key_bn = NULL;
-    EC_POINT    *pub_key_point = NULL;
-    int         result = 0;
-
-    ec_group = EC_GROUP_new_by_curve_name(nid);
-    if (ec_group == NULL) {
-        return TEEP_ERR_NO_MEMORY;
-    }
-    ec_key = EC_KEY_new();
-    if (ec_key == NULL) {
-        return TEEP_ERR_NO_MEMORY;
-    }
-    result = EC_KEY_set_group(ec_key, ec_group);
-    if (!result) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    private_key_bn = BN_new();
-    if (private_key_bn == NULL) {
-        return TEEP_ERR_NO_MEMORY;
-    }
-    BN_zero(private_key_bn);
-    result = BN_hex2bn(&private_key_bn, private_key);
-    if(private_key_bn == 0) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    result = EC_KEY_set_private_key(ec_key, private_key_bn);
-    if (!result) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    pub_key_point = EC_POINT_new(ec_group);
-    if (pub_key_point == NULL) {
-        return TEEP_ERR_NO_MEMORY;
-    }
-    pub_key_point = EC_POINT_hex2point(ec_group, public_key, pub_key_point, NULL);
-    if (pub_key_point == NULL) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    result = EC_KEY_set_public_key(ec_key, pub_key_point);
-    if (result == 0) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
+    const char *group_name;
+    switch (key->cose_algorithm_id) {
+    case T_COSE_ALGORITHM_ES256:
+        group_name = "prime256v1";
+        break;
+    case T_COSE_ALGORITHM_ES384:
+        group_name = "secp384r1";
+        break;
+    case T_COSE_ALGORITHM_ES512:
+        group_name = "secp521r1";
+        break;
+    default:
+        return TEEP_ERR_INVALID_VALUE;
     }
 
-    cose_key_pair->k.key_ptr  = ec_key;
-    cose_key_pair->crypto_lib = T_COSE_CRYPTO_LIB_OPENSSL;
+    param_bld = OSSL_PARAM_BLD_new();
+    if (param_bld == NULL) {
+        return TEEP_ERR_FATAL;
+    }
+    if (!OSSL_PARAM_BLD_push_utf8_string(param_bld, "group", group_name, 0)
+        || !OSSL_PARAM_BLD_push_octet_string(param_bld, "pub", key->public_key, key->public_key_len)) {
+        result = TEEP_ERR_FATAL;
+        goto out;
+    }
+    if (key->private_key != NULL) {
+        priv = BN_bin2bn(key->private_key, key->private_key_len, NULL);
+        if (priv == NULL) {
+            result = TEEP_ERR_FATAL;
+            goto out;
+        }
+        if (!OSSL_PARAM_BLD_push_BN(param_bld, "priv", priv)) {
+            result = TEEP_ERR_FATAL;
+            goto out;
+        }
+    }
+    params = OSSL_PARAM_BLD_to_param(param_bld);
+
+    if (params == NULL) {
+        result = TEEP_ERR_FATAL;
+        goto out;
+    }
+    ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    if (ctx == NULL) {
+        result = TEEP_ERR_FATAL;
+        goto out;
+    }
+    if (ctx == NULL
+        || EVP_PKEY_fromdata_init(ctx) <= 0
+        || EVP_PKEY_fromdata(ctx, &pkey, EVP_PKEY_KEYPAIR, params) <= 0) {
+        result = TEEP_ERR_FATAL;
+        goto out;
+    }
+
+    key->cose_key.k.key_ptr  = pkey;
+    key->cose_key.crypto_lib = T_COSE_CRYPTO_LIB_OPENSSL;
+    return TEEP_SUCCESS;
+
+out:
+    EVP_PKEY_CTX_free(ctx);
+    OSSL_PARAM_free(params);
+    BN_free(priv);
+    OSSL_PARAM_BLD_free(param_bld);
+    return result;
+}
+
+teep_err_t teep_key_init_es256_key_pair(const unsigned char *private_key, const unsigned char *public_key, teep_key_t *cose_key_pair) {
+    cose_key_pair->private_key = private_key;
+    cose_key_pair->private_key_len = PRIME256V1_PRIVATE_KEY_LENGTH;
+    cose_key_pair->public_key = public_key;
+    cose_key_pair->public_key_len = PRIME256V1_PUBLIC_KEY_LENGTH;
+    cose_key_pair->cose_algorithm_id = T_COSE_ALGORITHM_ES256;
+    return teep_create_es_key(cose_key_pair);
+}
+
+teep_err_t teep_key_init_es384_key_pair(const unsigned char *private_key, const unsigned char *public_key, teep_key_t *cose_key_pair) {
+    cose_key_pair->private_key = private_key;
+    cose_key_pair->private_key_len = SECP384R1_PRIVATE_KEY_LENGTH;
+    cose_key_pair->public_key = public_key;
+    cose_key_pair->public_key_len = SECP384R1_PUBLIC_KEY_LENGTH;
+    cose_key_pair->cose_algorithm_id = T_COSE_ALGORITHM_ES384;
+    return teep_create_es_key(cose_key_pair);
+}
+
+teep_err_t teep_key_init_es512_key_pair(const unsigned char *private_key, const unsigned char *public_key, teep_key_t *cose_key_pair) {
+    cose_key_pair->private_key = private_key;
+    cose_key_pair->private_key_len = SECP521R1_PRIVATE_KEY_LENGTH;
+    cose_key_pair->public_key = public_key;
+    cose_key_pair->public_key_len = SECP521R1_PUBLIC_KEY_LENGTH;
+    cose_key_pair->cose_algorithm_id = T_COSE_ALGORITHM_ES512;
+    return teep_create_es_key(cose_key_pair);
+}
+
+teep_err_t teep_key_init_es256_public_key(const unsigned char *public_key, teep_key_t *cose_public_key) {
+    cose_public_key->private_key = NULL;
+    cose_public_key->private_key_len = 0;
+    cose_public_key->public_key = public_key;
+    cose_public_key->public_key_len = PRIME256V1_PUBLIC_KEY_LENGTH;
+    cose_public_key->cose_algorithm_id = T_COSE_ALGORITHM_ES256;
+    return teep_create_es_key(cose_public_key);
+}
+
+teep_err_t teep_key_init_es384_public_key(const unsigned char *public_key, teep_key_t *cose_public_key) {
+    cose_public_key->private_key = NULL;
+    cose_public_key->private_key_len = 0;
+    cose_public_key->public_key = public_key;
+    cose_public_key->public_key_len = SECP384R1_PUBLIC_KEY_LENGTH;
+    cose_public_key->cose_algorithm_id = T_COSE_ALGORITHM_ES384;
+    return teep_create_es_key(cose_public_key);
+}
+
+teep_err_t teep_key_init_es512_public_key(const unsigned char *public_key, teep_key_t *cose_public_key) {
+    cose_public_key->private_key = NULL;
+    cose_public_key->private_key_len = 0;
+    cose_public_key->public_key = public_key;
+    cose_public_key->public_key_len = SECP521R1_PUBLIC_KEY_LENGTH;
+    cose_public_key->cose_algorithm_id = T_COSE_ALGORITHM_ES512;
+    return teep_create_es_key(cose_public_key);
+}
+
+teep_err_t teep_key_free(const teep_key_t *key) {
+    EVP_PKEY_free(key->cose_key.k.key_ptr);
     return TEEP_SUCCESS;
 }
 
-teep_err_t create_public_key(int nid, const char *public_key, struct t_cose_key *cose_public_key) {
-    EC_GROUP    *ec_group = NULL;
-    EC_KEY      *ec_key = NULL;
-    EC_POINT    *ec_point = NULL;
-    int         result = 0;
-
-    ec_group = EC_GROUP_new_by_curve_name(nid);
-    if (ec_group == NULL) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    ec_key = EC_KEY_new();
-    if (ec_key == NULL) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    result = EC_KEY_set_group(ec_key, ec_group);
-    if (!result) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    ec_point = EC_POINT_new(ec_group);
-    if (ec_point == NULL) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    ec_point = EC_POINT_hex2point(ec_group, public_key, ec_point, NULL);
-    if (ec_point == NULL) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-    result = EC_KEY_set_public_key(ec_key, ec_point);
-    if (result == 0) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
-    }
-
-    cose_public_key->k.key_ptr  = ec_key;
-    cose_public_key->crypto_lib = T_COSE_CRYPTO_LIB_OPENSSL;
-    return TEEP_SUCCESS;
-}
-
-teep_err_t verify_cose_sign1(const UsefulBufC signed_cose, const struct t_cose_key *cose_key, UsefulBufC *returned_payload) {
-    struct t_cose_sign1_verify_ctx  verify_ctx;
-    struct t_cose_parameters        parameters;
-    enum t_cose_err_t               cose_result;
-    t_cose_sign1_verify_init(&verify_ctx, 0);
-    t_cose_sign1_set_verification_key(&verify_ctx, *cose_key);
-    cose_result = t_cose_sign1_verify(&verify_ctx,
-                                      signed_cose,
-                                      returned_payload,
-                                      &parameters);
-    if (cose_result != T_COSE_SUCCESS) {
-        return TEEP_ERR_VERIFICATION_FAILED;
-    }
-
-    return TEEP_SUCCESS;
-}
-
-teep_err_t sign_cose_sign1(const UsefulBufC raw_cbor, const struct t_cose_key *cose_key_pair, int32_t cose_algorithm_id, UsefulBuf *signed_cose) {
-    // Create cose signed file.
+teep_err_t teep_sign_cose_sign1(const UsefulBufC raw_cbor, const teep_key_t *key_pair, UsefulBuf *returned_payload) {
+    // Create cose signed buffer.
     struct t_cose_sign1_sign_ctx sign_ctx;
     enum t_cose_err_t cose_result;
     UsefulBufC tmp_signed_cose;
 
-    t_cose_sign1_sign_init(&sign_ctx, 0, cose_algorithm_id);
-    t_cose_sign1_set_signing_key(&sign_ctx, *cose_key_pair, NULL_Q_USEFUL_BUF_C);
-    cose_result = t_cose_sign1_sign(&sign_ctx, raw_cbor, *signed_cose, &tmp_signed_cose);
-
+    t_cose_sign1_sign_init(&sign_ctx, 0, key_pair->cose_algorithm_id);
+    t_cose_sign1_set_signing_key(&sign_ctx, key_pair->cose_key, NULL_Q_USEFUL_BUF_C);
+    cose_result = t_cose_sign1_sign(&sign_ctx, raw_cbor, *returned_payload, &tmp_signed_cose);
     if (cose_result != T_COSE_SUCCESS) {
-        return TEEP_ERR_UNEXPECTED_ERROR;
+        returned_payload->len = 0;
+        return TEEP_ERR_SIGNING_FAILED;
     }
-    signed_cose->len = tmp_signed_cose.len;
+    *returned_payload = UsefulBuf_Unconst(tmp_signed_cose);
     return TEEP_SUCCESS;
 }
+
+teep_err_t teep_verify_cose_sign1(const UsefulBufC signed_cose, const teep_key_t *public_key, UsefulBufC *returned_payload) {
+    teep_err_t result = TEEP_SUCCESS;
+    struct t_cose_sign1_verify_ctx verify_ctx;
+    //struct t_cose_parameters parameters;
+    enum t_cose_err_t cose_result;
+
+    if (public_key == NULL) {
+        return TEEP_ERR_VERIFICATION_FAILED;
+    }
+
+    t_cose_sign1_verify_init(&verify_ctx, 0);
+    t_cose_sign1_set_verification_key(&verify_ctx, public_key->cose_key);
+    cose_result = t_cose_sign1_verify(&verify_ctx,
+                                      signed_cose,
+                                      returned_payload,
+                                      NULL);
+    if (cose_result != T_COSE_SUCCESS) {
+        result = TEEP_ERR_VERIFICATION_FAILED;
+    }
+    return result;
+}
+
+

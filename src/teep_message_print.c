@@ -15,6 +15,43 @@
 #include "csuit/csuit.h"
 #endif
 
+const char *teep_err_to_str(teep_err_t err) {
+    switch (err) {
+    case TEEP_SUCCESS:
+        return "SUCCESS";
+    case TEEP_ERR_INVALID_TYPE_OF_ARGUMENT:
+        return "INVALID_TYPE_OF_ARGUMENT";
+    case TEEP_ERR_INVALID_VALUE:
+        return "INVALID_VALUE";
+    case TEEP_ERR_INVALID_LENGTH:
+        return "INVALID_LENGTH";
+    case TEEP_ERR_INVALID_MESSAGE_TYPE:
+        return "INVALID_MESSAGE_TYPE";
+    case TEEP_ERR_CBOR_WITHOUT_COSE:
+        return "CBOR_WITHOUT_COSE";
+    case TEEP_ERR_VERIFICATION_FAILED:
+        return "VERIFICATION_FAILED";
+    case TEEP_ERR_SIGNING_FAILED:
+        return "SIGNING_FAILED";
+    case TEEP_ERR_NO_SUPPORTED_VERSION:
+        return "NO_SUPPORTED_VERSION";
+    case TEEP_ERR_NO_SUPPORTED_CIPHERSUITE:
+        return "NO_SUPPORTED_CIPHERSUITE";
+    case TEEP_ERR_NO_MEMORY:
+        return "NO_MEMORY";
+    case TEEP_ERR_ON_HTTP_POST:
+        return "ON_HTTP_POST";
+    case TEEP_ERR_UNEXPECTED_ERROR:
+        return "UNEXPECTED_ERROR";
+    case TEEP_ERR_ABORT:
+        return "ABORT";
+    case TEEP_ERR_FATAL:
+        return "FATAL";
+    default:
+        return "UNKNOWN";
+    }
+}
+
 teep_err_t teep_print_hex_within_max(const uint8_t *array, const size_t size, const size_t size_max) {
     if (array == NULL) {
         return TEEP_ERR_UNEXPECTED_ERROR;

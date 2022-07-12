@@ -13,20 +13,6 @@
 #include <string.h>
 
 #include "t_cose/t_cose_sign1_verify.h"
-#include "openssl/ecdsa.h"
-#include "openssl/obj_mac.h"
-
-#define TEEP_EXAMPLE_SUCCESS    1
-#define TEEP_EXAMPLE_ERROR      0
-
-#define PRIME256V1_PRIVATE_KEY_START_INDEX  7
-#define PRIME256V1_PRIVATE_KEY_LENGTH       32
-#define PRIME256V1_PUBLIC_KEY_IN_KEY_PAIR_START_INDEX  56
-#define PRIME256V1_PUBLIC_KEY_START_INDEX   26
-#define PRIME256V1_PUBLIC_KEY_LENGTH        65
-
-#define ED25519_PRIVATE_KEY_LENGTH          32
-#define ED25519_PUBLIC_KEY_LENGTH           32
 
 typedef struct uint8_buf {
     uint8_t     *ptr;

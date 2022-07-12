@@ -5,7 +5,7 @@
 #
 
 CFLAGS			= -Wall -g
-LDFLAGS			= -lt_cose -lqcbor -lcrypto
+LDFLAGS			= -lt_cose -lqcbor -lcrypto -lm
 INC				= -I ./inc -I ./examples/inc
 TAM				= ./teep_cose_tam
 AGENT			= ./teep_cose_agent

@@ -5,7 +5,7 @@
 #
 
 CFLAGS			= -Wall -g
-LDFLAGS			= -lt_cose -lqcbor -lcrypto
+LDFLAGS			= -lt_cose -lqcbor -lcrypto -lm
 INC				= -I ./inc -I ./examples/inc
 TAM				= ./teep_message_parser_tam
 AGENT			= ./teep_message_parser_agent
@@ -15,10 +15,6 @@ AGENT_OBJ		= obj/examples/teep_message_parser_agent.o
 OBJDIR			= ./obj
 OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 COSE_FLAG		= _cose
-TAM_KEY_PAIR	= ./testfiles/key/tam_prime256v1.der
-TAM_PUB_KEY		= ./testfiles/key/tam_prime256v1_pub.der
-DEV_KEY_PAIR	= ./testfiles/key/teep_agent_prime256v1.der
-DEV_PUB_KEY		= ./testfiles/key/teep_agent_prime256v1_pub.der
 
 ifdef suit
     CFLAGS += -DPARSE_SUIT
