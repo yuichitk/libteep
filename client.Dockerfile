@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
 RUN apt-get -y upgrade
-RUN apt-get -y install curl git gcc make
+RUN apt-get -y install curl git gcc gdb make
 RUN apt-get -y install libcurl4-openssl-dev
 
 WORKDIR /root
@@ -29,14 +29,15 @@ RUN make -f Makefile.ossl install
 
 WORKDIR /root
 COPY . ./libteep
-WORKDIR /root/libteep
-RUN make -f Makefile.cose
-RUN make -f Makefile.parser
+WORKDIR ./libteep
+RUN make -f Makefile.client -B
 
-RUN apt-get -y purge curl git gcc
+RUN apt-get -y purge curl git gcc gdb make
+RUN apt-get -y purge libcurl4-openssl-dev
+
 RUN rm -r /root/QCBOR
 RUN rm -r /root/t_cose
 RUN rm -r /root/openssl-3.0.5
 RUN rm /root/openssl-3.0.5.tar.gz
 
-CMD make -f Makefile.cose test && make -f Makefile.parser test
+CMD ./teep_http_client ${TAM_URI}

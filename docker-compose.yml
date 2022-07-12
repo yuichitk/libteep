@@ -17,7 +17,9 @@ services:
             retries: 3
             start_period: 1s
     client: # TEEP Agent
-        build: .
+        build:
+            context: .
+            dockerfile: client.Dockerfile
         depends_on:
             server:
                 condition: service_healthy # wait tamproto's up

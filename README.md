@@ -11,64 +11,18 @@
    - The above TEEP Protocol message is protected by the COSE_Sign1 structure.
 
 ## Getting started
-Installing [QCBOR](https://github.com/laurencelundblade/QCBOR).
-```bash
-git clone https://github.com/laurencelundblade/QCBOR.git
-cd QCBOR
-make install
+
+### Parse & Encode tests
+```
+docker build -t libteep .
+docker run -t libteep
 ```
 
-Installing [t_cose](https://github.com/laurencelundblade/t_cose).
-```bash
-git clone https://github.com/laurencelundblade/t_cose.git
-cd t_cose
-make -f Makefile.ossl install
+### TEEP over HTTP Client test
+Use [tamproto](https://github.com/ko-isobe/tamproto) as a TAM.
 ```
-
-Make and run sample codes you need.
-
-1. teep_message_parser
-```bash
-make -f Makefile.parser test
-```
-
-2. teep_cose_test
-```bash
-make -f Makefile.cose test
-```
-
-3. teep_http_client
-```bash
-make -f Makefile.client run
-```
-
-* In some cases, teep_http_client Requires to install libcurl.
-```bash
-sudo apt-get install libcurl4-openssl-dev
-```
-
-You can parse SUIT\_\* types with [libcsuit](https://github.com/yuichitk/libcsuit/).
-```
-git clone https://github.com/yuichitk/libcsuit.git
-cd libcsuit/
-make install
-
-cd /path/to/libteep/
-make -f Makefile.parser suit=1 -B test
-```
-
-4. with [tamproto](https://github.com/ko-isobe/tamproto)
-```
-cd /path/to/libteep/
-cd ..
-git clone https://github.com/ko-isobe/tamproto.git
-cd ./libteep/
+git clone https://github.com/ko-isobe/tamproto.git ../tamproto
 docker-compose up
-```
-
-## Install
-```
-make install
 ```
 
 ## TEEP Protocol Message Examples
