@@ -1,0 +1,11 @@
+*.md
+teep_*
+libteep.a
+libteep.so
+obj
+*Dockerfile
+docker-compose.yml
+test
+CMakeLists.txt
+build
+tags
