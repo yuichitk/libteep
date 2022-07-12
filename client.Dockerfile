@@ -30,14 +30,14 @@ RUN make -f Makefile.ossl install
 WORKDIR /root
 COPY . ./libteep
 WORKDIR ./libteep
-RUN make -f Makefile.client -B
+RUN make -f Makefile.client
 
 RUN apt-get -y purge curl git gcc gdb make
-RUN apt-get -y purge libcurl4-openssl-dev
+RUN apt-get -y autoremove
 
-RUN rm -r /root/QCBOR
-RUN rm -r /root/t_cose
 RUN rm -r /root/openssl-3.0.5
 RUN rm /root/openssl-3.0.5.tar.gz
+RUN rm -r /root/QCBOR
+RUN rm -r /root/t_cose
 
 CMD ./teep_http_client ${TAM_URI}

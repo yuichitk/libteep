@@ -34,6 +34,7 @@ RUN make -f Makefile.cose
 RUN make -f Makefile.parser
 
 RUN apt-get -y purge curl git gcc
+RUN apt-get -y autoremove
 RUN rm -r /root/QCBOR
 RUN rm -r /root/t_cose
 RUN rm -r /root/openssl-3.0.5
