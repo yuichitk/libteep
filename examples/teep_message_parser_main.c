@@ -8,16 +8,12 @@
 #include <string.h>
 #include <assert.h>
 #include "qcbor/qcbor.h"
-#include "teep_common.h"
-#include "teep_cose.h"
-#include "teep_message_data.h"
-#include "teep_message_print.h"
+#include "teep/teep_message_data.h"
+#include "teep/teep_message_print.h"
 #include "teep_examples_common.h"
 #include "t_cose/t_cose_sign1_sign.h"
 #include "t_cose/t_cose_sign1_verify.h"
 #include "t_cose/q_useful_buf.h"
-#include "openssl/ecdsa.h"
-#include "openssl/obj_mac.h"
 
 
 #define MAX_FILE_BUFFER_SIZE                512

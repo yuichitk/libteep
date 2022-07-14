@@ -4,11 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include "teep_common.h"
-#include "teep_message_data.h"
+#include "teep/teep_common.h"
+#include "teep/teep_message_data.h"
 
 teep_err_t teep_qcbor_get_next(QCBORDecodeContext *message,
                          QCBORItem *item,

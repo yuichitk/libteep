@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "teep/teep_cose.h"
 #include "t_cose/t_cose_sign1_verify.h"
 
 typedef struct uint8_buf {

@@ -4,9 +4,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "teep_common.h"
 #include "teep_examples_common.h"
-#include "teep_cose.h"
 
 size_t read_from_file(const char *file_path, const size_t buf_len, uint8_t *buf) {
     size_t read_len = 0;

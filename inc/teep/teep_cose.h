@@ -8,7 +8,7 @@
 #ifndef TEEP_COSE_H
 #define TEEP_COSE_H
 
-#include "teep_common.h"
+#include "teep/teep_common.h"
 #include "t_cose/t_cose_sign1_verify.h"
 #include <openssl/evp.h>
 #include <openssl/ec.h>

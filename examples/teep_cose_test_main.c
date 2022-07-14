@@ -5,8 +5,7 @@
  */
 
 #include <stdio.h>
-#include "teep_cose.h"
-#include "teep_common.h"
+#include "teep/teep_cose.h"
 #include "teep_examples_common.h"
 
 #define MAX_FILE_BUFFER_SIZE                1024

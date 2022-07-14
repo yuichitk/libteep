@@ -4,11 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include "teep_common.h"
-#include "teep_message_data.h"
+#include "teep/teep_common.h"
+#include "teep/teep_message_data.h"
 
 void teep_QCBOREncode_AddUsefulBufC(QCBOREncodeContext *pMe, UsefulBufC buf) {
     UsefulOutBuf_AppendUsefulBuf(&(pMe->OutBuf), buf);

@@ -4,10 +4,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <teep/teep.h>
-#include <csuit/csuit.h>
+#include "teep/teep.h"
 #include <CUnit/CUnit.h>
 #include <CUnit/Console.h>
 

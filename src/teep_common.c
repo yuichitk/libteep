@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "teep_common.h"
-#include "teep_message_data.h"
+#include "teep/teep_common.h"
+#include "teep/teep_message_data.h"
 
 bool teep_ciphersuite_is_same(teep_ciphersuite_t a, teep_ciphersuite_t b) {
     return (a.sign == b.sign) && (a.encrypt == b.encrypt) && (a.mac == b.mac);

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "teep.h"
+#include "teep/teep_cose.h"
 #include "teep_http_client.h"
 
 static size_t write_callback(void *recv_buffer_ptr,
