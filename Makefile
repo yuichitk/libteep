@@ -14,11 +14,11 @@ PUBLIC_INTERFACE	= inc/teep/teep.h inc/teep/teep_common.h inc/teep/teep_message_
 OBJDIR	= ./obj
 OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 
-.PHONY: all so install uninstall clean
+.PHONY: all so install uninstall build_test test clean
 
-all: $(NAME).a
+all: $(NAME).a build_test
 
-so: $(NAME).so
+so: $(NAME).so build_test
 
 $(NAME).a: $(OBJS)
 	$(AR) -r $@ $^
@@ -56,6 +56,13 @@ uninstall: $(NAME).a $(PUBLIC_INTERFACE)
 	$(RM) $(addprefix $(DESTDIR)$(PREFIX)/lib/, \
 		$(NAME).a $(NAME).so $(NAME).so.1 $(NAME).so.1.0.0)
 
+build_test:
+	$(MAKE) -C test
+
+test:
+	$(MAKE) -C test run
+
 clean:
 	rm -f $(OBJS) $(NAME).a $(NAME).so
+	$(MAKE) -C test clean
 

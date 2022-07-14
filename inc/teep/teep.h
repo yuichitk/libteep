@@ -5,6 +5,6 @@
  */
 
 #include "teep_common.h"
-#include "teep_message_data.h"
 #include "teep_cose.h"
+#include "teep_message_data.h"
 #include "teep_message_print.h"

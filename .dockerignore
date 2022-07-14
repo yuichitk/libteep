@@ -5,7 +5,8 @@ libteep.so
 obj
 *Dockerfile
 docker-compose.yml
-test
+test/libteep_test
+test/result.txt
 CMakeLists.txt
 build
 tags

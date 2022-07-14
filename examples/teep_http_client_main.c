@@ -6,10 +6,10 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include "teep_http_client.h"
 #include "teep/teep_message_data.h"
 #include "teep/teep_message_print.h"
 #include "teep_examples_common.h"
+#include "teep_http_client.h"
 
 #include "teep_agent_es256_private_key.h"
 #include "teep_agent_es256_public_key.h"

@@ -6,7 +6,7 @@
 
 #include "teep/teep.h"
 #include <CUnit/CUnit.h>
-#include <CUnit/Console.h>
+#include <CUnit/Basic.h>
 
 void test_set_out_of_teep_buf(void);
 
@@ -15,7 +15,8 @@ int main(int argc, char *argv[]) {
     CU_initialize_registry();
     suite = CU_add_suite("TEEP", NULL, NULL);
     CU_add_test(suite, "test_set_out_of_teep_buf", test_set_out_of_teep_buf);
-    CU_console_run_tests();
+    CU_basic_set_mode(CU_BRM_SILENT);
+    CU_basic_run_tests();
     CU_cleanup_registry();
     return 0;
 }
@@ -27,8 +28,10 @@ void test_set_out_of_teep_buf_from_buf(uint8_t *ptr, size_t len, teep_buf_t *buf
     QCBORDecode_Init(&context, (UsefulBufC){ptr, len}, QCBOR_DECODE_MODE_NORMAL);
     error = QCBORDecode_GetNext(&context, &item);
     CU_ASSERT(error == QCBOR_SUCCESS);
-    int32_t result = teep_set_out_of_teep_buf(&context, &item, &error, buf);
+    int32_t result = teep_set_out_of_teep_buf(&context, &item, buf);
     CU_ASSERT(result == TEEP_SUCCESS);
+    error = QCBORDecode_Finish(&context);
+    CU_ASSERT(error == QCBOR_SUCCESS);
     return;
 }
 

@@ -5,8 +5,7 @@ FROM debian:latest
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get -y upgrade
-RUN apt-get -y install curl git gcc make
+RUN apt-get -y install curl git gcc make libcunit1-dev
 
 WORKDIR /root
 RUN curl -O https://www.openssl.org/source/openssl-3.0.5.tar.gz
@@ -28,14 +27,12 @@ RUN make -f Makefile.ossl install
 WORKDIR /root
 COPY . ./libteep
 WORKDIR /root/libteep
+RUN make
 RUN make -f Makefile.cose
 RUN make -f Makefile.parser
 
-RUN apt-get -y purge curl git gcc
+RUN apt-get -y remove curl git gcc
 RUN apt-get -y autoremove
-RUN rm -r /root/QCBOR
-RUN rm -r /root/t_cose
-RUN rm -r /root/openssl-3.0.5
-RUN rm /root/openssl-3.0.5.tar.gz
+RUN rm -r /root/QCBOR /root/t_cose /root/openssl-3.0.5 /root/openssl-3.0.5.tar.gz
 
-CMD make -f Makefile.cose test && make -f Makefile.parser test
+CMD make test && make -f Makefile.cose test && make -f Makefile.parser test
