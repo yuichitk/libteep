@@ -29,7 +29,7 @@ COPY . ./libteep
 WORKDIR /root/libteep
 RUN make -f Makefile.client
 
-RUN apt-get -y purge curl git gcc make
+RUN apt-get -y remove curl git gcc make
 RUN apt-get -y autoremove
 
 RUN rm -r /root/openssl-3.0.5 /root/openssl-3.0.5.tar.gz /root/QCBOR /root/t_cose
