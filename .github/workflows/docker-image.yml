@@ -4,8 +4,6 @@
 name: Docker Image CI for libteep
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
