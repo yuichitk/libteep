@@ -4,8 +4,6 @@
 name: Docker Image CI for libteep
 
 on:
-  push:
-    branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
@@ -18,4 +16,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker run -it $(docker build -q -f Dockerfile .)
+      run: docker run -t $(docker build -q -f Dockerfile .)
