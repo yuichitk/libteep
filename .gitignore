@@ -1,10 +1,4 @@
 # Output files
-teep_cose_tam
-teep_cose_agent
-teep_cose_hackathon
-teep_message_parser_tam
-teep_message_parser_agent
-teep_http_client
 tam_stdout.txt
 agent_stdout.txt
 tags

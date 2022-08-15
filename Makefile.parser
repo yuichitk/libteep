@@ -7,8 +7,8 @@
 CFLAGS			= -Wall -g
 LDFLAGS			= -lt_cose -lqcbor -lcrypto -lm
 INC				= -I ./inc -I ./examples/inc
-TAM				= ./teep_message_parser_tam
-AGENT			= ./teep_message_parser_agent
+TAM				= ./bin/teep_message_parser_tam
+AGENT			= ./bin/teep_message_parser_agent
 SRCS			= examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
 TAM_OBJ			= obj/examples/teep_message_parser_tam.o
 AGENT_OBJ		= obj/examples/teep_message_parser_agent.o

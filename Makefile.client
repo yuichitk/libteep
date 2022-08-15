@@ -7,7 +7,7 @@
 CFLAGS	= -Wall -g
 LDFLAGS	= -lt_cose -lqcbor -lcrypto -lcurl -lm
 INC		= -I ./inc -I ./examples/inc
-TARGET	= ./teep_http_client
+TARGET	= ./bin/teep_http_client
 SRCS	= examples/teep_http_client_main.c examples/teep_examples_common.c src/teep_common.c src/teep_cose.c src/teep_message_print.c src/teep_message_decode.c src/teep_message_encode.c examples/teep_http_client.c
 OBJDIR	= ./obj
 OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
