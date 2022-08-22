@@ -5,10 +5,10 @@
 -->
 
 # Error Message
-    https://tools.ietf.org/html/draft-ietf-teep-protocol-08#appendix-D.6
+    https://tools.ietf.org/html/draft-ietf-teep-protocol-10#appendix-D.6
 
 ## CBOR Diagnostic Notation
-~~~~
+~~~~cbor-diag
 / teep-error = /
 [
   / type: / 6 / TEEP-TYPE-teep-error /,
@@ -35,7 +35,3 @@
          6469736B2D66756C6C # "disk-full"
    11               # unsigned(17) / ERR_MANIFEST_PROCESSING_FAILED /
 ~~~~
-
-
-## Command
-    echo -en "\x83\x06\xA2\x14\x50\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF\x0C\x69\x64\x69\x73\x6B\x2D\x66\x75\x6C\x6C\x11" > teep_error.cbor

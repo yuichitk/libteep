@@ -5,10 +5,10 @@
 -->
 
 # Success Message
-    https://tools.ietf.org/html/draft-ietf-teep-protocol-08#appendix-D.5
+    https://tools.ietf.org/html/draft-ietf-teep-protocol-10#appendix-D.5
 
 ## CBOR Diagnostic Notation
-~~~~
+~~~~cbor-diag
 / teep-success = /
 [
   / type: / 5 / TEEP-TYPE-teep-success /,
@@ -29,7 +29,3 @@
       50            # bytes(16)
          A0A1A2A3A4A5A6A7A8A9AAABACADAEAF
 ~~~~
-
-
-## Command
-    echo -en "\x82\x05\xA1\x14\x50\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF" > teep_success.cbor

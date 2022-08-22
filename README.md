@@ -26,7 +26,7 @@ docker-compose up
 ```
 
 ## TEEP Protocol Message Examples
-The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-04](https://tools.ietf.org/html/draft-ietf-teep-protocol-04).
+The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-10](https://tools.ietf.org/html/draft-ietf-teep-protocol-10).
 - QueryRequest
   - [query_request.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request.md)
   - [query_request.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request.cbor)
