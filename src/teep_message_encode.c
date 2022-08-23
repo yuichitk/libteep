@@ -20,11 +20,10 @@ void teep_QCBOREncode_AddUsefulBufCToMapN(QCBOREncodeContext *pMe, int64_t uLabe
     teep_QCBOREncode_AddUsefulBufC(pMe, buf);
 }
 
-void teep_encode_add_cipher_suite(QCBOREncodeContext *pMe, teep_ciphersuite_t ciphersuite) {
+void teep_encode_add_cipher_suite(QCBOREncodeContext *pMe, teep_cipher_suite_t cipher_suite) {
     QCBOREncode_OpenArray(pMe);
-    QCBOREncode_AddInt64(pMe, ciphersuite.sign);
-    QCBOREncode_AddInt64(pMe, ciphersuite.encrypt);
-    QCBOREncode_AddInt64(pMe, ciphersuite.mac);
+    QCBOREncode_AddInt64(pMe, cipher_suite.mechanism);
+    QCBOREncode_AddInt64(pMe, cipher_suite.algorithm_id;
     QCBOREncode_CloseArray(pMe);
 }
 

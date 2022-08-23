@@ -157,8 +157,8 @@ void teep_debug_print(QCBORDecodeContext *message,
     }
 }
 
-teep_err_t teep_print_ciphersuite(const teep_ciphersuite_t *ciphersuite) {
-    if (ciphersuite == NULL) {
+teep_err_t teep_print_cipher_suite(const teep_cipher_suite_t *cipher_suite) {
+    if (cipher_suite == NULL) {
         return TEEP_ERR_UNEXPECTED_ERROR;
     }
     printf("{sign: %s(%d), encrypt: %s(%d), mac: %s(%d)}",
@@ -256,7 +256,7 @@ teep_err_t teep_print_query_response(const teep_query_response_t *query_response
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE) {
         printf("%*sselected-cipher-suite : ", indent_space + 4, "");
-        result = teep_print_ciphersuite(&query_response->selected_cipher_suite);
+        result = teep_print_cipher_suite(&query_response->selected_cipher_suite);
         if (result != TEEP_SUCCESS) {
             return result;
         }
@@ -412,7 +412,7 @@ teep_err_t teep_print_error(const teep_error_t *teep_error, uint32_t indent_spac
         printf("%*ssupported-cipher-suites : [\n", indent_space + 4, "");
         for (size_t i = 0; i < teep_error->supported_cipher_suites.len; i++) {
             printf("%*s", indent_space + 6, "");
-            result = teep_print_ciphersuite(&teep_error->supported_cipher_suites.items[i]);
+            result = teep_print_cipher_suite(&teep_error->supported_cipher_suites.items[i]);
             if (result != TEEP_SUCCESS) {
                 return result;
             }
