@@ -112,7 +112,26 @@ const char *teep_err_code_to_str(int32_t err_code) {
     }
 }
 
-const char *teep_cose_algs_key_to_str(int32_t cose_algs_key) {
+const char *teep_cose_mechanism_key_to_str(int64_t cose_mechanism_key) {
+    switch (cose_mechanism_key) {
+    case CBOR_TAG_COSE_SIGN1:
+        return "COSE_Sign1";
+    case CBOR_TAG_SIGN:
+        return "COSE_Sign";
+    case CBOR_TAG_COSE_MAC0:
+        return "COSE_Mac0";
+    case CBOR_TAG_MAC:
+        return "COSE_Mac";
+    case CBOR_TAG_COSE_ENCRYPT0:
+        return "COSE_Encrypt0";
+    case CBOR_TAG_ENCRYPT:
+        return "COSE_Encrypt";
+    default:
+        return "(NULL)";
+    }
+}
+
+const char *teep_cose_algs_key_to_str(int64_t cose_algs_key) {
     switch (cose_algs_key) {
     case 0:
         return "NONE";
@@ -161,10 +180,9 @@ teep_err_t teep_print_cipher_suite(const teep_cipher_suite_t *cipher_suite) {
     if (cipher_suite == NULL) {
         return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    printf("{sign: %s(%d), encrypt: %s(%d), mac: %s(%d)}",
-        teep_cose_algs_key_to_str(ciphersuite->sign), ciphersuite->sign,
-        teep_cose_algs_key_to_str(ciphersuite->encrypt), ciphersuite->encrypt,
-        teep_cose_algs_key_to_str(ciphersuite->mac), ciphersuite->mac);
+    printf("{mechanism: %s(%ld), algorithm_id: %s(%d)}",
+        teep_cose_mechanism_key_to_str(cipher_suite->mechanism), cipher_suite->mechanism,
+        teep_cose_algs_key_to_str(cipher_suite->algorithm_id), cipher_suite->algorithm_id);
     return TEEP_SUCCESS;
 }
 
@@ -180,18 +198,6 @@ teep_err_t teep_print_query_request(const teep_query_request_t *query_request, u
         printf("%*stoken : ", indent_space + 4, "");
         teep_print_hex(query_request->token.ptr, query_request->token.len);
         printf("\n");
-    }
-    if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES) {
-        printf("%*ssupported-cipher-suites : [\n", indent_space + 4, "");
-        for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
-            printf("%*s", indent_space + 6, "");
-            result = teep_print_ciphersuite(&query_request->supported_cipher_suites.items[i]);
-            if (result != TEEP_SUCCESS) {
-                return result;
-            }
-            printf(",\n");
-        }
-        printf("%*s]\n", indent_space + 4, "");
     }
     if (query_request->contains & TEEP_MESSAGE_CONTAINS_SUPPORTED_FRESHNESS_MECHANISMS) {
         printf("%*ssupported-freshness-mechanisms : [ ", indent_space + 4, "");
@@ -215,6 +221,16 @@ teep_err_t teep_print_query_request(const teep_query_request_t *query_request, u
         }
         printf("]\n");
     }
+    printf("%*ssupported-cipher-suites : [\n", indent_space + 2, "");
+    for (size_t i = 0; i < query_request->supported_cipher_suites.len; i++) {
+        printf("%*s", indent_space + 4, "");
+        result = teep_print_cipher_suite(&query_request->supported_cipher_suites.items[i]);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        printf(",\n");
+    }
+    printf("%*s]\n", indent_space + 2, "");
     printf("%*sdata-item-requested : %u\n", indent_space + 2, "", query_request->data_item_requested);
     return TEEP_SUCCESS;
 }
