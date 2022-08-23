@@ -62,7 +62,11 @@ build_test:
 test:
 	$(MAKE) -C test run
 
+generate:
+	$(MAKE) -C testfiles
+
 clean:
 	rm -f $(OBJS) $(NAME).a $(NAME).so
 	$(MAKE) -C test clean
+
 

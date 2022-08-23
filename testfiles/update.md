@@ -5,10 +5,10 @@
 -->
 
 # Update Message
-    https://tools.ietf.org/html/draft-ietf-teep-protocol-08#appendix-D.4
+    https://tools.ietf.org/html/draft-ietf-teep-protocol-10#appendix-D.4
 
 ## CBOR Diagnostic Notation
-~~~~
+~~~~cbor-diag
 / update = /
 [
   / type: / 3 / TEEP-TYPE-update /,
@@ -33,7 +33,3 @@
       0A            # unsigned(10) / manifest-list: /
       80            # array(0) / [] /
 ~~~~
-
-
-## Command
-    echo -en "\x82\x03\xA2\x14\x50\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8\xA9\xAA\xAB\xAC\xAD\xAE\xAF\x0A\x80" > update.cbor

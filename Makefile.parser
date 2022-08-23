@@ -25,7 +25,7 @@ ifdef debug
     COSE_FLAG=
 endif
 
-.PHONY: all test clean debug_test
+.PHONY: all run clean debug_test
 
 all: $(TAM) $(AGENT)
 
@@ -45,7 +45,7 @@ $(TAM): $(OBJS) $(TAM_OBJ)
 $(AGENT): $(OBJS) $(AGENT_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
-test: $(TAM) $(AGENT)
+run: $(TAM) $(AGENT)
 	$(AGENT) ./testfiles/query_request$(COSE_FLAG).cbor || exit 1
 	$(TAM) ./testfiles/query_response$(COSE_FLAG).cbor || exit 1
 	$(AGENT) ./testfiles/update$(COSE_FLAG).cbor || exit 1

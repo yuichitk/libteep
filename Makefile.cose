@@ -15,7 +15,7 @@ OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 TAM_OBJ			= obj/examples/teep_cose_tam.o
 AGENT_OBJ		= obj/examples/teep_cose_agent.o
 
-.PHONY: all debug clean test
+.PHONY: all clean run
 
 all: $(TAM) $(AGENT)
 
@@ -36,9 +36,15 @@ $(AGENT): $(OBJS) $(AGENT_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
-	rm -f $(OBJS) $(TAM_OBJ) $(AGENT_OBJ) $(TAM) $(AGENT)
+	$(RM) -f $(OBJS) $(TAM_OBJ) $(AGENT_OBJ) $(TAM) $(AGENT)
 
-test: $(TARGET)
+
+SOURCES	:= query_request.cbor query_response.cbor update.cbor teep_success.cbor teep_error.cbor
+
+$(SOURCES):
+	$(MAKE) -C testfiles $@
+
+run: $(TAM) $(AGENT) $(SOURCES)
 	$(TAM)   ./testfiles/query_request.cbor  ./testfiles/query_request_cose.cbor  || exit 1
 	$(AGENT) ./testfiles/query_response.cbor ./testfiles/query_response_cose.cbor || exit 1
 	$(TAM)   ./testfiles/update.cbor         ./testfiles/update_cose.cbor         || exit 1

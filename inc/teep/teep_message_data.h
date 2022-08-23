@@ -84,50 +84,40 @@ typedef enum teep_data_item_requested {
     TEEP_DATA_ITEM_SUIT_COMMANDS            = 8
 } teep_data_item_requested_t;
 
-typedef enum teep_cose_sign_algs {
-    TEEP_COSE_SIGN_NONE             = 0,
-    TEEP_COSE_SIGN_INVALID          = -1,
+typedef enum teep_cose_algs {
+    TEEP_COSE_NONE             = 0,
+
     TEEP_COSE_SIGN_ES256            = -7, // cose-alg-es256
     TEEP_COSE_SIGN_EDDSA            = -8, // cose-alg-eddsa
     TEEP_COSE_SIGN_HSS_LMS          = -46, // cose-alg-hss-lms
-} teep_cose_sign_algs_t;
 
-typedef enum teep_cose_encrypt_algs {
-    TEEP_COSE_ENCRYPT_NONE              = 0,
-    TEEP_COSE_ENCRYPT_INVALID           = -1,
     TEEP_COSE_ENCRYPT_A256_GCM          = 3, // cose-alg-aes-gcm-256
     TEEP_COSE_ENCRYPT_ACCM_16_64_128    = 10, // cose-alg-aes-ccm-16-64-128
-} teep_cose_encrypt_algs_t;
 
-typedef enum teep_cose_mac_algs {
-    TEEP_COSE_MAC_NONE      = 0,
-    TEEP_COSE_MAC_INVALID   = -1,
     TEEP_COSE_MAC_HMAC256   = 5,  // cose-alg-hmac-256-256
-} teep_cose_mac_algs_t;
+} teep_cose_algs_t;
 
 /*
- * ciphersuite
+ * cipher_suite
  */
-typedef struct teep_ciphersuite {
-    teep_cose_sign_algs_t       sign;
-    teep_cose_encrypt_algs_t    encrypt;
-    teep_cose_mac_algs_t        mac;
-} teep_ciphersuite_t;
+typedef struct teep_cipher_suite {
+    int64_t                 mechanism;
+    teep_cose_algs_t        algorithm_id;
+} teep_cipher_suite_t;
 
-#define TEEP_CIPHERSUITE_LENGTH 3
-#define TEEP_CIPHERSUITE_INVALID (teep_ciphersuite_t) { \
-    .sign = TEEP_COSE_SIGN_INVALID,                     \
-    .encrypt = TEEP_COSE_ENCRYPT_INVALID,               \
-    .mac = TEEP_COSE_MAC_INVALID                        \
+#define TEEP_CIPHER_SUITE_LENGTH 2
+#define TEEP_CIPHER_SUITE_INVALID (teep_cipher_suite_t) {   \
+    .mechanism = CBOR_TAG_INVALID16,                        \
+    .algorithm_id = TEEP_COSE_NONE                          \
 }
 
 /*
- * [ + ciphersuite ]
+ * [ + cipher_suite ]
  */
-typedef struct teep_ciphersuite_array {
+typedef struct teep_cipher_suite_array {
     size_t              len;
-    teep_ciphersuite_t  items[TEEP_MAX_ARRAY_LENGTH];
-} teep_ciphersuite_array_t;
+    teep_cipher_suite_t  items[TEEP_MAX_ARRAY_LENGTH];
+} teep_cipher_suite_array_t;
 
 /*
  * TEEP-err-code
@@ -257,7 +247,7 @@ typedef struct teep_query_request {
     teep_type_t                 type;
     uint64_t                    contains;
     teep_buf_t                  token;
-    teep_ciphersuite_array_t    supported_cipher_suites;
+    teep_cipher_suite_array_t   supported_cipher_suites;
     teep_uint32_array_t         supported_freshness_mechanisms;
     teep_buf_t                  challenge;
     teep_uint32_array_t         versions;
@@ -273,7 +263,7 @@ typedef struct teep_query_response {
     teep_type_t                     type;
     uint64_t                        contains;
     teep_buf_t                      token;
-    teep_ciphersuite_t              selected_cipher_suite;
+    teep_cipher_suite_t             selected_cipher_suite;
     uint32_t                        selected_version;
     teep_buf_t                      evidence_format;
     teep_buf_t                      evidence;
@@ -319,7 +309,7 @@ typedef struct teep_error {
     uint64_t                    contains;
     teep_buf_t                  token;
     teep_buf_t                  err_msg;
-    teep_ciphersuite_array_t    supported_cipher_suites;
+    teep_cipher_suite_array_t   supported_cipher_suites;
     teep_uint32_array_t         versions;
     teep_buf_array_t            suit_reports;
     // TODO :                   $$teep-error--extensions

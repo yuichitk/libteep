@@ -7,8 +7,8 @@
 #include "teep/teep_common.h"
 #include "teep/teep_message_data.h"
 
-bool teep_ciphersuite_is_same(teep_ciphersuite_t a, teep_ciphersuite_t b) {
-    return (a.sign == b.sign) && (a.encrypt == b.encrypt) && (a.mac == b.mac);
+bool teep_cipher_suite_is_same(teep_cipher_suite_t a, teep_cipher_suite_t b) {
+    return (a.mechanism == b.mechanism) && (a.algorithm_id == b.algorithm_id);
 }
 
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count) {
