@@ -116,7 +116,7 @@ typedef struct teep_cipher_suite {
  */
 typedef struct teep_cipher_suite_array {
     size_t              len;
-    teep_cipher_suite_t  items[TEEP_MAX_ARRAY_LENGTH];
+    teep_cipher_suite_t items[TEEP_MAX_ARRAY_LENGTH];
 } teep_cipher_suite_array_t;
 
 /*

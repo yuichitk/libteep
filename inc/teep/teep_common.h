@@ -50,8 +50,8 @@ void teep_debug_print(QCBORDecodeContext *message,
                       uint8_t expecting);
 
 
-struct teep_ciphersuite;
-bool teep_ciphersuite_is_same(struct teep_ciphersuite a, struct teep_ciphersuite b);
+struct teep_cipher_suite;
+bool teep_cipher_suite_is_same(struct teep_cipher_suite a, struct teep_cipher_suite b);
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count);
 uint64_t teep_array_to_int64(const uint8_t *array);
 

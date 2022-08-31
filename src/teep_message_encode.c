@@ -23,7 +23,7 @@ void teep_QCBOREncode_AddUsefulBufCToMapN(QCBOREncodeContext *pMe, int64_t uLabe
 void teep_encode_add_cipher_suite(QCBOREncodeContext *pMe, teep_cipher_suite_t cipher_suite) {
     QCBOREncode_OpenArray(pMe);
     QCBOREncode_AddInt64(pMe, cipher_suite.mechanism);
-    QCBOREncode_AddInt64(pMe, cipher_suite.algorithm_id;
+    QCBOREncode_AddInt64(pMe, cipher_suite.algorithm_id);
     QCBOREncode_CloseArray(pMe);
 }
 
