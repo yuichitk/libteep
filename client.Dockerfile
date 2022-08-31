@@ -33,4 +33,4 @@ RUN apt-get -y autoremove
 
 RUN rm -r /root/openssl-3.0.5 /root/openssl-3.0.5.tar.gz /root/QCBOR /root/t_cose
 
-CMD ./teep_http_client ${TAM_URI}
+CMD ./bin/teep_http_client ${TAM_URI}
