@@ -164,7 +164,7 @@ teep_err_t get_teep_message(const char *tam_url,
     UsefulBufC payload;
     result = teep_verify_cose_sign1(UsefulBuf_Const(recv_buf), verifying_key, &payload);
     if (result != TEEP_SUCCESS) {
-        printf("main : Failed to verify TEEP message. %d\n", result);
+        printf("main : Failed to verify TEEP message. %s(%d)\n", teep_err_to_str(result), result);
         return result;
     }
 
@@ -189,14 +189,14 @@ int main(int argc, const char * argv[]) {
     teep_key_t signing_key;
     result = teep_key_init_es256_key_pair(teep_agent_es256_private_key, teep_agent_es256_public_key, &signing_key);
     if (result != TEEP_SUCCESS) {
-        printf("main : Failed to create t_cose key pair. (%d)\n", result);
+        printf("main : Failed to create t_cose key pair. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
     }
 
     teep_key_t verifying_key;
     result = teep_key_init_es256_public_key(tam_es256_public_key, &verifying_key);
     if (result != TEEP_SUCCESS) {
-        printf("main : Failed to parse t_cose public key. (%d)\n", result);
+        printf("main : Failed to parse t_cose public key. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
     }
     printf("main : Verifying key = ");
@@ -221,7 +221,7 @@ int main(int argc, const char * argv[]) {
                 printf("main : Could not authenticate the TAM's message.\n");
                 goto interval;
             }
-            printf("main : Failed to parse received message. (%d)\n", result);
+            printf("main : Failed to parse received message. %s(%d)\n", teep_err_to_str(result), result);
             return EXIT_FAILURE;
         }
         teep_print_message(&recv_message, 2, NULL);
@@ -246,7 +246,7 @@ int main(int argc, const char * argv[]) {
             return EXIT_FAILURE;
         }
         if (result != TEEP_SUCCESS) {
-            printf("main : Failed to create teep message. (%d)\n", result);
+            printf("main : Failed to create teep message. %s(%d)\n", teep_err_to_str(result), result);
             return EXIT_FAILURE;
         }
 
@@ -264,13 +264,13 @@ int main(int argc, const char * argv[]) {
         cbor_send_buf.len = MAX_SEND_BUFFER_SIZE;
         result = teep_encode_message(&send_message, &cbor_send_buf.ptr, &cbor_send_buf.len);
         if (result != TEEP_SUCCESS) {
-            printf("main : Failed to encode query_response message. (%d)\n", result);
+            printf("main : Failed to encode query_response message. %s(%d)\n", teep_err_to_str(result), result);
             return EXIT_FAILURE;
         }
         cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
         result = teep_sign_cose_sign1(UsefulBuf_Const(cbor_send_buf), &signing_key, &cose_send_buf);
         if (result != TEEP_SUCCESS) {
-            printf("main : Failed to sign to query_response message. (%d)\n", result);
+            printf("main : Failed to sign to query_response message. %s(%d)\n", teep_err_to_str(result), result);
             return EXIT_FAILURE;
         }
 interval:
