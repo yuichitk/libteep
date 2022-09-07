@@ -10,9 +10,13 @@
 
 #include "teep/teep_common.h"
 #include "t_cose/t_cose_sign1_verify.h"
-#include <openssl/evp.h>
-#include <openssl/ec.h>
-#include <openssl/param_build.h>
+#include "t_cose/t_cose_sign1_sign.h"
+#if defined(LIBTEEP_PSA_CRYPTO_C)
+#include "psa/crypto.h"
+#else
+#include "openssl/evp.h"
+#include "openssl/ec.h"
+#endif /* LIBTEEP_PSA_CRYPTO_C */
 
 #define PRIME256V1_PRIVATE_KEY_LENGTH       32
 #define PRIME256V1_PRIVATE_KEY_CHAR_LENGTH  64

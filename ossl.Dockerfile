@@ -18,11 +18,11 @@ RUN ldconfig
 
 RUN git clone --depth 1 https://github.com/laurencelundblade/QCBOR.git /root/QCBOR
 WORKDIR /root/QCBOR
-RUN make install
+RUN make libqcbor.a install
 
 RUN git clone --depth 1 https://github.com/laurencelundblade/t_cose.git /root/t_cose
 WORKDIR /root/t_cose
-RUN make -f Makefile.ossl install
+RUN make -f Makefile.ossl libt_cose.a install
 
 WORKDIR /root
 COPY . ./libteep

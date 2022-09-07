@@ -277,7 +277,7 @@ interval:
         sleep(1);
     }
 
-    teep_key_free(&verifying_key);
-    teep_key_free(&signing_key);
+    teep_free_key(&verifying_key);
+    teep_free_key(&signing_key);
     return EXIT_SUCCESS;
 }

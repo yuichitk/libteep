@@ -5,15 +5,25 @@
 #
 
 CFLAGS			= -Wall -g
-LDFLAGS			= -lt_cose -lqcbor -lcrypto -lm
+LDFLAGS			= -lt_cose -lqcbor -lm
 INC				= -I ./inc -I ./examples/inc
 TAM				= ./bin/teep_cose_tam
 AGENT			= ./bin/teep_cose_agent
-SRCS			= examples/teep_examples_common.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
+SRCS			= examples/teep_examples_common.c examples/teep_examples_cose.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
 OBJDIR			= ./obj
 OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 TAM_OBJ			= obj/examples/teep_cose_tam.o
 AGENT_OBJ		= obj/examples/teep_cose_agent.o
+
+ifeq ($(MBEDTLS),1)
+    # use MbedTLS
+    CFLAGS	+= -DLIBTEEP_PSA_CRYPTO_C=1
+    LDFLAGS	+= -lmbedtls -lmbedx509 -lmbedcrypto
+else
+    # use OpenSSL
+    MBEDTLS=0
+    LDFLAGS += -lcrypto
+endif
 
 .PHONY: all clean run
 

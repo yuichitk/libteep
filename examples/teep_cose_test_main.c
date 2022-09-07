@@ -76,7 +76,7 @@ int main(int argc, const char * argv[]) {
         }
         printf("main : Succeed to write to \"%s\".\n", argv[2]);
     }
-    teep_key_free(&key_pair);
+    teep_free_key(&key_pair);
 
     return EXIT_SUCCESS;
 }

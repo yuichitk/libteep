@@ -91,7 +91,7 @@ int main(int argc, const char * argv[]) {
         printf("main : Failed to print CBOR as teep-message. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
     }
-    teep_key_free(&public_key);
+    teep_free_key(&public_key);
 
     return EXIT_SUCCESS;
 }

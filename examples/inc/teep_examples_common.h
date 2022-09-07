@@ -23,13 +23,30 @@ typedef struct uint8_buf {
 size_t read_from_file(const char *file_path, const size_t buf_len, uint8_t *buf);
 size_t write_to_file(const char *file_path, const size_t buf_len, const void *buf);
 
-int32_t create_es256_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
-int32_t create_es384_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
-int32_t create_ed25519_key_pair(const char *private_key, const char *public_key, struct t_cose_key *cose_key_pair);
+/*!
+    \brief  Create ES256 public key
 
-void read_prime256v1_key_pair(const uint8_t *key_der, char *private_key, char *public_key);
-void read_prime256v1_public_key(const uint8_t *public_key_der, char *public_key);
-int32_t read_char_key_pair_from_der(const char *der_file_path, char *private_key, char *public_key);
-int32_t read_char_public_key_from_der(const char *der_file_path, char *public_key);
+    \param[in]  public_key          Pointer of char array type of public key.
+    \param[out] cose_public_key     Pointer of teep_key_t type of public key.
 
+    \return     This returns SUIT_SUCCESS or SUIT_ERR_FATAL.
+
+    The length of the char array public key is estimated from the algorithm and library.
+ */
+
+teep_err_t teep_key_init_es256_key_pair(const unsigned char *private_key, const unsigned char *public_key, teep_key_t *cose_key_pair);
+
+/*!
+    \brief  Create ES256 key pair
+
+    \param[in]  public_key          Pointer of char array type of public key.
+    \param[out] cose_public_key     Pointer of teep_key_t type of public key.
+
+    \return     This returns SUIT_SUCCESS or SUIT_ERR_FAILED_TO_VERIFY.
+
+    The length of the char array public key is estimated from the algorithm and library.
+ */
+teep_err_t teep_key_init_es256_public_key(const unsigned char *public_key, teep_key_t *cose_key_pair);
+
+teep_err_t teep_free_key(const teep_key_t *key);
 #endif  /* TEEP_EXAMPLES_COMMON_H */

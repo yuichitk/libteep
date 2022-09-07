@@ -5,10 +5,20 @@
 #
 
 CFLAGS	= -Wall
-LDFLAGS	= -L../ -lteep -lt_cose -lqcbor -lcrypto -lcunit -lm
+LDFLAGS	= -L../ -lteep -lt_cose -lqcbor -lcunit -lm
 INC		= -I ../inc
 TARGET	= ./libteep_test
 RESULT	= result.txt
+
+ifeq ($(MBEDTLS),1)
+    # use MbedTLS
+    CFLAGS	+= -DLIBTEEP_PSA_CRYPTO_C=1
+    LDFLAGS	+= -lmbedtls -lmbedx509 -lmbedcrypto
+else
+    # use OpenSSL
+    MBEDTLS=0
+    LDFLAGS += -lcrypto
+endif
 
 .PHONY: all run clean
 

@@ -1,7 +1,7 @@
 # Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-name: Docker Image CI for libteep
+name: Docker Image CI for libteep with Mbed TLS
 
 on:
   pull_request:
@@ -16,4 +16,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker run -t $(docker build -q -f Dockerfile .)
+      run: docker run -t $(docker build -q -f psa.Dockerfile .)

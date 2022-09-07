@@ -14,6 +14,16 @@ PUBLIC_INTERFACE	= inc/teep/teep.h inc/teep/teep_common.h inc/teep/teep_message_
 OBJDIR	= ./obj
 OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
 
+ifeq ($(MBEDTLS),1)
+    # use MbedTLS
+    CFLAGS	+= -DLIBTEEP_PSA_CRYPTO_C=1
+    LDFLAGS	+= -lmbedtls -lmbedx509 -lmbedcrypto
+else
+    # use OpenSSL
+    MBEDTLS=0
+    LDFLAGS += -lcrypto
+endif
+
 .PHONY: all so install uninstall build_test test clean
 
 all: $(NAME).a build_test
@@ -57,10 +67,10 @@ uninstall: $(NAME).a $(PUBLIC_INTERFACE)
 		$(NAME).a $(NAME).so $(NAME).so.1 $(NAME).so.1.0.0)
 
 build_test:
-	$(MAKE) -C test
+	$(MAKE) -C test MBEDTLS=$(MBEDTLS)
 
 test:
-	$(MAKE) -C test run
+	$(MAKE) -C test MBEDTLS=$(MBEDTLS) run
 
 generate:
 	$(MAKE) -C testfiles
