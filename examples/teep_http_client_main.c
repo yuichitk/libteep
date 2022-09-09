@@ -25,6 +25,7 @@ const char DEFAULT_TAM_URL[] =          "http://localhost:8080/tam";
 
 #define SUPPORTED_VERSION               0
 #define SUPPORTED_CIPHER_SUITES_LEN     1
+#define ERR_MSG_BUF_LEN                 32
 const teep_cipher_suite_t supported_cipher_suites[SUPPORTED_CIPHER_SUITES_LEN] = {
     {
         .mechanisms = {
@@ -34,8 +35,16 @@ const teep_cipher_suite_t supported_cipher_suites[SUPPORTED_CIPHER_SUITES_LEN] =
     }
 };
 
+void useful_buf_strncpy(const char *err_msg,
+                              const size_t len,
+                              UsefulBuf *dst) {
+    strncpy(dst->ptr, err_msg, len); // '\0' may not be appended at the last
+    dst->len = strnlen(dst->ptr, len);
+}
+
 teep_err_t create_error(teep_buf_t token,
                         uint64_t err_code,
+                        UsefulBuf err_msg_buf,
                         teep_message_t *message) {
     teep_error_t *error = (teep_error_t *)message;
     error->type = TEEP_TYPE_TEEP_ERROR;
@@ -43,7 +52,11 @@ teep_err_t create_error(teep_buf_t token,
 
     if (token.ptr != NULL && 8 <= token.len && token.len <= 64) {
         error->token = token;
-        error->contains = TEEP_MESSAGE_CONTAINS_TOKEN;
+        error->contains |= TEEP_MESSAGE_CONTAINS_TOKEN;
+    }
+    if (err_msg_buf.len > 0) {
+        error->err_msg = (teep_buf_t){.ptr = err_msg_buf.ptr, .len = err_msg_buf.len};
+        error->contains |= TEEP_MESSAGE_CONTAINS_ERR_MSG;
     }
 
     if (err_code == TEEP_ERR_CODE_PERMANENT_ERROR) {
@@ -70,10 +83,12 @@ teep_err_t create_error(teep_buf_t token,
 }
 
 teep_err_t create_success_or_error(const teep_update_t *update,
+                                   UsefulBuf err_msg_buf,
                                    teep_message_t *message) {
     if (!(update->contains & TEEP_MESSAGE_CONTAINS_TOKEN) ||
         update->token.len < 8 || 64 < update->token.len) {
-        return create_error(update->token, TEEP_ERR_CODE_PERMANENT_ERROR, message);
+        useful_buf_strncpy("INVALID TOKEN", ERR_MSG_BUF_LEN, &err_msg_buf);
+        return create_error(update->token, TEEP_ERR_CODE_PERMANENT_ERROR, err_msg_buf, message);
     }
 
     /* TODO: Process SUIT Manifest
@@ -89,6 +104,7 @@ teep_err_t create_success_or_error(const teep_update_t *update,
 }
 
 teep_err_t create_query_response_or_error(const teep_query_request_t *query_request,
+                                          UsefulBuf err_msg_buf,
                                           teep_message_t *message) {
     size_t i;
     uint64_t err_code_contains = 0;
@@ -133,9 +149,16 @@ out:
         goto error;
     }
 
+    if (query_request->data_item_requested & TEEP_DATA_ITEM_ATTESTATION) {
+        // TODO
+        err_code_contains |= TEEP_ERR_CODE_PERMANENT_ERROR;
+        useful_buf_strncpy("ATTESTATION IS NOT SUPPORTED", ERR_MSG_BUF_LEN, &err_msg_buf);
+        goto error;
+    }
+
 error: /* would be unneeded if the err-code becomes bit field */
     if (err_code_contains != 0) {
-        return create_error(query_request->token, err_code_contains, message);
+        return create_error(query_request->token, err_code_contains, err_msg_buf, message);
     }
 
     teep_query_response_t *query_response = (teep_query_response_t *)message;
@@ -149,6 +172,15 @@ error: /* would be unneeded if the err-code becomes bit field */
     }
     query_response->selected_version = version;
     query_response->selected_cipher_suite = cipher_suite;
+
+    if (query_request->data_item_requested & TEEP_DATA_ITEM_TRUSTED_COMPONENTS) {
+        query_response->contains |= TEEP_MESSAGE_CONTAINS_TC_LIST;
+#ifdef ENCODE_SUIT
+        // TODO encode SUIT_Component_Identifier
+#else
+        query_response->tc_list.len = 0;
+#endif
+    }
 
     return TEEP_SUCCESS;
 }
@@ -214,9 +246,14 @@ int main(int argc, const char * argv[]) {
 
     teep_message_t send_message;
     teep_message_t recv_message;
+    UsefulBuf_MAKE_STACK_UB(err_msg_buf, ERR_MSG_BUF_LEN);
+    err_msg_buf.len = 0; /* the user have to aware this buffer length */
 
+    /* the first message is NULL on teep over http */
     cose_send_buf.len = 0;
+
     while (1) {
+
         result = get_teep_message(tam_url, UsefulBuf_Const(cose_send_buf), &verifying_key, cbor_recv_buf, &recv_message);
         if (result != TEEP_SUCCESS) {
             if (result == TEEP_ERR_ABORT) {
@@ -238,14 +275,14 @@ int main(int argc, const char * argv[]) {
         cose_send_buf.len = MAX_SEND_BUFFER_SIZE;
         switch (recv_message.teep_message.type) {
         case TEEP_TYPE_QUERY_REQUEST:
-            result = create_query_response_or_error((const teep_query_request_t *)&recv_message, &send_message);
+            result = create_query_response_or_error((const teep_query_request_t *)&recv_message, err_msg_buf, &send_message);
             break;
         case TEEP_TYPE_UPDATE:
             if (status == WAITING_QUERY_REQUEST) {
                 printf("main : Received Update message without QueryRequest.\n");
                 goto interval;
             }
-            result = create_success_or_error((const teep_update_t *)&recv_message, &send_message);
+            result = create_success_or_error((const teep_update_t *)&recv_message, err_msg_buf, &send_message);
             break;
         case TEEP_TYPE_TEEP_ERROR:
             printf("main : TAM sent Error.\n");

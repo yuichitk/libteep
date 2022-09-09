@@ -80,8 +80,7 @@ typedef enum teep_data_item_requested {
     TEEP_DATA_ITEM_INVALID                  = 0,
     TEEP_DATA_ITEM_ATTESTATION              = 1,
     TEEP_DATA_ITEM_TRUSTED_COMPONENTS       = 2,
-    TEEP_DATA_ITEM_EXTENTIONS               = 4,
-    TEEP_DATA_ITEM_SUIT_COMMANDS            = 8
+    TEEP_DATA_ITEM_EXTENTIONS               = 4
 } teep_data_item_requested_t;
 
 typedef enum teep_cose_algs {
