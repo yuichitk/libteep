@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
     printf("main : Read CBOR file.\n");
     cbor_buf.len = read_from_file(cbor_file_name, MAX_FILE_BUFFER_SIZE, cbor_buf.ptr);
     if (cbor_buf.len == 0) {
-        printf("main : Can't read CBOR file.\n");
+        printf("main : Failed to read CBOR file.\n");
         return EXIT_FAILURE;
     }
     teep_print_hex(cbor_buf.ptr, cbor_buf.len);

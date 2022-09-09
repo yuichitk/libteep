@@ -8,7 +8,7 @@
 #include "teep/teep_message_data.h"
 
 bool teep_cipher_suite_is_same(teep_cipher_suite_t a, teep_cipher_suite_t b) {
-    return (a.mechanism == b.mechanism) && (a.algorithm_id == b.algorithm_id);
+    return memcpy(&a, &b, sizeof(teep_cipher_suite_t)) ? false : true;
 }
 
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count) {
@@ -44,3 +44,18 @@ uint64_t teep_array_to_int64(const uint8_t *array) {
         ((((uint64_t)array[7]) << 0) & 0x00000000000000FF);
     return value;
 }
+
+bool teep_is_valid_mechanism(int64_t cose_mechanism_key) {
+    switch (cose_mechanism_key) {
+    case CBOR_TAG_COSE_SIGN1:
+    case CBOR_TAG_SIGN:
+    case CBOR_TAG_COSE_MAC0:
+    case CBOR_TAG_MAC:
+    case CBOR_TAG_COSE_ENCRYPT0:
+    case CBOR_TAG_ENCRYPT:
+        return true;
+    default:
+        return false;
+    }
+}
+

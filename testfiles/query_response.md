@@ -15,7 +15,7 @@
   / options: /
   {
     / token / 20 : h'A0A1A2A3A4A5A6A7A8A9AAABACADAEAF',
-    / selected-cipher-suite / 5 : [ 18, -7 ] / Sign1 using ES256 /,
+    / selected-cipher-suite / 5 : [ [ 18, -7 ] ] / Sign1 using ES256 /,
     / selected-version / 6 : 0,
     / tc-list / 8 : [
       {
@@ -39,10 +39,10 @@
       50            # bytes(16)
          A0A1A2A3A4A5A6A7A8A9AAABACADAEAF
       05            # unsigned(5) / selected-cipher-suite: /
-      83            # array(3)
-         26         # negative(6) / -7 = cose-alg-es256 /
-         F6         # primitive(22) / null /
-         F6         # primitive(22) / null /
+      81            # array(1)
+         82         # array(2)
+            12      # unsigned(18) / 18 = COSE_Sign1 /
+            26      # negative(6) / -7 = cose-alg-es256 /
       06            # unsigned(6) / selected-version: /
       00            # unsigned(0)
       08            # unsigned(8) / tc-list: /

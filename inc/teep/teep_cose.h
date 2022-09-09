@@ -16,6 +16,7 @@
 #else
 #include "openssl/evp.h"
 #include "openssl/ec.h"
+#include "openssl/param_build.h"
 #endif /* LIBTEEP_PSA_CRYPTO_C */
 
 #define PRIME256V1_PRIVATE_KEY_LENGTH       32
@@ -32,6 +33,7 @@
 #define SECP521R1_PUBLIC_KEY_CHAR_LENGTH    266
 
 typedef struct teep_key {
+    int cose_usage; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
     const unsigned char *private_key;
     size_t private_key_len;
     const unsigned char *public_key;

@@ -97,18 +97,28 @@ typedef enum teep_cose_algs {
     TEEP_COSE_MAC_HMAC256   = 5,  // cose-alg-hmac-256-256
 } teep_cose_algs_t;
 
+typedef struct teep_mechanism {
+    int cose_tag; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
+    int algorithm_id;
+} teep_mechanism_t;
+
 /*
  * cipher_suite
  */
+#define TEEP_MAX_CIPHER_SUITES_LENGTH 2
 typedef struct teep_cipher_suite {
-    int64_t                 mechanism;
-    teep_cose_algs_t        algorithm_id;
+    teep_mechanism_t mechanisms[TEEP_MAX_CIPHER_SUITES_LENGTH];
 } teep_cipher_suite_t;
-
-#define TEEP_CIPHER_SUITE_LENGTH 2
 #define TEEP_CIPHER_SUITE_INVALID (teep_cipher_suite_t) {   \
-    .mechanism = CBOR_TAG_INVALID16,                        \
-    .algorithm_id = TEEP_COSE_NONE                          \
+    .mechanisms = {                                         \
+        {                                                   \
+            .cose_tag = CBOR_TAG_INVALID16,                 \
+            .algorithm_id = TEEP_COSE_NONE                  \
+        },                                                  \
+        {                                                   \
+            0                                               \
+        }                                                   \
+    }                                                       \
 }
 
 /*

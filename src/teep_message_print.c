@@ -180,9 +180,16 @@ teep_err_t teep_print_cipher_suite(const teep_cipher_suite_t *cipher_suite) {
     if (cipher_suite == NULL) {
         return TEEP_ERR_UNEXPECTED_ERROR;
     }
-    printf("{mechanism: %s(%ld), algorithm_id: %s(%d)}",
-        teep_cose_mechanism_key_to_str(cipher_suite->mechanism), cipher_suite->mechanism,
-        teep_cose_algs_key_to_str(cipher_suite->algorithm_id), cipher_suite->algorithm_id);
+    printf("[");
+    for (size_t i = 0; i < TEEP_MAX_CIPHER_SUITES_LENGTH; i++) {
+        if (!teep_is_valid_mechanism(cipher_suite->mechanisms[i].cose_tag)) {
+            break;
+        }
+        printf("{mechanism: %s(%d), algorithm_id: %s(%d)}, ",
+            teep_cose_mechanism_key_to_str(cipher_suite->mechanisms[i].cose_tag), cipher_suite->mechanisms[i].cose_tag,
+            teep_cose_algs_key_to_str(cipher_suite->mechanisms[i].algorithm_id), cipher_suite->mechanisms[i].algorithm_id);
+    }
+    printf("]");
     return TEEP_SUCCESS;
 }
 

@@ -323,36 +323,48 @@ teep_err_t teep_set_cipher_suite(QCBORDecodeContext *message,
     if (item->uDataType != QCBOR_TYPE_ARRAY) {
         return TEEP_ERR_INVALID_TYPE_OF_ARGUMENT;
     }
-    if (item->val.uCount != TEEP_CIPHER_SUITE_LENGTH) {
+    if (item->val.uCount > TEEP_MAX_CIPHER_SUITES_LENGTH) {
         return TEEP_ERR_NO_MEMORY;
     }
 
-    teep_err_t result;
-    /* get COSE_(Sign1, Sign, Encrypt0, Encrypt, Mac0, Mac) */
-    result = teep_qcbor_get_next(message, item, QCBOR_TYPE_INT64);
-    if (result != TEEP_SUCCESS) {
-        return result;
-    }
-    switch (item->val.int64) {
-    case CBOR_TAG_COSE_SIGN1:
-    case CBOR_TAG_SIGN:
-    case CBOR_TAG_COSE_ENCRYPT0:
-    case CBOR_TAG_ENCRYPT:
-    case CBOR_TAG_COSE_MAC0:
-    case CBOR_TAG_MAC:
-        cipher_suite->mechanism = item->val.int64;
-        break;
-    default:
-        return TEEP_ERR_INVALID_VALUE;
-    }
+    size_t array_length = item->val.uCount;
+    for (size_t i = 0; i < array_length; i++) {
+        teep_err_t result;
+        result = teep_qcbor_get_next(message, item, QCBOR_TYPE_ARRAY);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        if (item->val.uCount != 2) {
+            /* a mechanism should be like [ COSE_Sign1, ES256 ] */
+            return TEEP_ERR_INVALID_LENGTH;
+        }
 
-    /* get algorithm-id */
-    result = teep_qcbor_get_next(message, item, QCBOR_TYPE_INT64);
-    if (result != TEEP_SUCCESS) {
-        return result;
+        /* get COSE_(Sign1, Sign, Encrypt0, Encrypt, Mac0, Mac) */
+        result = teep_qcbor_get_next(message, item, QCBOR_TYPE_INT64);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        switch (item->val.int64) {
+        case CBOR_TAG_COSE_SIGN1:
+        case CBOR_TAG_SIGN:
+        case CBOR_TAG_COSE_ENCRYPT0:
+        case CBOR_TAG_ENCRYPT:
+        case CBOR_TAG_COSE_MAC0:
+        case CBOR_TAG_MAC:
+            cipher_suite->mechanisms[i].cose_tag = item->val.int64;
+            break;
+        default:
+            return TEEP_ERR_INVALID_VALUE;
+        }
+
+        /* get algorithm-id */
+        result = teep_qcbor_get_next(message, item, QCBOR_TYPE_INT64);
+        if (result != TEEP_SUCCESS) {
+            return result;
+        }
+        cipher_suite->mechanisms[i].algorithm_id = item->val.int64;
+        /* NOTE: don't check whether the algorithm is supported */
     }
-    cipher_suite->algorithm_id = item->val.int64;
-    /* NOTE: don't check whether the algorithm is supported */
 
     return TEEP_SUCCESS;
 }
