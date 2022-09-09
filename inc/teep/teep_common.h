@@ -49,10 +49,10 @@ void teep_debug_print(QCBORDecodeContext *message,
                       const char *func_name,
                       uint8_t expecting);
 
-
 struct teep_cipher_suite;
 bool teep_cipher_suite_is_same(struct teep_cipher_suite a, struct teep_cipher_suite b);
 uint32_t teep_array_to_int32(const uint8_t *array, int32_t byte_count);
 uint64_t teep_array_to_int64(const uint8_t *array);
+bool teep_is_valid_mechanism(int64_t cose_mechanism_key);
 
 #endif  // TEEP_COMMON_H

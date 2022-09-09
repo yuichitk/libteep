@@ -5,6 +5,8 @@
  */
 
 #include <stdio.h>
+#include "teep/teep_message_data.h"
+#include "teep/teep_message_print.h"
 #include "teep/teep_cose.h"
 #include "teep_examples_common.h"
 
@@ -33,6 +35,11 @@ int main(int argc, const char * argv[]) {
 
     teep_key_t key_pair;
     result = teep_key_init_es256_key_pair(teep_private_key, teep_public_key, &key_pair);
+    if (result != TEEP_SUCCESS) {
+        printf("main : Failed to create key pair. %s(%d)\n", teep_err_to_str(result), result);
+        return EXIT_FAILURE;
+    }
+    key_pair.cose_usage = CBOR_TAG_COSE_SIGN1;
 
     // Read cbor file.
     printf("main : Read CBOR file.\n");

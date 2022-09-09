@@ -18,8 +18,8 @@
     / versions / 3 : [ 0 ]  / 0 is current TEEP Protocol /
   },
   / supported-cipher-suites: / [
-    [ 18, -7 ],  / Sign1 using ES256 /
-    [ 18, -8 ]   / Sign1 using EdDSA /
+    [ [ 18, -7 ] ], / Sign1 using ES256 /
+    [ [ 18, -8 ] ]  / Sign1 using EdDSA /
   ],
   / data-item-requested: / 3 / attestation | trusted-components /
 ]
@@ -38,11 +38,13 @@
       81            # array(1) / [ 0 ] /
          00         # unsigned(0)
    82               # array(2)
-      82            # array(2)
-         12         # unsigned(18) / 18 = COSE_Sign1 /
-         26         # negative(6) / -7 = cose-alg-es256 /
-      82            # array(2)
-         12         # unsigned(18) / 18 = COSE_Sign1 /
-         27         # negative(7) / -8 = cose-alg-eddsa /
+      81            # array(1)
+         82         # array(2)
+            12      # unsigned(18) / 18 = COSE_Sign1 /
+            26      # negative(6) / -7 = cose-alg-es256 /
+      81            # array(1)
+         82         # array(2)
+            12      # unsigned(18) / 18 = COSE_Sign1 /
+            27      # negative(7) / -8 = cose-alg-eddsa /
    03               # unsigned(3) / attestation | trusted-components /
 ~~~~

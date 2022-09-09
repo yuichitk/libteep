@@ -24,8 +24,14 @@ const char DEFAULT_TAM_URL[] =          "http://localhost:8080/tam";
 #define MAX_FILE_BUFFER_SIZE            512
 
 #define SUPPORTED_VERSION               0
-const teep_cipher_suite_t supported_cipher_suites[] = {
-    {.mechanism = CBOR_TAG_COSE_SIGN1, .algorithm_id = T_COSE_ALGORITHM_ES256}
+#define SUPPORTED_CIPHER_SUITES_LEN     1
+const teep_cipher_suite_t supported_cipher_suites[SUPPORTED_CIPHER_SUITES_LEN] = {
+    {
+        .mechanisms = {
+            {.cose_tag = CBOR_TAG_COSE_SIGN1, .algorithm_id = T_COSE_ALGORITHM_ES256},
+            {0}
+        }
+    }
 };
 
 teep_err_t create_error(teep_buf_t token,
@@ -53,8 +59,8 @@ teep_err_t create_error(teep_buf_t token,
         error->err_code = TEEP_ERR_CODE_UNSUPPORTED_MSG_VERSION;
     }
     else if (err_code == TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES) {
-        error->supported_cipher_suites.len = sizeof(supported_cipher_suites) / sizeof(teep_cipher_suite_t);
-        for (size_t i = 0; i < error->supported_cipher_suites.len; i++) {
+        error->supported_cipher_suites.len = SUPPORTED_CIPHER_SUITES_LEN;
+        for (size_t i = 0; i < SUPPORTED_CIPHER_SUITES_LEN; i++) {
             error->supported_cipher_suites.items[i] = supported_cipher_suites[i];
         }
         error->contains |= TEEP_MESSAGE_CONTAINS_SUPPORTED_CIPHER_SUITES;
@@ -112,13 +118,16 @@ teep_err_t create_query_response_or_error(const teep_query_request_t *query_requ
         cipher_suite = supported_cipher_suites[0];
     }
     for (i = 0; i < query_request->supported_cipher_suites.len; i++) {
-        for (size_t j = 0; j < sizeof(supported_cipher_suites) / sizeof(teep_cipher_suite_t); j++) {
+        for (size_t j = 0; j < SUPPORTED_CIPHER_SUITES_LEN; j++) {
             if (teep_cipher_suite_is_same(query_request->supported_cipher_suites.items[i], supported_cipher_suites[j])) {
                 /* supported cipher suite is found */
                 cipher_suite = supported_cipher_suites[j];
+                goto out;
             }
         }
     }
+out:
+
     if (teep_cipher_suite_is_same(cipher_suite, TEEP_CIPHER_SUITE_INVALID)) {
         err_code_contains |= TEEP_ERR_CODE_UNSUPPORTED_CIPHER_SUITES;
         goto error;
