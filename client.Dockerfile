@@ -24,7 +24,7 @@ RUN git clone --depth 1 https://github.com/laurencelundblade/t_cose.git /root/t_
 WORKDIR /root/t_cose
 RUN make -f Makefile.ossl libt_cose.a install
 
-COPY ./ /root/libteep
+RUN git clone --depth 1 https://github.com/yuichitk/libteep.git /root/libteep
 WORKDIR /root/libteep
 RUN make -f Makefile.client
 
