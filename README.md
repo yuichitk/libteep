@@ -12,10 +12,16 @@
 
 ## Getting started
 
-### Parse & Encode tests with OpenSSL 3
+### Parse & Encode tests with OpenSSL 1.1.1
 ```
 docker build -f ossl.Dockerfile -t libteep_ossl .
 docker run -t libteep_ossl
+```
+
+### Parse & Encode tests with OpenSSL 3.0.5
+```
+docker build -f ossl3.Dockerfile -t libteep_ossl3 .
+docker run -t libteep_ossl3
 ```
 
 ### Parse & Encode tests with Mbed TLS
