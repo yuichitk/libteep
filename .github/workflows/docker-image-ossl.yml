@@ -1,7 +1,7 @@
 # Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
 # SPDX-License-Identifier: BSD-2-Clause
 
-name: Docker Image CI for libteep with OpenSSL3
+name: Docker Image CI for libteep with OpenSSL1.1.1
 
 on:
   pull_request:
