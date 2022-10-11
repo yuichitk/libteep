@@ -1,0 +1,19 @@
+# Copyright (c) 2020 SECOM CO., LTD. All Rights reserved.
+# SPDX-License-Identifier: BSD-2-Clause
+
+name: Docker Image CI for libteep with OpenSSL3
+
+on:
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker run -t $(docker build -q -f ossl3.Dockerfile .)
