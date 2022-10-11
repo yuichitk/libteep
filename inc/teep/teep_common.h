@@ -9,6 +9,10 @@
 
 #include "qcbor/qcbor.h"
 
+#define OPENSSL_VERSION_111 0x10101000L
+#define OPENSSL_VERSION_300 0x30000000L
+#include <openssl/opensslv.h>
+
 // Function results
 typedef enum teep_err {
     TEEP_SUCCESS                        = 0,

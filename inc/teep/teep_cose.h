@@ -16,7 +16,11 @@
 #else
 #include "openssl/evp.h"
 #include "openssl/ec.h"
+
+#if OPENSSL_VERSION_NUMBER >= OPENSSL_VERSION_300
 #include "openssl/param_build.h"
+#endif
+
 #endif /* LIBTEEP_PSA_CRYPTO_C */
 
 #define PRIME256V1_PRIVATE_KEY_LENGTH       32
