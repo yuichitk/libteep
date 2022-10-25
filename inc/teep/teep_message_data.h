@@ -10,6 +10,7 @@
 
 #include "qcbor/qcbor.h"
 #include "teep_common.h"
+#include "teep_cose.h"
 
 #ifndef TEEP_MAX_ARRAY_LENGTH
   #define TEEP_MAX_ARRAY_LENGTH               20
@@ -95,11 +96,6 @@ typedef enum teep_cose_algs {
 
     TEEP_COSE_MAC_HMAC256   = 5,  // cose-alg-hmac-256-256
 } teep_cose_algs_t;
-
-typedef struct teep_mechanism {
-    int cose_tag; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
-    int algorithm_id;
-} teep_mechanism_t;
 
 /*
  * cipher_suite

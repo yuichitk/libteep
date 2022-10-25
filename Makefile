@@ -9,7 +9,7 @@ CC		= gcc
 CFLAGS	= -Wall -g -fPIC
 LDFLAGS	= -lt_cose -lqcbor
 INC		= -I ./inc
-SRCS	= src/teep_common.c src/teep_cose.c src/teep_message_decode.c src/teep_message_print.c
+SRCS	= src/teep_common.c src/teep_cose.c src/teep_message_decode.c src/teep_message_encode.c src/teep_message_print.c
 PUBLIC_INTERFACE	= inc/teep/teep.h inc/teep/teep_common.h inc/teep/teep_message_data.h inc/teep/teep_cose.h inc/teep/teep_message_print.h
 OBJDIR	= ./obj
 OBJS	= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
@@ -26,9 +26,9 @@ endif
 
 .PHONY: all so install uninstall build_test test clean
 
-all: $(NAME).a build_test
+all: $(NAME).a
 
-so: $(NAME).so build_test
+so: $(NAME).so
 
 $(NAME).a: $(OBJS)
 	$(AR) -r $@ $^
@@ -69,7 +69,7 @@ uninstall: $(NAME).a $(PUBLIC_INTERFACE)
 build_test:
 	$(MAKE) -C test MBEDTLS=$(MBEDTLS)
 
-test:
+test: build_test
 	$(MAKE) -C test MBEDTLS=$(MBEDTLS) run
 
 generate:

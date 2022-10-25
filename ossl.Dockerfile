@@ -5,7 +5,8 @@ FROM debian:latest
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get -y install curl git gcc make libcunit1-dev libssl-dev
+RUN apt-get -y install curl git gcc make libcunit1-dev libssl-dev ruby
+RUN gem install cbor-diag
 
 RUN git clone --depth 1 https://github.com/laurencelundblade/QCBOR.git /root/QCBOR
 WORKDIR /root/QCBOR
@@ -22,7 +23,6 @@ RUN make
 RUN make -f Makefile.cose
 RUN make -f Makefile.parser
 
-RUN apt-get -y remove curl git gcc
-RUN apt-get -y autoremove
-
-CMD make test && make -f Makefile.cose run && make -f Makefile.parser run
+CMD make test && \
+    make -f Makefile.cose run && \
+    make -f Makefile.parser run

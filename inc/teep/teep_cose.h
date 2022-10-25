@@ -16,7 +16,10 @@
 #else
 #include "openssl/evp.h"
 #include "openssl/ec.h"
+#include "openssl/opensslv.h"
 
+#define OPENSSL_VERSION_111 0x10101000L
+#define OPENSSL_VERSION_300 0x30000000L
 #if OPENSSL_VERSION_NUMBER >= OPENSSL_VERSION_300
 #include "openssl/param_build.h"
 #endif
@@ -45,6 +48,12 @@ typedef struct teep_key {
     int cose_algorithm_id;
     struct t_cose_key cose_key;
 } teep_key_t;
+
+typedef struct teep_mechanism {
+    int cose_tag; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
+    teep_key_t key;
+    int algorithm_id;
+} teep_mechanism_t;
 
 teep_err_t teep_create_ec_key(teep_key_t *key);
 teep_err_t teep_key_free(const teep_key_t *key);
