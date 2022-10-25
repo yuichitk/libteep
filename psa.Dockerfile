@@ -5,7 +5,8 @@ FROM debian:latest
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get -y install curl git gcc make libcunit1-dev python3
+RUN apt-get -y install curl git gcc make libcunit1-dev python3 ruby
+RUN gem install cbor-diag
 
 RUN git clone -b v3.1.0 --depth 1 https://github.com/Mbed-TLS/mbedtls.git /root/mbedtls
 WORKDIR /root/mbedtls
@@ -25,10 +26,6 @@ RUN make MBEDTLS=1
 RUN make -f Makefile.cose MBEDTLS=1
 RUN make -f Makefile.parser MBEDTLS=1
 
-RUN apt-get -y remove curl git gcc python3
-RUN apt-get -y autoremove
-RUN rm -r /root/QCBOR /root/t_cose /root/mbedtls
-
-CMD make test && \
-    make -f Makefile.cose run && \
-    make -f Makefile.parser run
+CMD make MBEDTLS=1 test && \
+    make -f Makefile.cose MBEDTLS=1 run && \
+    make -f Makefile.parser MBEDTLS=1 run
