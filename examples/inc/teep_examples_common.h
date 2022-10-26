@@ -15,11 +15,6 @@
 #include "teep/teep_cose.h"
 #include "t_cose/t_cose_sign1_verify.h"
 
-typedef struct uint8_buf {
-    uint8_t     *ptr;
-    size_t      len;
-} uint8_buf_t;
-
 size_t read_from_file(const char *file_path, const size_t buf_len, uint8_t *buf);
 size_t write_to_file(const char *file_path, const size_t buf_len, const void *buf);
 
