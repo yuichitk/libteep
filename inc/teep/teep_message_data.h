@@ -101,18 +101,21 @@ typedef enum teep_cose_algs {
  * cipher_suite
  */
 #define TEEP_MAX_CIPHER_SUITES_LENGTH 2
+typedef struct teep_mechanism_pair {
+    int cose_tag; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
+    int algorithm_id;
+} teep_mechanism_pair_t;
 typedef struct teep_cipher_suite {
-    teep_mechanism_t mechanisms[TEEP_MAX_CIPHER_SUITES_LENGTH];
+    teep_mechanism_pair_t mechanisms[TEEP_MAX_CIPHER_SUITES_LENGTH];
 } teep_cipher_suite_t;
 #define TEEP_CIPHER_SUITE_INVALID (teep_cipher_suite_t) {   \
-    .mechanisms = {                                         \
-        {                                                   \
-            .cose_tag = CBOR_TAG_INVALID16,                 \
-            .algorithm_id = TEEP_COSE_NONE                  \
-        },                                                  \
-        {                                                   \
-            0                                               \
-        }                                                   \
+    .mechanisms[0] = {                                      \
+        .cose_tag = CBOR_TAG_INVALID16,                     \
+        .algorithm_id = TEEP_COSE_NONE                      \
+    },                                                      \
+    .mechanisms[1] = {                                      \
+        .cose_tag = CBOR_TAG_INVALID16,                     \
+        .algorithm_id = TEEP_COSE_NONE                      \
     }                                                       \
 }
 

@@ -52,7 +52,7 @@ typedef struct teep_key {
 typedef struct teep_mechanism {
     int cose_tag; // COSE_Sign1, COSE_Sign, COSE_Encrypt0, COSE_Encrypt, etc.
     teep_key_t key;
-    int algorithm_id;
+    bool use;
 } teep_mechanism_t;
 
 teep_err_t teep_create_ec_key(teep_key_t *key);
