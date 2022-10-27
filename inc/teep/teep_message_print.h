@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include "qcbor/qcbor.h"
 #include "teep_common.h"
+#include "teep_message_data.h"
 
 #define TEEP_MAX_PRINT_BYTE_COUNT       12
 #define TEEP_MAX_PRINT_TEXT_COUNT       16
