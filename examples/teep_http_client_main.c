@@ -28,9 +28,12 @@ const char DEFAULT_TAM_URL[] =          "http://localhost:8080/tam";
 #define ERR_MSG_BUF_LEN                 32
 const teep_cipher_suite_t supported_cipher_suites[SUPPORTED_CIPHER_SUITES_LEN] = {
     {
-        .mechanisms = {
-            {.cose_tag = CBOR_TAG_COSE_SIGN1, .algorithm_id = T_COSE_ALGORITHM_ES256},
-            {0}
+        .mechanisms[0] = {
+            .cose_tag = CBOR_TAG_COSE_SIGN1,
+            .algorithm_id = T_COSE_ALGORITHM_ES256,
+        },
+        .mechanisms[1] = {
+            0
         }
     }
 };
@@ -42,6 +45,16 @@ void useful_buf_strncpy(const char *err_msg,
     dst->len = strnlen(dst->ptr, len);
 }
 
+/*!
+    \brief      Create teep-error message.
+
+    \param[in]  token       Bstr token in sent message from the TAM.
+    \param[in]  err_code    Integer err-code message set by caller.
+    \param[in]  err_msg_buf Tstr err-msg set by caller.
+    \param[out] message     Pointer of returned struct.
+
+    \return     This returns only TEEP_SUCCESS;
+ */
 teep_err_t create_error(teep_buf_t token,
                         uint64_t err_code,
                         UsefulBuf err_msg_buf,
@@ -82,6 +95,15 @@ teep_err_t create_error(teep_buf_t token,
     return TEEP_SUCCESS;
 }
 
+/*!
+    \brief      Create teep-success or teep-error message as a response to the teep-update message.
+
+    \param[in]  update      Received teep-update message from the TAM.
+    \param[in]  err_msg_buf Tstr err-msg buffer allocated by caller.
+    \param[out] message     Pointer of returned struct.
+
+    \return     This returns only TEEP_SUCCESS;
+ */
 teep_err_t create_success_or_error(const teep_update_t *update,
                                    UsefulBuf err_msg_buf,
                                    teep_message_t *message) {
@@ -103,6 +125,15 @@ teep_err_t create_success_or_error(const teep_update_t *update,
     return TEEP_SUCCESS;
 }
 
+/*!
+    \brief      Create teep-query-response or teep-error message as a response to the teep-query-request message.
+
+    \param[in]  update      Received teep-query-request message from the TAM.
+    \param[in]  err_msg_buf Tstr err-msg buffer allocated by caller.
+    \param[out] message     Pointer of returned struct.
+
+    \return     This returns only TEEP_SUCCESS;
+ */
 teep_err_t create_query_response_or_error(const teep_query_request_t *query_request,
                                           UsefulBuf err_msg_buf,
                                           teep_message_t *message) {
@@ -175,16 +206,25 @@ error: /* would be unneeded if the err-code becomes bit field */
 
     if (query_request->data_item_requested & TEEP_DATA_ITEM_TRUSTED_COMPONENTS) {
         query_response->contains |= TEEP_MESSAGE_CONTAINS_TC_LIST;
-#ifdef ENCODE_SUIT
         // TODO encode SUIT_Component_Identifier
-#else
+        // Currently no tc-list
         query_response->tc_list.len = 0;
-#endif
     }
 
     return TEEP_SUCCESS;
 }
 
+/*!
+    \brief      POST a teep-message and receive response teep-messsage.
+
+    \param[in]  tam_url         Pointer to URI front-end of the TAM.
+    \param[in]  send_buf        CBOR buffer to be sent.
+    \param[in]  verifying_key   A verifycation key.
+    \param[out] recv_buf        CBOR buffer to be used for received message.
+    \param[out] message         Pointer of returned struct.
+
+    \return     This returns one of error codes defined by \ref teep_err_t;
+ */
 teep_err_t get_teep_message(const char *tam_url,
                             UsefulBufC send_buf,
                             const teep_key_t *verifying_key,
