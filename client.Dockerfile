@@ -5,16 +5,7 @@ FROM debian:latest
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update
-RUN apt-get -y install curl git gcc make libcurl4-openssl-dev
-
-WORKDIR /root
-RUN curl -O https://www.openssl.org/source/openssl-3.0.5.tar.gz
-RUN tar xzf openssl-3.0.5.tar.gz
-WORKDIR /root/openssl-3.0.5
-RUN ./config
-RUN make install_sw
-ENV LD_LIBRARY_PATH /usr/local/lib64
-RUN ldconfig
+RUN apt-get -y install curl git gcc make libcurl4-openssl-dev libssl-dev
 
 RUN git clone --depth 1 https://github.com/laurencelundblade/QCBOR.git /root/QCBOR
 WORKDIR /root/QCBOR
@@ -30,7 +21,5 @@ RUN make -f Makefile.client
 
 RUN apt-get -y remove curl git gcc make
 RUN apt-get -y autoremove
-
-RUN rm -r /root/openssl-3.0.5 /root/openssl-3.0.5.tar.gz /root/QCBOR /root/t_cose
 
 CMD ./bin/teep_http_client ${TAM_URI}
