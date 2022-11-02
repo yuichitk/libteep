@@ -602,8 +602,8 @@ teep_err_t teep_set_query_response(QCBORDecodeContext *message,
     query_response->token.len = 0;
     query_response->selected_cipher_suite = TEEP_CIPHER_SUITE_INVALID;
     query_response->selected_version = 0U;
-    INITIALIZE_TEEP_BUF(query_response->evidence_format);
-    INITIALIZE_TEEP_BUF(query_response->evidence);
+    INITIALIZE_TEEP_BUF(query_response->attestation_payload_format);
+    INITIALIZE_TEEP_BUF(query_response->attestation_payload);
     INITIALIZE_TEEP_ARRAY(query_response->tc_list);
     INITIALIZE_TEEP_ARRAY(query_response->requested_tc_list);
     INITIALIZE_TEEP_ARRAY(query_response->unneeded_tc_list);
@@ -641,19 +641,19 @@ teep_err_t teep_set_query_response(QCBORDecodeContext *message,
                 query_response->selected_version = (uint32_t)item->val.uint64;
                 query_response->contains |= TEEP_MESSAGE_CONTAINS_SELECTED_VERSION;
                 break;
-            case TEEP_OPTIONS_KEY_EVIDENCE_FORMAT:
-                result = teep_set_byte_string(QCBOR_TYPE_TEXT_STRING, item, &query_response->evidence_format);
+            case TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD_FORMAT:
+                result = teep_set_byte_string(QCBOR_TYPE_TEXT_STRING, item, &query_response->attestation_payload_format);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                query_response->contains |= TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT;
+                query_response->contains |= TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD_FORMAT;
                 break;
-            case TEEP_OPTIONS_KEY_EVIDENCE:
-                result = teep_set_byte_string(QCBOR_TYPE_BYTE_STRING, item, &query_response->evidence);
+            case TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD:
+                result = teep_set_byte_string(QCBOR_TYPE_BYTE_STRING, item, &query_response->attestation_payload);
                 if (result != TEEP_SUCCESS) {
                     return result;
                 }
-                query_response->contains |= TEEP_MESSAGE_CONTAINS_EVIDENCE;
+                query_response->contains |= TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD;
                 break;
             case TEEP_OPTIONS_KEY_TC_LIST:
                 result = teep_set_tc_info_array(message, item, &query_response->tc_list);

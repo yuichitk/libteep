@@ -57,13 +57,13 @@ typedef enum teep_options_key {
     TEEP_OPTIONS_KEY_VERSION                        = 3,
     TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE          = 5,
     TEEP_OPTIONS_KEY_SELECTED_VERSION               = 6,
-    TEEP_OPTIONS_KEY_EVIDENCE                       = 7,
+    TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD            = 7,
     TEEP_OPTIONS_KEY_TC_LIST                        = 8,
     TEEP_OPTIONS_KEY_EXT_LIST                       = 9,
     TEEP_OPTIONS_KEY_MANIFEST_LIST                  = 10,
     TEEP_OPTIONS_KEY_MSG                            = 11,
     TEEP_OPTIONS_KEY_ERR_MSG                        = 12,
-    TEEP_OPTIONS_KEY_EVIDENCE_FORMAT                = 13,
+    TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD_FORMAT     = 13,
     TEEP_OPTIONS_KEY_REQUESTED_TC_LIST              = 14,
     TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST               = 15,
     TEEP_OPTIONS_KEY_COMPONENT_ID                   = 16,
@@ -220,13 +220,13 @@ typedef struct teep_requested_tc_info_array {
 #define TEEP_MESSAGE_CONTAINS_VERSION BIT(TEEP_OPTIONS_KEY_VERSION)
 #define TEEP_MESSAGE_CONTAINS_SELECTED_CIPHER_SUITE BIT(TEEP_OPTIONS_KEY_SELECTED_CIPHER_SUITE)
 #define TEEP_MESSAGE_CONTAINS_SELECTED_VERSION BIT(TEEP_OPTIONS_KEY_SELECTED_VERSION)
-#define TEEP_MESSAGE_CONTAINS_EVIDENCE BIT(TEEP_OPTIONS_KEY_EVIDENCE)
+#define TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD BIT(TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD)
 #define TEEP_MESSAGE_CONTAINS_TC_LIST BIT(TEEP_OPTIONS_KEY_TC_LIST)
 #define TEEP_MESSAGE_CONTAINS_EXT_LIST BIT(TEEP_OPTIONS_KEY_EXT_LIST)
 #define TEEP_MESSAGE_CONTAINS_MANIFEST_LIST BIT(TEEP_OPTIONS_KEY_MANIFEST_LIST)
 #define TEEP_MESSAGE_CONTAINS_MSG BIT(TEEP_OPTIONS_KEY_MSG)
 #define TEEP_MESSAGE_CONTAINS_ERR_MSG BIT(TEEP_OPTIONS_KEY_ERR_MSG)
-#define TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT BIT(TEEP_OPTIONS_KEY_EVIDENCE_FORMAT)
+#define TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD_FORMAT BIT(TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD_FORMAT)
 #define TEEP_MESSAGE_CONTAINS_REQUESTED_TC_LIST BIT(TEEP_OPTIONS_KEY_REQUESTED_TC_LIST)
 #define TEEP_MESSAGE_CONTAINS_UNNEEDED_TC_LIST BIT(TEEP_OPTIONS_KEY_UNNEEDED_TC_LIST)
 #define TEEP_MESSAGE_CONTAINS_COMPONENT_ID BIT(TEEP_OPTIONS_KEY_COMPONENT_ID)
@@ -273,8 +273,8 @@ typedef struct teep_query_response {
     teep_buf_t                      token;
     teep_cipher_suite_t             selected_cipher_suite;
     uint32_t                        selected_version;
-    teep_buf_t                      evidence_format;
-    teep_buf_t                      evidence;
+    teep_buf_t                      attestation_payload_format;
+    teep_buf_t                      attestation_payload;
     teep_tc_info_array_t            tc_list;
     teep_requested_tc_info_array_t  requested_tc_list;
     teep_buf_array_t                unneeded_tc_list;

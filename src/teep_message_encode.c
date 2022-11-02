@@ -122,11 +122,11 @@ teep_err_t teep_encode_query_response(const teep_query_response_t *query_respons
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
         QCBOREncode_AddUInt64ToMapN(context, TEEP_OPTIONS_KEY_SELECTED_VERSION, query_response->selected_version);
     }
-    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT) {
-        QCBOREncode_AddTextToMapN(context, TEEP_OPTIONS_KEY_EVIDENCE_FORMAT, (UsefulBufC){query_response->evidence_format.ptr, query_response->evidence_format.len});
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD_FORMAT) {
+        QCBOREncode_AddTextToMapN(context, TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD_FORMAT, (UsefulBufC){query_response->attestation_payload_format.ptr, query_response->attestation_payload_format.len});
     }
-    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE) {
-        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_EVIDENCE, (UsefulBufC){query_response->evidence.ptr, query_response->evidence.len});
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD) {
+        QCBOREncode_AddBytesToMapN(context, TEEP_OPTIONS_KEY_ATTESTATION_PAYLOAD, (UsefulBufC){query_response->attestation_payload.ptr, query_response->attestation_payload.len});
     }
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_TC_LIST) {
         QCBOREncode_OpenArrayInMapN(context, TEEP_OPTIONS_KEY_TC_LIST);
