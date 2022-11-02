@@ -9,9 +9,9 @@ RUN apt-get -y install curl git gcc make libcunit1-dev ruby
 RUN gem install cbor-diag
 
 WORKDIR /root
-RUN curl -O https://www.openssl.org/source/openssl-3.0.5.tar.gz
-RUN tar xzf openssl-3.0.5.tar.gz
-WORKDIR /root/openssl-3.0.5
+RUN curl -O https://www.openssl.org/source/openssl-3.0.7.tar.gz
+RUN tar xzf openssl-3.0.7.tar.gz
+WORKDIR /root/openssl-3.0.7
 RUN ./config
 RUN make install_sw
 ENV LD_LIBRARY_PATH /usr/local/lib64
