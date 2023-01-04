@@ -7,11 +7,13 @@
 CFLAGS			= -Wall -g
 LDFLAGS			= -lt_cose -lqcbor -lm
 INC				= -I ./inc -I ./examples/inc
+TAM0			= ./bin/teep_cose_tam0
 TAM				= ./bin/teep_cose_tam
 AGENT			= ./bin/teep_cose_agent
 SRCS			= examples/teep_examples_common.c examples/teep_examples_cose.c src/teep_common.c src/teep_message_decode.c src/teep_message_print.c src/teep_cose.c
 OBJDIR			= ./obj
 OBJS			= $(addprefix $(OBJDIR)/,$(patsubst %.c,%.o,$(SRCS)))
+TAM0_OBJ		= obj/examples/teep_cose_tam0.o
 TAM_OBJ			= obj/examples/teep_cose_tam.o
 AGENT_OBJ		= obj/examples/teep_cose_agent.o
 
@@ -27,17 +29,23 @@ endif
 
 .PHONY: all clean run
 
-all: $(TAM) $(AGENT)
+all: $(TAM0) $(TAM) $(AGENT)
 
 $(OBJDIR)/%.o:	%.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INC) -o $@ -c $<
+
+$(TAM0_OBJ): examples/teep_cose_test_main.c
+	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_TAM0=1 -o $@ -c $<
 
 $(TAM_OBJ): examples/teep_cose_test_main.c
 	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_TAM=1 -o $@ -c $<
 
 $(AGENT_OBJ): examples/teep_cose_test_main.c
 	$(CC) $(CFLAGS) $(INC) -DTEEP_ACTOR_AGENT=1 -o $@ -c $<
+
+$(TAM0): $(OBJS) $(TAM0_OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 $(TAM): $(OBJS) $(TAM_OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS)
@@ -57,7 +65,7 @@ $(SOURCES):
 run: $(TAM) $(AGENT) $(SOURCES)
 	$(TAM)   ./testfiles/query_request.cbor  ./testfiles/query_request_cose.cbor  || exit 1
 	$(AGENT) ./testfiles/query_response.cbor ./testfiles/query_response_cose.cbor || exit 1
-	$(TAM)   ./testfiles/update.cbor         ./testfiles/update_cose.cbor         || exit 1
+	$(TAM0)  ./testfiles/update.cbor         ./testfiles/update_cose.cbor         || exit 1
 	$(AGENT) ./testfiles/teep_success.cbor   ./testfiles/teep_success_cose.cbor   || exit 1
 	$(AGENT) ./testfiles/teep_error.cbor     ./testfiles/teep_error_cose.cbor     || exit 1
 
