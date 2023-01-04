@@ -288,17 +288,17 @@ teep_err_t teep_print_query_response(const teep_query_response_t *query_response
     if (query_response->contains & TEEP_MESSAGE_CONTAINS_SELECTED_VERSION) {
         printf("%*sselected-version : %u\n", indent_space + 4, "", query_response->selected_version);
     }
-    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE_FORMAT) {
-        printf("%*sevidence-format : ", indent_space + 4, "");
-        result = teep_print_string(&query_response->evidence_format);
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD_FORMAT) {
+        printf("%*sattestation-payload-format : ", indent_space + 4, "");
+        result = teep_print_string(&query_response->attestation_payload_format);
         if (result != TEEP_SUCCESS) {
             return result;
         }
         printf("\n");
     }
-    if (query_response->contains & TEEP_MESSAGE_CONTAINS_EVIDENCE) {
-        printf("%*sevidence : ", indent_space + 4, "");
-        result = teep_print_hex(query_response->evidence.ptr, query_response->evidence.len);
+    if (query_response->contains & TEEP_MESSAGE_CONTAINS_ATTESTATION_PAYLOAD) {
+        printf("%*sattestation-payload : ", indent_space + 4, "");
+        result = teep_print_hex(query_response->attestation_payload.ptr, query_response->attestation_payload.len);
         if (result != TEEP_SUCCESS) {
             return result;
         }
