@@ -44,4 +44,5 @@ teep_err_t teep_key_init_es256_key_pair(const unsigned char *private_key, const 
 teep_err_t teep_key_init_es256_public_key(const unsigned char *public_key, teep_key_t *cose_key_pair);
 
 teep_err_t teep_free_key(const teep_key_t *key);
+
 #endif  /* TEEP_EXAMPLES_COMMON_H */
