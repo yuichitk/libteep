@@ -57,7 +57,7 @@ int main(int argc, const char * argv[]) {
     UsefulBuf_MAKE_STACK_UB(signed_cose, MAX_FILE_BUFFER_SIZE);
     result = teep_sign_cose_sign1(UsefulBuf_Const(cbor_buf), &key_pair, &signed_cose);
     if (result != TEEP_SUCCESS) {
-        printf("main : Failed to sign. (%d)\n", result);
+        printf("main : Failed to sign. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
     }
 
@@ -68,7 +68,7 @@ int main(int argc, const char * argv[]) {
     UsefulBufC returned_payload;
     result = teep_verify_cose_sign1(UsefulBuf_Const(signed_cose), &key_pair, &returned_payload);
     if (result != TEEP_SUCCESS) {
-        printf("Failed to verify file.\n");
+        printf("Failed to verify file. %s(%d)\n", teep_err_to_str(result), result);
         return EXIT_FAILURE;
     }
     printf("main : Succeed to verify. Print cose payload.\n");
