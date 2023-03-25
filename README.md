@@ -1,68 +1,8 @@
 # [libteep](https://github.com/yuichitk/libteep/)
-**libcteep** is a C library for encoding/decoding [IETF TEEP Protocol](https://tools.ietf.org/html/draft-ietf-teep-protocol) messages.
+**libteep** is a C library for encoding/decoding [IETF TEEP Protocol](https://tools.ietf.org/html/draft-ietf-teep-protocol) messages.
 
-## Overview
- - Implemented C-native data representation.
- - Using [QCBOR](https://github.com/laurencelundblade/QCBOR) and [t_cose](https://github.com/laurencelundblade/t_cose) for decoding signed CBOR binary data.
- - There are 3 sample codes for interoperability testing.
-   1. Verifying and Decoding TEEP Protocol message binary.
-   2. Signing and Encoding TEEP Protocol message binary.
-   3. TEEP/HTTP Client Communicating with TEEP/HTTP Server using TEEP-over-HTTP.
-   - The above TEEP Protocol message is protected by the COSE_Sign1 structure.
+:warning: **[THIS PROJECT HAS MOVED INTO :arrow_right: HERE](https://github.com/kentakayama/libteep)** :warning:
 
-## Getting started
-
-### Parse & Encode tests with OpenSSL 1.1.1
-```
-docker build -f ossl.Dockerfile -t libteep_ossl .
-docker run -t libteep_ossl
-```
-
-### Parse & Encode tests with OpenSSL 3.0.5
-```
-docker build -f ossl3.Dockerfile -t libteep_ossl3 .
-docker run -t libteep_ossl3
-```
-
-### Parse & Encode tests with Mbed TLS
-```
-docker build -f psa.Dockerfile -t libteep_psa .
-docker run -t libteep_psa
-```
-
-### TEEP over HTTP Client test
-Use [tamproto](https://github.com/ko-isobe/tamproto) as a TAM.
-```
-git clone https://github.com/ko-isobe/tamproto.git ../tamproto
-docker-compose up
-```
-
-## TEEP Protocol Message Examples
-The following description Markdown and CBOR files are compliant with [draft-ietf-teep-protocol-10](https://tools.ietf.org/html/draft-ietf-teep-protocol-10).
-- QueryRequest
-  - [query_request.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request.md)
-  - [query_request.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request.cbor)
-  - [query_request_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_request_cose.cbor)
-
-- QueryResponse
-  - [query_response.md](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response.md)
-  - [query_response.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response.cbor)
-  - [query_response_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/query_response_cose.cbor)
-
-- Update
-  - [update.md](https://github.com/yuichitk/libteep/blob/master/testfiles/update.md)
-  - [update.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/update.cbor)
-  - [update_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/update_cose.cbor)
-
-- Success
-  - [teep_success.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.md)
-  - [teep_success.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success.cbor)
-  - [teep_success_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_success_cose.cbor)
-
-- Error
-  - [teep_error.md](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error.md)
-  - [teep_error.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error.cbor)
-  - [teep_error_cose.cbor](https://github.com/yuichitk/libteep/blob/master/testfiles/teep_error_cose.cbor)
 
 
 ## License and Copyright
